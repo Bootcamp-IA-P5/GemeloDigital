@@ -1,0 +1,53 @@
+{
+  "best_model": "Logistic Regression",
+  "test_size": 0.2,
+  "n_samples_train": 44,
+  "n_samples_test": 11,
+  "metrics": {
+    "logistic_regression": {
+      "model_name": "Logistic Regression",
+      "accuracy": 0.9091,
+      "precision_B": 1.0,
+      "recall_B": 0.8333,
+      "f1_B": 0.9091,
+      "confusion_matrix": [
+        [
+          5,
+          0
+        ],
+        [
+          1,
+          5
+        ]
+      ]
+    },
+    "random_forest": {
+      "model_name": "Random Forest",
+      "accuracy": 0.9091,
+      "precision_B": 1.0,
+      "recall_B": 0.8333,
+      "f1_B": 0.9091,
+      "confusion_matrix": [
+        [
+          5,
+          0
+        ],
+        [
+          1,
+          5
+        ]
+      ]
+    }
+  },
+  "features": [
+    "experience_years",
+    "avg_current_level",
+    "avg_gap",
+    "n_competencies",
+    "dominant_domain_Cloud e Infraestructura",
+    "dominant_domain_Datos e IA",
+    "dominant_domain_Gestión y Producto",
+    "dominant_domain_Habilidades Transversales",
+    "dominant_domain_Programación y Desarrollo"
+  ]
+}
