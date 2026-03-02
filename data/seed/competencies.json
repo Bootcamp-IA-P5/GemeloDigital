@@ -1,0 +1,121 @@
+[
+    {
+        "id": "data_foundations",
+        "name": "Fundamentos de Datos y Analítica",
+        "domain": "Datos e IA",
+        "category": "HARD_SKILL",
+        "description": "Capacidad para comprender, recopilar, limpiar y analizar datos estructurados y no estructurados. Incluye el dominio de herramientas de análisis, visualización y reporting para la toma de decisiones basada en datos."
+    },
+    {
+        "id": "machine_learning",
+        "name": "Machine Learning e Inteligencia Artificial",
+        "domain": "Datos e IA",
+        "category": "HARD_SKILL",
+        "description": "Conocimiento de algoritmos de aprendizaje automático (supervisado, no supervisado, refuerzo), redes neuronales y deep learning. Capacidad para diseñar, entrenar, evaluar y desplegar modelos de ML en entornos productivos."
+    },
+    {
+        "id": "gen_ai",
+        "name": "IA Generativa y LLMs",
+        "domain": "Datos e IA",
+        "category": "HARD_SKILL",
+        "description": "Dominio de modelos de lenguaje grande (LLMs), técnicas de prompting, fine-tuning y despliegue de soluciones basadas en IA generativa. Incluye RAG, agentes de IA y aplicaciones empresariales de la IA conversacional."
+    },
+    {
+        "id": "programming",
+        "name": "Programación y Desarrollo de Software",
+        "domain": "Programación y Desarrollo",
+        "category": "HARD_SKILL",
+        "description": "Competencia en lenguajes de programación (Python, SQL, JavaScript), buenas prácticas de desarrollo, control de versiones y automatización de procesos mediante código."
+    },
+    {
+        "id": "cloud_infra",
+        "name": "Cloud Computing e Infraestructura",
+        "domain": "Cloud e Infraestructura",
+        "category": "HARD_SKILL",
+        "description": "Capacidad para diseñar, desplegar y gestionar soluciones en la nube (AWS, Azure, GCP). Incluye contenedores, orquestación, CI/CD y arquitecturas cloud-native."
+    },
+    {
+        "id": "data_engineering",
+        "name": "Ingeniería de Datos",
+        "domain": "Datos e IA",
+        "category": "HARD_SKILL",
+        "description": "Diseño e implementación de pipelines de datos, ETL/ELT, data warehousing y arquitecturas de datos modernas (data lake, lakehouse). Incluye calidad de datos, gobernanza técnica y orquestación de flujos."
+    },
+    {
+        "id": "cybersecurity",
+        "name": "Ciberseguridad",
+        "domain": "Cloud e Infraestructura",
+        "category": "HARD_SKILL",
+        "description": "Conocimiento de principios de seguridad de la información, protección de infraestructuras, detección de amenazas, OSINT y cumplimiento normativo en ciberseguridad."
+    },
+    {
+        "id": "data_governance",
+        "name": "Gobernanza de Datos y Ética de la IA",
+        "domain": "Gestión y Producto",
+        "category": "HARD_SKILL",
+        "description": "Capacidad para definir marcos de gobernanza de datos, asegurar calidad, trazabilidad y cumplimiento normativo (RGPD, EU AI Act). Incluye ética aplicada a la IA, sesgo algorítmico y transparencia."
+    },
+    {
+        "id": "data_culture",
+        "name": "Cultura del Dato y Transformación Digital",
+        "domain": "Gestión y Producto",
+        "category": "HARD_SKILL",
+        "description": "Habilidad para impulsar la adopción de la cultura del dato en organizaciones, definir estrategias de transformación digital e implementar el cambio organizacional hacia la toma de decisiones data-driven."
+    },
+    {
+        "id": "ai_strategy",
+        "name": "Estrategia e Innovación en IA",
+        "domain": "Gestión y Producto",
+        "category": "HARD_SKILL",
+        "description": "Capacidad para diseñar e implementar estrategias de IA a nivel organizacional, identificar casos de uso de alto impacto, evaluar madurez en IA y liderar programas de innovación basados en datos."
+    },
+    {
+        "id": "digital_marketing",
+        "name": "Marketing Digital e IA",
+        "domain": "Gestión y Producto",
+        "category": "HARD_SKILL",
+        "description": "Uso de herramientas de analítica de marketing, segmentación avanzada, personalización y automatización de campañas mediante IA. Integración de datos de audiencia para optimización de estrategias de marketing."
+    },
+    {
+        "id": "leadership",
+        "name": "Liderazgo Tecnológico",
+        "domain": "Habilidades Transversales",
+        "category": "SOFT_SKILL",
+        "description": "Capacidad para liderar equipos técnicos, gestionar proyectos de IA/Data, comunicar visión tecnológica a stakeholders y fomentar la colaboración interdisciplinaria en entornos de transformación digital."
+    },
+    {
+        "id": "communication",
+        "name": "Comunicación Técnica y Data Storytelling",
+        "domain": "Habilidades Transversales",
+        "category": "SOFT_SKILL",
+        "description": "Habilidad para traducir hallazgos técnicos complejos en narrativas claras, persuasivas y accionables para audiencias no técnicas. Incluye visualización de datos, presentaciones ejecutivas y documentación técnica."
+    },
+    {
+        "id": "critical_thinking",
+        "name": "Pensamiento Crítico y Resolución de Problemas",
+        "domain": "Habilidades Transversales",
+        "category": "SOFT_SKILL",
+        "description": "Capacidad analítica para evaluar información, identificar sesgos, formular hipótesis y resolver problemas complejos de forma estructurada y basada en evidencia."
+    },
+    {
+        "id": "sales_ai",
+        "name": "Ventas y Negociación con IA",
+        "domain": "Gestión y Producto",
+        "category": "HARD_SKILL",
+        "description": "Uso de herramientas de IA para optimizar procesos de ventas, predicción de demanda, scoring de leads, personalización de ofertas y automatización de la gestión comercial."
+    },
+    {
+        "id": "quantum_computing",
+        "name": "Computación Cuántica aplicada",
+        "domain": "Cloud e Infraestructura",
+        "category": "HARD_SKILL",
+        "description": "Comprensión de los principios de la computación cuántica y sus aplicaciones empresariales. Incluye algoritmos cuánticos, simulación, optimización cuántica y su impacto potencial en sectores como finanzas, logística y ciberseguridad."
+    },
+    {
+        "id": "hr_ai",
+        "name": "Recursos Humanos e IA",
+        "domain": "Gestión y Producto",
+        "category": "HARD_SKILL",
+        "description": "Aplicación de IA en procesos de selección, evaluación del desempeño, gestión del talento, onboarding automatizado y análisis de clima laboral. Transformación del departamento de RRHH mediante soluciones data-driven."
+    }
+]
