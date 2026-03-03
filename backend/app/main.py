@@ -82,14 +82,11 @@ app.add_middleware(
 # Esto es clave para que el frontend siempre reciba respuestas
 # parseables, incluso cuando algo falla inesperadamente.
 # ──────────────────────────────────────────────────────────────
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
+@app.exception_handler(FastAPIHTTPException)
+async def http_exception_handler(request: Request, exc: FastAPIHTTPException):
     return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={
-            "detail": "Error interno del servidor",            # Mensaje genérico para el cliente
-            "type": type(exc).__name__,                        # Tipo de excepción (para debugging)
-        },
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
     )
 
 
