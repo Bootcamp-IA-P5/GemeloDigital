@@ -3,7 +3,7 @@
 # ──────────────────────────────────────────────────────────────
 from contextlib import asynccontextmanager          # Para gestionar el ciclo de vida de la app (startup/shutdown)
 
-from fastapi import FastAPI, Request, status        # Framework web + objeto Request + códigos HTTP
+from fastapi import FastAPI, HTTPException, Request, status        # Framework web + objeto Request + códigos HTTP
 from fastapi.middleware.cors import CORSMiddleware   # Middleware para permitir peticiones cross-origin (frontend)
 from fastapi.responses import JSONResponse           # Para construir respuestas JSON personalizadas
 
@@ -82,8 +82,8 @@ app.add_middleware(
 # Esto es clave para que el frontend siempre reciba respuestas
 # parseables, incluso cuando algo falla inesperadamente.
 # ──────────────────────────────────────────────────────────────
-@app.exception_handler(FastAPIHTTPException)
-async def http_exception_handler(request: Request, exc: FastAPIHTTPException):
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(
         status_code=exc.status_code,
         content={"detail": exc.detail},
