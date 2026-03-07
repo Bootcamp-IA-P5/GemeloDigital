@@ -1,16 +1,9 @@
 """
-Profile API Routes — Perfil Cognitivo
-======================================
-Endpoints FastAPI para la gestión del perfil cognitivo del usuario.
-Orquesta el Profiling Agent para analizar las respuestas del cuestionario
-y generar un competency_profile personalizado.
-
-Para uso del compañero de backend:
-  - Importar este router en main.py:
-    from app.api.routes.profile import router as profile_router
-    app.include_router(profile_router, prefix="/api/profile")
-  - Configurar la dependencia get_db() para inyectar la sesión de BD
-  - Conectar con el orchestrator para la pipeline del Profiling Agent
+Profile API Routes — Cognitive Profile
+========================================
+FastAPI endpoints for managing user cognitive profiles.
+Orchestrates the Profiling Agent to analyze questionnaire answers
+and generate a personalized competency_profile.
 """
 
 from fastapi import APIRouter, HTTPException
@@ -21,62 +14,64 @@ from ..schemas import (
 )
 from ...services import profile_service
 
-router = APIRouter(tags=["Perfil"])
+router = APIRouter(tags=["Profile"])
 
 
 # ──────────────────────────────────────────────
-# CREAR — Generar perfil cognitivo
+# CREATE — Generate cognitive profile
 # ──────────────────────────────────────────────
+
 
 @router.post(
     "/",
     response_model=CompetencyProfile,
     status_code=201,
-    summary="Crear perfil cognitivo",
+    summary="Create cognitive profile",
 )
 def create_profile(body: QuestionnaireAnswers):
     """
-    Recibe las respuestas del cuestionario del frontend y genera
-    el perfil cognitivo del usuario.
+    Receive questionnaire answers from the frontend and generate
+    the user's cognitive profile.
 
     Pipeline:
-      1. Recibe raw_answers del cuestionario
-      2. Envía al Profiling Agent (LLM) via orchestrator
-      3. El agente analiza competencias y genera puntuaciones
-      4. Devuelve el competency_profile con enfoque recomendado
+      1. Receive raw_answers from questionnaire
+      2. Send to Profiling Agent (LLM) via orchestrator
+      3. Agent analyzes competencies and generates scores
+      4. Return competency_profile with recommended approach
 
-    Respuestas:
-      - 201: Perfil creado → CompetencyProfile
-      - 400: Datos del cuestionario inválidos
+    Responses:
+      - 201: Profile created → CompetencyProfile
+      - 400: Invalid questionnaire data
     """
     profile = profile_service.create_profile(
         user_id=body.user_id,
-        respuestas=body.respuestas,
+        answers=body.answers,
     )
     return profile
 
 
 # ──────────────────────────────────────────────
-# CONSULTAR — Obtener perfil de un usuario
+# READ — Get user profile
 # ──────────────────────────────────────────────
+
 
 @router.get(
     "/{user_id}",
     response_model=CompetencyProfile,
-    summary="Obtener perfil cognitivo de un usuario",
+    summary="Get user cognitive profile",
 )
 def get_profile(user_id: str):
     """
-    Obtiene el perfil cognitivo almacenado de un usuario.
+    Get the stored cognitive profile for a user.
 
-    Respuestas:
-      - 200: Perfil encontrado → CompetencyProfile
-      - 404: Usuario sin perfil cognitivo
+    Responses:
+      - 200: Profile found → CompetencyProfile
+      - 404: User has no cognitive profile
     """
     profile = profile_service.get_profile(user_id)
     if not profile:
         raise HTTPException(
             status_code=404,
-            detail=f"No se encontró perfil cognitivo para el usuario '{user_id}'",
+            detail=f"No cognitive profile found for user '{user_id}'",
         )
     return profile

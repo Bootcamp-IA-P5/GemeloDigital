@@ -1,70 +1,71 @@
 """
-Profile Service — Lógica de negocio del perfil cognitivo
-========================================================
-Funciones para crear y consultar perfiles cognitivos.
-Actualmente usa datos stub en memoria; en producción delegará
-al Profiling Agent via el orchestrator.
+Profile Service — Cognitive Profile Business Logic
+====================================================
+Functions to create and query cognitive profiles.
+Currently uses stub data in memory; will delegate to the
+Profiling Agent via the orchestrator in production.
 
-Para uso del compañero de backend:
-  - Reemplazar PROFILES_DB por queries a la tabla `profiles`
-  - Integrar la llamada al Profiling Agent (agents/profiling_agent.py)
-  - Conectar con el orchestrator para la pipeline completa
+TODO:
+  - Replace PROFILES_DB with queries to the `profiles` table
+  - Integrate the Profiling Agent call (agents/profiling_agent.py)
+  - Connect with the orchestrator for the full pipeline
 """
 
 import uuid
 
 # ──────────────────────────────────────────────
-# BASE DE DATOS STUB (en memoria)
+# STUB DATABASE (in-memory)
 # ──────────────────────────────────────────────
 PROFILES_DB: dict[str, dict] = {}
 
 
 # ──────────────────────────────────────────────
-# CREAR PERFIL COGNITIVO
+# CREATE COGNITIVE PROFILE
 # ──────────────────────────────────────────────
 
-def create_profile(user_id: str, respuestas: dict) -> dict:
+
+def create_profile(user_id: str, answers: dict) -> dict:
     """
-    Crea un perfil cognitivo a partir de las respuestas del cuestionario.
+    Create a cognitive profile from questionnaire answers.
 
-    En producción:
-      1. Envía raw_answers al Profiling Agent (LLM)
-      2. El agente analiza y genera un competency_profile
-      3. Se persiste en la tabla `profiles`
+    In production:
+      1. Send raw_answers to the Profiling Agent (LLM)
+      2. Agent analyzes and generates a competency_profile
+      3. Persist in the `profiles` table
 
-    Actualmente devuelve un perfil stub con competencias de ejemplo.
+    Currently returns a stub profile with example competencies.
     """
-    perfil_id = str(uuid.uuid4())
+    profile_id = str(uuid.uuid4())
 
-    # Perfil stub — simula la salida del Profiling Agent
+    # Stub profile — simulates Profiling Agent output
     profile = {
         "user_id": user_id,
-        "perfil_id": perfil_id,
-        "competencias": [
+        "profile_id": profile_id,
+        "competencies": [
             {
-                "competencia_id": "comp-python",
-                "nombre": "Programación en Python",
-                "nivel": "medio",
-                "puntuacion": 0.65,
+                "competency_id": "comp-python",
+                "name": "Python Programming",
+                "level": "medium",
+                "score": 0.65,
             },
             {
-                "competencia_id": "comp-ml",
-                "nombre": "Machine Learning",
-                "nivel": "bajo",
-                "puntuacion": 0.30,
+                "competency_id": "comp-ml",
+                "name": "Machine Learning",
+                "level": "low",
+                "score": 0.30,
             },
             {
-                "competencia_id": "comp-data",
-                "nombre": "Análisis de Datos",
-                "nivel": "alto",
-                "puntuacion": 0.85,
+                "competency_id": "comp-data",
+                "name": "Data Analysis",
+                "level": "high",
+                "score": 0.85,
             },
         ],
-        "enfoque_recomendado": "GENERALISTA",
-        "resumen": (
-            "El usuario muestra fortalezas en análisis de datos y un nivel "
-            "intermedio en Python. Se recomienda una trayectoria generalista "
-            "para reforzar las competencias de ML antes de especializar."
+        "recommended_approach": "GENERALIST",
+        "summary": (
+            "The user shows strengths in data analysis and an intermediate "
+            "level in Python. A generalist trajectory is recommended to "
+            "strengthen ML competencies before specializing."
         ),
     }
 
@@ -73,14 +74,15 @@ def create_profile(user_id: str, respuestas: dict) -> dict:
 
 
 # ──────────────────────────────────────────────
-# OBTENER PERFIL
+# GET PROFILE
 # ──────────────────────────────────────────────
+
 
 def get_profile(user_id: str) -> dict | None:
     """
-    Obtiene el perfil cognitivo de un usuario.
-    Devuelve None si no existe.
+    Get the cognitive profile for a user.
+    Returns None if not found.
 
-    TODO: Consultar tabla `profiles` en PostgreSQL.
+    TODO: Query `profiles` table in PostgreSQL.
     """
     return PROFILES_DB.get(user_id)

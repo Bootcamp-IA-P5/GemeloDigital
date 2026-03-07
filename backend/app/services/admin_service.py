@@ -1,40 +1,40 @@
 """
-Admin Service — Lógica de negocio del panel de administración
-=============================================================
-Funciones para gestión de cursos, competencias, usuarios,
-roadmaps y métricas del panel admin.
-Actualmente usa datos stub en memoria; en producción se conectará
-a PostgreSQL.
+Admin Service — Administration Panel Business Logic
+=====================================================
+Functions for course management, competencies, users,
+roadmaps and admin panel metrics.
+Currently uses stub data in memory; will connect to PostgreSQL
+in production.
 
-Para uso del compañero de backend:
-  - Reemplazar los diccionarios *_DB por queries a las tablas correspondientes
-  - Integrar con el indexer RAG para re-indexación de cursos
+TODO:
+  - Replace *_DB dicts with queries to corresponding tables
+  - Integrate with the RAG indexer for course re-indexing
 """
 
 import uuid
 
 # ──────────────────────────────────────────────
-# BASES DE DATOS STUB (en memoria)
+# STUB DATABASES (in-memory)
 # ──────────────────────────────────────────────
 COURSES_DB: dict[str, dict] = {
-    "curso-python-101": {
-        "id": "curso-python-101",
-        "titulo": "Python para Principiantes",
-        "descripcion": "Curso introductorio de Python para ciencia de datos",
-        "nivel": "beginner",
-        "afinidad": "both",
-        "competencias": ["comp-python"],
-        "duracion_horas": 40,
+    "course-python-101": {
+        "id": "course-python-101",
+        "title": "Python for Beginners",
+        "description": "Introductory Python course for data science",
+        "level": "beginner",
+        "affinity": "both",
+        "competencies": ["comp-python"],
+        "duration_hours": 40,
         "url": "https://example.com/python-101",
     },
-    "curso-ml-201": {
-        "id": "curso-ml-201",
-        "titulo": "Introducción a Machine Learning",
-        "descripcion": "Fundamentos de ML con scikit-learn",
-        "nivel": "intermediate",
-        "afinidad": "specialist",
-        "competencias": ["comp-ml", "comp-python"],
-        "duracion_horas": 60,
+    "course-ml-201": {
+        "id": "course-ml-201",
+        "title": "Introduction to Machine Learning",
+        "description": "ML fundamentals with scikit-learn",
+        "level": "intermediate",
+        "affinity": "specialist",
+        "competencies": ["comp-ml", "comp-python"],
+        "duration_hours": 60,
         "url": "https://example.com/ml-201",
     },
 }
@@ -42,18 +42,18 @@ COURSES_DB: dict[str, dict] = {
 COMPETENCIES_DB: dict[str, dict] = {
     "comp-python": {
         "id": "comp-python",
-        "nombre": "Programación en Python",
-        "descripcion": "Dominio del lenguaje Python y su ecosistema",
+        "name": "Python Programming",
+        "description": "Mastery of the Python language and its ecosystem",
     },
     "comp-ml": {
         "id": "comp-ml",
-        "nombre": "Machine Learning",
-        "descripcion": "Fundamentos y aplicación de algoritmos de ML",
+        "name": "Machine Learning",
+        "description": "Fundamentals and application of ML algorithms",
     },
     "comp-data": {
         "id": "comp-data",
-        "nombre": "Análisis de Datos",
-        "descripcion": "Capacidad de explorar, limpiar y analizar conjuntos de datos",
+        "name": "Data Analysis",
+        "description": "Ability to explore, clean and analyze datasets",
     },
 }
 
@@ -62,34 +62,35 @@ ROADMAPS_DB: dict[str, dict] = {}
 
 
 # ──────────────────────────────────────────────
-# CURSOS — CRUD
+# COURSES — CRUD
 # ──────────────────────────────────────────────
 
+
 def list_courses(level: str | None = None, affinity: str | None = None) -> list[dict]:
-    """Lista cursos con filtros opcionales por nivel y afinidad."""
+    """List courses with optional filters by level and affinity."""
     courses = list(COURSES_DB.values())
     if level:
-        courses = [c for c in courses if c["nivel"] == level]
+        courses = [c for c in courses if c["level"] == level]
     if affinity:
-        courses = [c for c in courses if c["afinidad"] == affinity]
+        courses = [c for c in courses if c["affinity"] == affinity]
     return courses
 
 
 def get_course(course_id: str) -> dict | None:
-    """Obtiene un curso por su ID."""
+    """Get a course by its ID."""
     return COURSES_DB.get(course_id)
 
 
 def create_course(data: dict) -> dict:
-    """Crea un nuevo curso."""
-    course_id = f"curso-{uuid.uuid4().hex[:8]}"
+    """Create a new course."""
+    course_id = f"course-{uuid.uuid4().hex[:8]}"
     course = {"id": course_id, **data}
     COURSES_DB[course_id] = course
     return course
 
 
 def update_course(course_id: str, updates: dict) -> dict | None:
-    """Actualiza campos de un curso existente."""
+    """Update fields of an existing course."""
     course = COURSES_DB.get(course_id)
     if not course:
         return None
@@ -98,30 +99,32 @@ def update_course(course_id: str, updates: dict) -> dict | None:
 
 
 def delete_course(course_id: str) -> bool:
-    """Elimina un curso. Devuelve True si existía."""
+    """Delete a course. Returns True if it existed."""
     return COURSES_DB.pop(course_id, None) is not None
 
 
 # ──────────────────────────────────────────────
-# COMPETENCIAS — Solo lectura
+# COMPETENCIES — Read-only
 # ──────────────────────────────────────────────
 
+
 def list_competencies() -> list[dict]:
-    """Lista todas las competencias de la taxonomía."""
+    """List all competencies in the taxonomy."""
     return list(COMPETENCIES_DB.values())
 
 
 def get_competency(comp_id: str) -> dict | None:
-    """Obtiene una competencia por su ID."""
+    """Get a competency by its ID."""
     return COMPETENCIES_DB.get(comp_id)
 
 
 # ──────────────────────────────────────────────
-# USUARIOS — Stubs
+# USERS — Stubs
 # ──────────────────────────────────────────────
 
+
 def list_users(page: int = 1, page_size: int = 20) -> dict:
-    """Lista usuarios con paginación."""
+    """List users with pagination."""
     users = list(USERS_DB.values())
     start = (page - 1) * page_size
     end = start + page_size
@@ -134,12 +137,12 @@ def list_users(page: int = 1, page_size: int = 20) -> dict:
 
 
 def get_user(user_id: str) -> dict | None:
-    """Obtiene un usuario por su ID."""
+    """Get a user by their ID."""
     return USERS_DB.get(user_id)
 
 
 def toggle_user_status(user_id: str, is_active: bool) -> bool:
-    """Activa o desactiva un usuario."""
+    """Activate or deactivate a user."""
     user = USERS_DB.get(user_id)
     if not user:
         return False
@@ -151,17 +154,18 @@ def toggle_user_status(user_id: str, is_active: bool) -> bool:
 # ROADMAPS — Stubs
 # ──────────────────────────────────────────────
 
+
 def list_roadmaps(
-    enfoque: str | None = None,
-    fecha_desde: str | None = None,
-    fecha_hasta: str | None = None,
+    approach: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
     page: int = 1,
     page_size: int = 20,
 ) -> dict:
-    """Lista roadmaps con filtros."""
+    """List roadmaps with filters."""
     roadmaps = list(ROADMAPS_DB.values())
-    if enfoque:
-        roadmaps = [r for r in roadmaps if r.get("enfoque") == enfoque]
+    if approach:
+        roadmaps = [r for r in roadmaps if r.get("approach") == approach]
     start = (page - 1) * page_size
     end = start + page_size
     return {
@@ -173,61 +177,64 @@ def list_roadmaps(
 
 
 def get_roadmap(roadmap_id: str) -> dict | None:
-    """Obtiene un roadmap por su ID."""
+    """Get a roadmap by its ID."""
     return ROADMAPS_DB.get(roadmap_id)
 
 
 def add_block_to_roadmap(
-    roadmap_id: str, fase_orden: int, contenido_id: str, posicion: int | None = None
+    roadmap_id: str, phase_order: int, content_id: str, position: int | None = None
 ) -> bool:
-    """Añade un bloque a una fase de un roadmap."""
+    """Add a block to a phase of a roadmap."""
     roadmap = ROADMAPS_DB.get(roadmap_id)
     if not roadmap:
         return False
-    for fase in roadmap.get("fases", []):
-        if fase["fase_orden"] == fase_orden:
+    for phase in roadmap.get("phases", []):
+        if phase["phase_order"] == phase_order:
             block = {
                 "block_id": f"blk-{uuid.uuid4().hex[:8]}",
-                "contenido_id": contenido_id,
-                "titulo": f"Curso {contenido_id}",
-                "orden": posicion or len(fase["bloques"]) + 1,
-                "completado": False,
+                "content_id": content_id,
+                "title": f"Course {content_id}",
+                "order": position or len(phase["blocks"]) + 1,
+                "completed": False,
             }
-            fase["bloques"].append(block)
+            phase["blocks"].append(block)
             return True
     return False
 
 
-def remove_block_from_roadmap(roadmap_id: str, fase_orden: int, contenido_id: str) -> bool:
-    """Elimina un bloque de una fase de un roadmap."""
+def remove_block_from_roadmap(
+    roadmap_id: str, phase_order: int, content_id: str
+) -> bool:
+    """Remove a block from a phase of a roadmap."""
     roadmap = ROADMAPS_DB.get(roadmap_id)
     if not roadmap:
         return False
-    for fase in roadmap.get("fases", []):
-        if fase["fase_orden"] == fase_orden:
-            original_len = len(fase["bloques"])
-            fase["bloques"] = [
-                b for b in fase["bloques"] if b["contenido_id"] != contenido_id
+    for phase in roadmap.get("phases", []):
+        if phase["phase_order"] == phase_order:
+            original_len = len(phase["blocks"])
+            phase["blocks"] = [
+                b for b in phase["blocks"] if b["content_id"] != content_id
             ]
-            return len(fase["bloques"]) < original_len
+            return len(phase["blocks"]) < original_len
     return False
 
 
 # ──────────────────────────────────────────────
-# MÉTRICAS
+# METRICS
 # ──────────────────────────────────────────────
 
+
 def get_admin_metrics() -> dict:
-    """Devuelve métricas agregadas del panel admin."""
+    """Return aggregated metrics for the admin panel."""
     total_users = len(USERS_DB)
     active_users = sum(1 for u in USERS_DB.values() if u.get("is_active", True))
     total_roadmaps = len(ROADMAPS_DB)
 
     return {
-        "total_usuarios": total_users,
-        "usuarios_activos": active_users,
+        "total_users": total_users,
+        "active_users": active_users,
         "total_roadmaps": total_roadmaps,
-        "total_cursos": len(COURSES_DB),
-        "distribucion_trayectoria": {"generalista": 0, "especialista": 0},
-        "top_cursos": [],
+        "total_courses": len(COURSES_DB),
+        "trajectory_distribution": {"generalist": 0, "specialist": 0},
+        "top_courses": [],
     }

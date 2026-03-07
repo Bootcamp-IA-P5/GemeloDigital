@@ -1,50 +1,52 @@
 """
-Auth Service — Lógica de negocio de autenticación
-==================================================
-Funciones para registro y login de usuarios.
-Actualmente usa datos stub en memoria; en producción se conectará
-a PostgreSQL y generará JWT reales con python-jose.
+Auth Service — Authentication Business Logic
+==============================================
+Functions for user registration and login.
+Currently uses stub data in memory; will connect to PostgreSQL
+and generate real JWTs with python-jose in production.
 
-Para uso del compañero de backend:
-  - Reemplazar el diccionario USERS_DB por queries a la tabla `users`
-  - Integrar bcrypt para hash de contraseñas
-  - Integrar python-jose para generar JWT reales
+TODO:
+  - Replace USERS_DB dict with queries to the `users` table
+  - Integrate bcrypt for password hashing
+  - Integrate python-jose for real JWT generation
 """
 
 import uuid
 from datetime import datetime
 
 # ──────────────────────────────────────────────
-# BASE DE DATOS STUB (en memoria)
+# STUB DATABASE (in-memory)
 # ──────────────────────────────────────────────
 USERS_DB: dict[str, dict] = {}
 
 
 # ──────────────────────────────────────────────
-# REGISTRO
+# REGISTER
 # ──────────────────────────────────────────────
 
-def register_user(email: str, password: str, nombre: str) -> dict:
+
+def register_user(email: str, password: str, name: str) -> dict | None:
     """
-    Registra un nuevo usuario.
-    Devuelve un dict con access_token, token_type, user_id y nombre.
+    Register a new user.
+    Returns a dict with access_token, token_type, user_id and name.
+    Returns None if email is already registered.
 
     TODO:
-      - Hashear contraseña con bcrypt
-      - Persistir en tabla `users`
-      - Generar JWT real con python-jose
+      - Hash password with bcrypt
+      - Persist in `users` table
+      - Generate real JWT with python-jose
     """
-    # Verificar si el email ya está registrado
+    # Check if email is already registered
     for user in USERS_DB.values():
         if user["email"] == email:
-            return None  # Email duplicado
+            return None  # Duplicate email
 
     user_id = str(uuid.uuid4())
     USERS_DB[user_id] = {
         "user_id": user_id,
         "email": email,
-        "password": password,  # TODO: hash con bcrypt
-        "nombre": nombre,
+        "password": password,  # TODO: hash with bcrypt
+        "name": name,
         "is_active": True,
         "created_at": datetime.now().isoformat(),
     }
@@ -53,7 +55,7 @@ def register_user(email: str, password: str, nombre: str) -> dict:
         "access_token": f"stub-jwt-token-{user_id}",
         "token_type": "bearer",
         "user_id": user_id,
-        "nombre": nombre,
+        "name": name,
     }
 
 
@@ -61,23 +63,24 @@ def register_user(email: str, password: str, nombre: str) -> dict:
 # LOGIN
 # ──────────────────────────────────────────────
 
+
 def login_user(email: str, password: str) -> dict | None:
     """
-    Autentica un usuario por email y contraseña.
-    Devuelve un dict con access_token o None si las credenciales son inválidas.
+    Authenticate a user by email and password.
+    Returns a dict with access_token or None if credentials are invalid.
 
     TODO:
-      - Verificar hash con bcrypt.checkpw
-      - Generar JWT real con python-jose
+      - Verify hash with bcrypt.checkpw
+      - Generate real JWT with python-jose
     """
     for user in USERS_DB.values():
         if user["email"] == email and user["password"] == password:
             if not user.get("is_active", True):
-                return None  # Usuario desactivado
+                return None  # User deactivated
             return {
                 "access_token": f"stub-jwt-token-{user['user_id']}",
                 "token_type": "bearer",
                 "user_id": user["user_id"],
-                "nombre": user["nombre"],
+                "name": user["name"],
             }
     return None

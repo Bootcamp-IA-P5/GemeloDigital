@@ -1,12 +1,12 @@
 # ============================================================
-# Gemelo Cognitivo API — Contrato OpenAPI 3.0
+# Gemelo Cognitivo API — OpenAPI 3.0 Contract
 # ============================================================
-# Este fichero define el contrato completo de la API REST
-# ANTES de la implementación del servidor. Cualquier cambio
-# en endpoints, schemas o respuestas debe reflejarse aquí
-# primero y luego en el código.
+# This file defines the complete REST API contract
+# BEFORE server implementation. Any changes to endpoints,
+# schemas, or responses must be reflected here first
+# and then in the code.
 #
-# Última actualización: 2026-03-06
+# Last updated: 2026-03-07
 # ============================================================
 
 openapi: "3.0.3"
@@ -14,24 +14,23 @@ openapi: "3.0.3"
 info:
   title: Gemelo Cognitivo API
   description: |
-    API REST para el sistema de Gemelo Cognitivo de Aprendizaje.
-    Orquesta tres agentes LLM (Profiling, Planning, Explanatory),
-    una pipeline RAG con ChromaDB y un modelo ML de clasificación
-    de trayectorias formativas.
+    REST API for the Cognitive Twin Learning System.
+    Orchestrates three LLM agents (Profiling, Planning, Explanatory),
+    a RAG pipeline with ChromaDB, and an ML trajectory classification model.
   version: "0.1.0"
   contact:
-    name: Equipo Gemelo Digital
+    name: Gemelo Digital Team
   license:
     name: MIT
 
 servers:
   - url: http://localhost:8000
-    description: Desarrollo local
+    description: Local development
   - url: https://api.gemelocognitivo.com
-    description: Producción (futuro)
+    description: Production (future)
 
 # ============================================================
-# SEGURIDAD — Bearer JWT
+# SECURITY — Bearer JWT
 # ============================================================
 security:
   - BearerAuth: []
@@ -46,21 +45,21 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: >
-        Token JWT obtenido de POST /auth/register o POST /auth/login. Enviar en header: `Authorization: Bearer <token>`
+        JWT token obtained from POST /auth/register or POST /auth/login. Send in header: `Authorization: Bearer <token>`
 
 
   # ──────────────────────────────────────────────
-  # Schemas reutilizables
+  # Reusable Schemas
   # ──────────────────────────────────────────────
   schemas:
-    # ── COMÚN ──────────────────────────────────
+    # ── COMMON ─────────────────────────────────
     MessageResponse:
       type: object
       required: [message]
       properties:
         message:
           type: string
-          example: "Operación realizada correctamente"
+          example: "Operation completed successfully"
 
     ErrorResponse:
       type: object
@@ -68,28 +67,28 @@ components:
       properties:
         detail:
           type: string
-          example: "Recurso no encontrado"
+          example: "Resource not found"
 
     # ── AUTH ───────────────────────────────────
     RegisterRequest:
       type: object
-      required: [email, password, nombre]
+      required: [email, password, name]
       properties:
         email:
           type: string
           format: email
-          example: "usuario@ejemplo.com"
-          description: "Correo electrónico del usuario"
+          example: "user@example.com"
+          description: "User email address"
         password:
           type: string
           format: password
           minLength: 8
-          example: "miPassword123"
-          description: "Contraseña (mín. 8 caracteres)"
-        nombre:
+          example: "myPassword123"
+          description: "Password (min 8 characters)"
+        name:
           type: string
-          example: "María García"
-          description: "Nombre completo del usuario"
+          example: "Maria Garcia"
+          description: "User full name"
 
     LoginRequest:
       type: object
@@ -98,46 +97,46 @@ components:
         email:
           type: string
           format: email
-          example: "usuario@ejemplo.com"
-          description: "Correo electrónico registrado"
+          example: "user@example.com"
+          description: "Registered email address"
         password:
           type: string
           format: password
-          example: "miPassword123"
-          description: "Contraseña del usuario"
+          example: "myPassword123"
+          description: "User password"
 
     TokenResponse:
       type: object
-      required: [access_token, token_type, user_id, nombre]
+      required: [access_token, token_type, user_id, name]
       properties:
         access_token:
           type: string
           example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-          description: "JWT de acceso"
+          description: "JWT access token"
         token_type:
           type: string
           default: "bearer"
           example: "bearer"
-          description: "Tipo de token"
+          description: "Token type"
         user_id:
           type: string
           example: "usr_abc123"
-          description: "ID del usuario autenticado"
-        nombre:
+          description: "Authenticated user ID"
+        name:
           type: string
-          example: "María García"
-          description: "Nombre del usuario"
+          example: "Maria Garcia"
+          description: "User name"
 
     # ── PROFILE ────────────────────────────────
     QuestionnaireAnswers:
       type: object
-      required: [user_id, respuestas]
+      required: [user_id, answers]
       properties:
         user_id:
           type: string
           example: "usr_abc123"
-          description: "ID del usuario"
-        respuestas:
+          description: "User ID"
+        answers:
           type: object
           additionalProperties: true
           example:
@@ -145,112 +144,113 @@ components:
             q2: 3
             q3: ["backend", "data"]
           description: >
-            Diccionario con las respuestas del cuestionario. Clave = ID de la pregunta, Valor = respuesta del usuario.
+            Dictionary with questionnaire answers. Key = question ID, Value = user answer.
 
 
     CompetencyScore:
       type: object
-      required: [competencia_id, nombre, nivel, puntuacion]
+      required: [competency_id, name, level, score]
       properties:
-        competencia_id:
+        competency_id:
           type: string
           example: "comp_prog_001"
-        nombre:
+        name:
           type: string
-          example: "Programación orientada a objetos"
-        nivel:
+          example: "Object-oriented programming"
+        level:
           type: string
-          enum: [bajo, medio, alto]
-          example: "medio"
-          description: "Nivel detectado"
-        puntuacion:
+          enum: [low, medium, high]
+          example: "medium"
+          description: "Detected level"
+        score:
           type: number
           format: float
           minimum: 0
           maximum: 1
           example: 0.65
-          description: "Score normalizado 0-1"
+          description: "Normalized score 0-1"
 
     CompetencyProfile:
       type: object
-      required: [user_id, perfil_id, competencias, enfoque_recomendado, resumen]
+      required:
+        [user_id, profile_id, competencies, recommended_approach, summary]
       properties:
         user_id:
           type: string
           example: "usr_abc123"
-        perfil_id:
+        profile_id:
           type: string
-          example: "perf_xyz789"
-        competencias:
+          example: "prof_xyz789"
+        competencies:
           type: array
           items:
             $ref: "#/components/schemas/CompetencyScore"
-          description: "Lista de competencias evaluadas con su puntuación"
-        enfoque_recomendado:
+          description: "List of evaluated competencies with their scores"
+        recommended_approach:
           type: string
-          enum: [GENERALISTA, ESPECIALISTA]
-          example: "ESPECIALISTA"
-          description: "Trayectoria recomendada"
-        resumen:
+          enum: [GENERALIST, SPECIALIST]
+          example: "SPECIALIST"
+          description: "Recommended trajectory"
+        summary:
           type: string
-          example: "El usuario muestra fortalezas en programación y bases de datos, con áreas de mejora en diseño de sistemas."
-          description: "Resumen textual del perfil generado por el agente"
+          example: "The user shows strengths in programming and databases, with areas for improvement in system design."
+          description: "Text summary of the profile generated by the agent"
 
     # ── ROADMAP ────────────────────────────────
     RoadmapGenerateRequest:
       type: object
-      required: [user_id, enfoque]
+      required: [user_id, approach]
       properties:
         user_id:
           type: string
           example: "usr_abc123"
-          description: "ID del usuario"
-        enfoque:
+          description: "User ID"
+        approach:
           type: string
-          enum: [GENERALISTA, ESPECIALISTA]
-          example: "ESPECIALISTA"
-          description: "Trayectoria preferida"
+          enum: [GENERALIST, SPECIALIST]
+          example: "SPECIALIST"
+          description: "Preferred trajectory"
 
     RoadmapBlock:
       type: object
-      required: [block_id, contenido_id, titulo, orden, completado]
+      required: [block_id, content_id, title, order, completed]
       properties:
         block_id:
           type: string
           example: "blk_001"
-        contenido_id:
+        content_id:
           type: string
           example: "course_python_101"
-          description: "ID del curso en el catálogo"
-        titulo:
+          description: "Course ID in the catalog"
+        title:
           type: string
-          example: "Introducción a Python"
-        orden:
+          example: "Introduction to Python"
+        order:
           type: integer
           example: 1
-        completado:
+        completed:
           type: boolean
           default: false
           example: false
 
     RoadmapPhase:
       type: object
-      required: [fase_orden, nombre, bloques]
+      required: [phase_order, name, blocks]
       properties:
-        fase_orden:
+        phase_order:
           type: integer
           example: 1
-        nombre:
+        name:
           type: string
-          example: "Fundamentos"
-        bloques:
+          example: "Fundamentals"
+        blocks:
           type: array
           items:
             $ref: "#/components/schemas/RoadmapBlock"
 
     RoadmapResponse:
       type: object
-      required: [roadmap_id, user_id, enfoque, fases, explicacion]
+      required: [roadmap_id, user_id, approach, phases, explanation]
       properties:
         roadmap_id:
           type: string
@@ -258,18 +258,18 @@ components:
         user_id:
           type: string
           example: "usr_abc123"
-        enfoque:
+        approach:
           type: string
-          enum: [GENERALISTA, ESPECIALISTA]
-          example: "ESPECIALISTA"
-        fases:
+          enum: [GENERALIST, SPECIALIST]
+          example: "SPECIALIST"
+        phases:
           type: array
           items:
             $ref: "#/components/schemas/RoadmapPhase"
-        explicacion:
+        explanation:
           type: string
-          example: "Se recomienda este roadmap porque el perfil muestra alta afinidad con la especialización en backend."
-          description: "Explicación del Explanatory Agent sobre por qué se recomienda este roadmap"
+          example: "This roadmap is recommended because the profile shows high affinity with backend specialization."
+          description: "Explanatory Agent's reasoning for why this roadmap is recommended"
 
     AlternativesResponse:
       type: object
@@ -278,83 +278,83 @@ components:
         roadmap_id:
           type: string
           example: "rm_def456"
-        generalista:
+        generalist:
           $ref: "#/components/schemas/RoadmapResponse"
-        especialista:
+        specialist:
           $ref: "#/components/schemas/RoadmapResponse"
 
     BlockProgressUpdate:
       type: object
-      required: [completado]
+      required: [completed]
       properties:
-        completado:
+        completed:
           type: boolean
           default: true
           example: true
-          description: "Marcar como completado (true) o pendiente (false)"
+          description: "Mark as completed (true) or pending (false)"
 
     # ── ADMIN ──────────────────────────────────
     AdminMetrics:
       type: object
       properties:
-        total_usuarios:
+        total_users:
           type: integer
           example: 150
-        usuarios_activos:
+        active_users:
           type: integer
           example: 120
         total_roadmaps:
           type: integer
           example: 95
-        roadmaps_activos:
+        active_roadmaps:
           type: integer
           example: 80
-        total_cursos:
+        total_courses:
           type: integer
           example: 42
-        distribucion_trayectorias:
+        trajectory_distribution:
           type: object
           properties:
-            generalista:
+            generalist:
               type: integer
               example: 55
-            especialista:
+            specialist:
               type: integer
               example: 40
-        top_cursos:
+        top_courses:
           type: array
           items:
             type: object
             properties:
-              curso_id:
+              course_id:
                 type: string
-              titulo:
+              title:
                 type: string
-              veces_usado:
+              times_used:
                 type: integer
 
 # ============================================================
-# PATHS — Endpoints de la API
+# PATHS — API Endpoints
 # ============================================================
 paths:
   # ────────────────────────────────────────────
-  # AUTH — Registro e inicio de sesión
+  # AUTH — Registration and login
   # ────────────────────────────────────────────
 
   /auth/register:
     post:
-      tags: [Autenticación]
-      summary: Registrar nuevo usuario
+      tags: [Authentication]
+      summary: Register a new user
       description: |
-        Registra un usuario nuevo y devuelve un JWT de acceso.
+        Register a new user and return a JWT access token.
 
-        **Flujo:**
-        1. Valida que el email no esté registrado
-        2. Hashea la contraseña (bcrypt)
-        3. Persiste en tabla `users`
-        4. Genera un JWT de acceso
+        **Flow:**
+        1. Validate email is not already registered
+        2. Hash password (bcrypt)
+        3. Persist in `users` table
+        4. Generate a JWT access token
       operationId: registerUser
-      security: [] # No requiere autenticación
+      security: [] # No authentication required
       requestBody:
         required: true
         content:
@@ -363,21 +363,21 @@ paths:
               $ref: "#/components/schemas/RegisterRequest"
       responses:
         "201":
-          description: Usuario creado exitosamente
+          description: User created successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/TokenResponse"
         "409":
-          description: Email ya registrado
+          description: Email already registered
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
-                detail: "El email 'usuario@ejemplo.com' ya está registrado"
+                detail: "Email 'user@example.com' is already registered"
         "422":
-          description: Datos de entrada inválidos (validación Pydantic)
+          description: Invalid input data (Pydantic validation)
           content:
             application/json:
               schema:
@@ -385,17 +385,17 @@ paths:
 
   /auth/login:
     post:
-      tags: [Autenticación]
-      summary: Iniciar sesión
+      tags: [Authentication]
+      summary: Log in
       description: |
-        Autentica al usuario con email y contraseña y devuelve un JWT.
+        Authenticate a user with email and password and return a JWT.
 
-        **Flujo:**
-        1. Busca al usuario por email
-        2. Verifica la contraseña (bcrypt.checkpw)
-        3. Genera un JWT de acceso
+        **Flow:**
+        1. Look up user by email
+        2. Verify password (bcrypt.checkpw)
+        3. Generate a JWT access token
       operationId: loginUser
-      security: [] # No requiere autenticación
+      security: [] # No authentication required
       requestBody:
         required: true
         content:
@@ -404,37 +404,37 @@ paths:
               $ref: "#/components/schemas/LoginRequest"
       responses:
         "200":
-          description: Autenticación exitosa
+          description: Authentication successful
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/TokenResponse"
         "401":
-          description: Credenciales inválidas
+          description: Invalid credentials
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
-                detail: "Credenciales inválidas"
+                detail: "Invalid credentials"
 
   # ────────────────────────────────────────────
-  # PROFILE — Perfil cognitivo
+  # PROFILE — Cognitive profile
   # ────────────────────────────────────────────
 
   /api/profile:
     post:
-      tags: [Perfil]
-      summary: Crear perfil cognitivo
+      tags: [Profile]
+      summary: Create cognitive profile
       description: |
-        Recibe las respuestas del cuestionario del frontend y genera
-        el perfil cognitivo del usuario mediante el Profiling Agent.
+        Receive questionnaire answers from the frontend and generate
+        the user's cognitive profile via the Profiling Agent.
 
         **Pipeline:**
-        1. Recibe `raw_answers` del cuestionario
-        2. Envía al Profiling Agent (LLM) via orchestrator
-        3. El agente analiza competencias y genera puntuaciones
-        4. Devuelve el `competency_profile` con enfoque recomendado
+        1. Receive `raw_answers` from questionnaire
+        2. Send to Profiling Agent (LLM) via orchestrator
+        3. Agent analyzes competencies and generates scores
+        4. Return `competency_profile` with recommended approach
       operationId: createProfile
       requestBody:
         required: true
@@ -444,19 +444,19 @@ paths:
               $ref: "#/components/schemas/QuestionnaireAnswers"
       responses:
         "201":
-          description: Perfil cognitivo creado
+          description: Cognitive profile created
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/CompetencyProfile"
         "400":
-          description: Datos del cuestionario inválidos
+          description: Invalid questionnaire data
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         "422":
-          description: Validación fallida
+          description: Validation failed
           content:
             application/json:
               schema:
@@ -464,9 +464,9 @@ paths:
 
   /api/profile/{user_id}:
     get:
-      tags: [Perfil]
-      summary: Obtener perfil cognitivo de un usuario
-      description: Obtiene el perfil cognitivo almacenado de un usuario.
+      tags: [Profile]
+      summary: Get user cognitive profile
+      description: Get the stored cognitive profile for a user.
       operationId: getProfile
       parameters:
         - name: user_id
@@ -477,36 +477,34 @@ paths:
           example: "usr_abc123"
       responses:
         "200":
-          description: Perfil encontrado
+          description: Profile found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/CompetencyProfile"
         "404":
-          description: Usuario sin perfil cognitivo
+          description: User has no cognitive profile
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-              example:
-                detail: "No se encontró perfil cognitivo para el usuario 'usr_abc123'"
 
   # ────────────────────────────────────────────
-  # ROADMAP — Generación y gestión
+  # ROADMAP — Generation and management
   # ────────────────────────────────────────────
 
   /api/roadmap:
     post:
       tags: [Roadmap]
-      summary: Generar roadmap personalizado
+      summary: Generate personalized roadmap
       description: |
-        Orquesta la pipeline completa para generar un roadmap personalizado:
+        Orchestrate the full pipeline to generate a personalized roadmap:
 
-        1. **Profiling Agent** → obtiene el `competency_profile` del usuario
-        2. **RAG (ChromaDB)** → busca cursos relevantes del catálogo
-        3. **Planning Agent** → estructura las fases y bloques del roadmap
-        4. **ML Predict** → clasifica la trayectoria (generalista/especialista)
-        5. **Explanatory Agent** → genera explicación personalizada
+        1. **Profiling Agent** → get the user's `competency_profile`
+        2. **RAG (ChromaDB)** → search relevant courses from the catalog
+        3. **Planning Agent** → structure phases and blocks
+        4. **ML Predict** → classify trajectory (generalist/specialist)
+        5. **Explanatory Agent** → generate personalized explanation
       operationId: createRoadmap
       requestBody:
         required: true
@@ -516,13 +514,13 @@ paths:
               $ref: "#/components/schemas/RoadmapGenerateRequest"
       responses:
         "201":
-          description: Roadmap generado exitosamente
+          description: Roadmap generated successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/RoadmapResponse"
         "400":
-          description: Datos de entrada inválidos
+          description: Invalid input data
           content:
             application/json:
               schema:
@@ -531,10 +529,10 @@ paths:
   /api/roadmap/{roadmap_id}/alternatives:
     get:
       tags: [Roadmap]
-      summary: Obtener trayectorias A y B
+      summary: Get trajectories A and B
       description: |
-        Devuelve ambas trayectorias (generalista y especialista) para
-        un roadmap existente. Permite al usuario comparar y elegir.
+        Return both trajectories (generalist and specialist) for
+        an existing roadmap. Allows the user to compare and choose.
       operationId: getRoadmapAlternatives
       parameters:
         - name: roadmap_id
@@ -545,25 +543,23 @@ paths:
           example: "rm_def456"
       responses:
         "200":
-          description: Ambas trayectorias devueltas
+          description: Both trajectories returned
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/AlternativesResponse"
         "404":
-          description: Roadmap no encontrado
+          description: Roadmap not found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-              example:
-                detail: "Roadmap 'rm_def456' no encontrado"
 
   /api/roadmap/{roadmap_id}/block/{block_id}:
     patch:
       tags: [Roadmap]
-      summary: Marcar bloque como completado
-      description: Marca un bloque del roadmap como completado o pendiente.
+      summary: Mark block as completed
+      description: Mark a roadmap block as completed or pending.
       operationId: updateBlockProgress
       parameters:
         - name: roadmap_id
@@ -586,47 +582,43 @@ paths:
               $ref: "#/components/schemas/BlockProgressUpdate"
       responses:
         "200":
-          description: Progreso actualizado
+          description: Progress updated
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/MessageResponse"
-              example:
-                message: "Bloque 'blk_001' marcado como completado"
         "404":
-          description: Roadmap o bloque no encontrado
+          description: Roadmap or block not found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-              example:
-                detail: "Roadmap 'rm_def456' o bloque 'blk_001' no encontrado"
 
   # ────────────────────────────────────────────
-  # ADMIN — Panel de administración
+  # ADMIN — Administration panel
   # ────────────────────────────────────────────
 
   /api/admin/metrics:
     get:
-      tags: [Administración]
-      summary: Métricas del panel de administración
+      tags: [Administration]
+      summary: Administration panel metrics
       description: |
-        Devuelve métricas agregadas:
-        - Total usuarios / activos
-        - Total roadmaps / activos
-        - Total cursos
-        - Distribución trayectoria A vs B
-        - Top 5 cursos más usados en roadmaps
+        Return aggregated metrics:
+        - Total users / active
+        - Total roadmaps / active
+        - Total courses
+        - Trajectory A vs B distribution
+        - Top 5 most used courses in roadmaps
       operationId: getAdminMetrics
       responses:
         "200":
-          description: Métricas devueltas
+          description: Metrics returned
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/AdminMetrics"
         "403":
-          description: Sin permisos de administrador
+          description: No admin permissions
           content:
             application/json:
               schema:

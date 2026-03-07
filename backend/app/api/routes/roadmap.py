@@ -1,18 +1,18 @@
 """
-Roadmap API Routes — Roadmap Personalizado
+Roadmap API Routes — Personalized Roadmap
 ============================================
-Endpoints FastAPI para la generación y gestión de roadmaps
-de aprendizaje personalizados.
+FastAPI endpoints for generating and managing personalized
+learning roadmaps.
 
-Orquesta la pipeline completa:
+Orchestrates the full pipeline:
   Profiling Agent → RAG (ChromaDB) → Planning Agent → ML Predict → Explanatory Agent
 
-Para uso del compañero de backend:
-  - Importar este router en main.py:
+For backend companion usage:
+  - Import this router in main.py:
     from app.api.routes.roadmap import router as roadmap_router
     app.include_router(roadmap_router, prefix="/api/roadmap")
-  - Configurar la dependencia get_db() para inyectar la sesión de BD
-  - Conectar con el orchestrator para la pipeline completa
+  - Configure the dependency get_db() to inject the DB session
+  - Connect with the orchestrator for the full pipeline
 """
 
 from fastapi import APIRouter, HTTPException
@@ -30,91 +30,94 @@ router = APIRouter(tags=["Roadmap"])
 
 
 # ──────────────────────────────────────────────
-# GENERAR — Crear roadmap personalizado
+# GENERATE — Create personalized roadmap
 # ──────────────────────────────────────────────
+
 
 @router.post(
     "/",
     response_model=RoadmapResponse,
     status_code=201,
-    summary="Generar roadmap personalizado",
+    summary="Generate personalized roadmap",
 )
 def create_roadmap(body: RoadmapGenerateRequest):
     """
-    Orquesta la pipeline completa para generar un roadmap personalizado:
-      1. Profiling Agent → obtiene el competency_profile del usuario
-      2. RAG (ChromaDB) → busca cursos relevantes del catálogo
-      3. Planning Agent → estructura las fases y bloques del roadmap
-      4. ML Predict → clasifica la trayectoria (generalista/especialista)
-      5. Explanatory Agent → genera explicación personalizada
+    Orchestrate the full pipeline to generate a personalized roadmap:
+      1. Profiling Agent → get the user's competency_profile
+      2. RAG (ChromaDB) → search relevant courses from the catalog
+      3. Planning Agent → structure phases and blocks
+      4. ML Predict → classify trajectory (generalist/specialist)
+      5. Explanatory Agent → generate personalized explanation
 
-    Respuestas:
-      - 201: Roadmap generado → RoadmapResponse
-      - 400: Datos de entrada inválidos
+    Responses:
+      - 201: Roadmap generated → RoadmapResponse
+      - 400: Invalid input data
     """
     roadmap = roadmap_service.generate_roadmap(
         user_id=body.user_id,
-        enfoque=body.enfoque,
+        approach=body.approach,
     )
     return roadmap
 
 
 # ──────────────────────────────────────────────
-# ALTERNATIVAS — Trayectorias A y B
+# ALTERNATIVES — Trajectories A and B
 # ──────────────────────────────────────────────
+
 
 @router.get(
     "/{roadmap_id}/alternatives",
     response_model=AlternativesResponse,
-    summary="Obtener trayectorias A y B",
+    summary="Get trajectories A and B",
 )
 def get_alternatives(roadmap_id: str):
     """
-    Devuelve ambas trayectorias (generalista y especialista) para
-    un roadmap existente. Permite al usuario comparar y elegir.
+    Return both trajectories (generalist and specialist) for
+    an existing roadmap. Allows the user to compare and choose.
 
-    Respuestas:
-      - 200: Ambas trayectorias → AlternativesResponse
-      - 404: Roadmap no encontrado
+    Responses:
+      - 200: Both trajectories → AlternativesResponse
+      - 404: Roadmap not found
     """
     alternatives = roadmap_service.get_alternatives(roadmap_id)
     if not alternatives:
         raise HTTPException(
             status_code=404,
-            detail=f"Roadmap '{roadmap_id}' no encontrado",
+            detail=f"Roadmap '{roadmap_id}' not found",
         )
     return alternatives
 
 
 # ──────────────────────────────────────────────
-# PROGRESO — Marcar bloque completado
+# PROGRESS — Mark block as completed
 # ──────────────────────────────────────────────
+
 
 @router.patch(
     "/{roadmap_id}/block/{block_id}",
     response_model=MessageResponse,
-    summary="Marcar bloque completado",
+    summary="Mark block as completed",
 )
 def update_block_progress(roadmap_id: str, block_id: str, body: BlockProgressUpdate):
     """
-    Marca un bloque del roadmap como completado o pendiente.
+    Mark a roadmap block as completed or pending.
 
-    Respuestas:
-      - 200: Progreso actualizado → MessageResponse
-      - 404: Roadmap o bloque no encontrado
+    Responses:
+      - 200: Progress updated → MessageResponse
+      - 404: Roadmap or block not found
     """
     updated = roadmap_service.update_block_progress(
         roadmap_id=roadmap_id,
         block_id=block_id,
-        completado=body.completado,
+        completed=body.completed,
     )
     if not updated:
         raise HTTPException(
             status_code=404,
-            detail=f"Roadmap '{roadmap_id}' o bloque '{block_id}' no encontrado",
+            detail=f"Roadmap '{roadmap_id}' or block '{block_id}' not found",
         )
 
-    estado = "completado" if body.completado else "pendiente"
+    status = "completed" if body.completed else "pending"
     return MessageResponse(
-        message=f"Bloque '{block_id}' marcado como {estado}",
+        message=f"Block '{block_id}' marked as {status}",
     )

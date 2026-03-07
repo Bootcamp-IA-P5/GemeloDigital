@@ -1,99 +1,100 @@
 """
-Roadmap Service — Lógica de negocio del roadmap
-================================================
-Funciones para generar, consultar y actualizar roadmaps.
-Actualmente usa datos stub en memoria; en producción orquestará
-la pipeline completa: Profiling → RAG → Planning → ML → Explanatory.
+Roadmap Service — Roadmap Business Logic
+==========================================
+Functions to generate, query and update roadmaps.
+Currently uses stub data in memory; will orchestrate the full
+pipeline in production: Profiling → RAG → Planning → ML → Explanatory.
 
-Para uso del compañero de backend:
-  - Reemplazar ROADMAPS_DB por queries a las tablas `roadmaps` y `progress`
-  - Integrar la llamada al orchestrator para la pipeline completa
-  - Conectar con el modelo ML para clasificación de trayectorias
+TODO:
+  - Replace ROADMAPS_DB with queries to `roadmaps` and `progress` tables
+  - Integrate the orchestrator call for the full pipeline
+  - Connect with the ML model for trajectory classification
 """
 
 import uuid
 
 # ──────────────────────────────────────────────
-# BASE DE DATOS STUB (en memoria)
+# STUB DATABASE (in-memory)
 # ──────────────────────────────────────────────
 ROADMAPS_DB: dict[str, dict] = {}
 
 
 # ──────────────────────────────────────────────
-# GENERAR ROADMAP
+# GENERATE ROADMAP
 # ──────────────────────────────────────────────
 
-def generate_roadmap(user_id: str, enfoque: str) -> dict:
+
+def generate_roadmap(user_id: str, approach: str) -> dict:
     """
-    Genera un roadmap personalizado para el usuario.
+    Generate a personalized roadmap for the user.
 
-    Pipeline en producción:
-      1. Profiling Agent → obtener competency_profile
-      2. RAG (ChromaDB) → buscar cursos relevantes
-      3. Planning Agent → estructurar fases y bloques
-      4. ML Predict → clasificar trayectoria A/B
-      5. Explanatory Agent → generar explicación
+    Production pipeline:
+      1. Profiling Agent → get competency_profile
+      2. RAG (ChromaDB) → search relevant courses
+      3. Planning Agent → structure phases and blocks
+      4. ML Predict → classify trajectory A/B
+      5. Explanatory Agent → generate explanation
 
-    Actualmente devuelve un roadmap stub con fases de ejemplo.
+    Currently returns a stub roadmap with example phases.
     """
     roadmap_id = str(uuid.uuid4())
 
     roadmap = {
         "roadmap_id": roadmap_id,
         "user_id": user_id,
-        "enfoque": enfoque,
-        "fases": [
+        "approach": approach,
+        "phases": [
             {
-                "fase_orden": 1,
-                "nombre": "Fundamentos",
-                "bloques": [
+                "phase_order": 1,
+                "name": "Fundamentals",
+                "blocks": [
                     {
                         "block_id": f"blk-{uuid.uuid4().hex[:8]}",
-                        "contenido_id": "curso-python-101",
-                        "titulo": "Python para Principiantes",
-                        "orden": 1,
-                        "completado": False,
+                        "content_id": "course-python-101",
+                        "title": "Python for Beginners",
+                        "order": 1,
+                        "completed": False,
                     },
                     {
                         "block_id": f"blk-{uuid.uuid4().hex[:8]}",
-                        "contenido_id": "curso-stats-101",
-                        "titulo": "Estadística Básica",
-                        "orden": 2,
-                        "completado": False,
-                    },
-                ],
-            },
-            {
-                "fase_orden": 2,
-                "nombre": "Intermedio",
-                "bloques": [
-                    {
-                        "block_id": f"blk-{uuid.uuid4().hex[:8]}",
-                        "contenido_id": "curso-ml-201",
-                        "titulo": "Introducción a Machine Learning",
-                        "orden": 1,
-                        "completado": False,
+                        "content_id": "course-stats-101",
+                        "title": "Basic Statistics",
+                        "order": 2,
+                        "completed": False,
                     },
                 ],
             },
             {
-                "fase_orden": 3,
-                "nombre": "Avanzado",
-                "bloques": [
+                "phase_order": 2,
+                "name": "Intermediate",
+                "blocks": [
                     {
                         "block_id": f"blk-{uuid.uuid4().hex[:8]}",
-                        "contenido_id": "curso-dl-301",
-                        "titulo": "Deep Learning Aplicado",
-                        "orden": 1,
-                        "completado": False,
+                        "content_id": "course-ml-201",
+                        "title": "Introduction to Machine Learning",
+                        "order": 1,
+                        "completed": False,
+                    },
+                ],
+            },
+            {
+                "phase_order": 3,
+                "name": "Advanced",
+                "blocks": [
+                    {
+                        "block_id": f"blk-{uuid.uuid4().hex[:8]}",
+                        "content_id": "course-dl-301",
+                        "title": "Applied Deep Learning",
+                        "order": 1,
+                        "completed": False,
                     },
                 ],
             },
         ],
-        "explicacion": (
-            f"Se ha generado un roadmap con enfoque {enfoque} basado en tu perfil "
-            "cognitivo. Las fases avanzan progresivamente desde fundamentos "
-            "hasta temas avanzados, adaptadas a tus fortalezas y áreas de mejora."
+        "explanation": (
+            f"A {approach} roadmap has been generated based on your cognitive "
+            "profile. Phases progress from fundamentals to advanced topics, "
+            "adapted to your strengths and areas for improvement."
         ),
     }
 
@@ -102,58 +103,65 @@ def generate_roadmap(user_id: str, enfoque: str) -> dict:
 
 
 # ──────────────────────────────────────────────
-# OBTENER ALTERNATIVAS (Trayectoria A y B)
+# GET ALTERNATIVES (Trajectory A and B)
 # ──────────────────────────────────────────────
+
 
 def get_alternatives(roadmap_id: str) -> dict | None:
     """
-    Devuelve ambas trayectorias (generalista y especialista) para un roadmap.
+    Return both trajectories (generalist and specialist) for a roadmap.
 
     TODO:
-      - Consultar BD para obtener ambas versiones del roadmap
-      - Si solo existe una, generar la alternativa con el Planning Agent
+      - Query DB to get both versions of the roadmap
+      - If only one exists, generate the alternative with the Planning Agent
     """
     roadmap = ROADMAPS_DB.get(roadmap_id)
     if not roadmap:
         return None
 
-    # Stub: construir alternativa invertida
-    enfoque_alt = "ESPECIALISTA" if roadmap["enfoque"] == "GENERALISTA" else "GENERALISTA"
-
+    # Stub: build inverted alternative
     return {
         "roadmap_id": roadmap_id,
-        "generalista": roadmap if roadmap["enfoque"] == "GENERALISTA" else {
-            **roadmap,
-            "enfoque": "GENERALISTA",
-            "explicacion": "Trayectoria generalista alternativa (stub).",
-        },
-        "especialista": roadmap if roadmap["enfoque"] == "ESPECIALISTA" else {
-            **roadmap,
-            "enfoque": "ESPECIALISTA",
-            "explicacion": "Trayectoria especialista alternativa (stub).",
-        },
+        "generalist": (
+            roadmap
+            if roadmap["approach"] == "GENERALIST"
+            else {
+                **roadmap,
+                "approach": "GENERALIST",
+                "explanation": "Alternative generalist trajectory (stub).",
+            }
+        ),
+        "specialist": (
+            roadmap
+            if roadmap["approach"] == "SPECIALIST"
+            else {
+                **roadmap,
+                "approach": "SPECIALIST",
+                "explanation": "Alternative specialist trajectory (stub).",
+            }
+        ),
     }
 
 
 # ──────────────────────────────────────────────
-# ACTUALIZAR PROGRESO DE BLOQUE
+# UPDATE BLOCK PROGRESS
 # ──────────────────────────────────────────────
 
-def update_block_progress(roadmap_id: str, block_id: str, completado: bool) -> bool:
-    """
-    Marca un bloque como completado o pendiente.
-    Devuelve True si se encontró y actualizó, False en caso contrario.
 
-    TODO: Actualizar tabla `progress` en PostgreSQL.
+def update_block_progress(roadmap_id: str, block_id: str, completed: bool) -> bool:
+    """
+    Mark a block as completed or pending.
+    Returns True if found and updated, False otherwise.
+
+    TODO: Update `progress` table in PostgreSQL.
     """
     roadmap = ROADMAPS_DB.get(roadmap_id)
     if not roadmap:
         return False
 
-    for fase in roadmap["fases"]:
-        for bloque in fase["bloques"]:
-            if bloque["block_id"] == block_id:
-                bloque["completado"] = completado
+    for phase in roadmap.get("phases", []):
+        for block in phase.get("blocks", []):
+            if block["block_id"] == block_id:
+                block["completed"] = completed
                 return True
-
     return False

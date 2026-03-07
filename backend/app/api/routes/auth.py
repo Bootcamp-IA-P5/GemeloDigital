@@ -1,14 +1,9 @@
 """
-Auth API Routes — Autenticación
-================================
-Endpoints FastAPI para registro e inicio de sesión de usuarios.
-Genera JWT stubs en memoria; en producción usará bcrypt + python-jose.
-
-Para uso del compañero de backend:
-  - Importar este router en main.py:
-    from app.api.routes.auth import router as auth_router
-    app.include_router(auth_router, prefix="/auth")
-  - Configurar dependencias de BD y seguridad (JWT, bcrypt)
+Auth API Routes — Authentication
+=================================
+FastAPI endpoints for user registration and login.
+Currently generates stub JWT tokens in memory; will use bcrypt + python-jose
+in production.
 """
 
 from fastapi import APIRouter, HTTPException
@@ -17,71 +12,72 @@ from ..schemas import (
     RegisterRequest,
     LoginRequest,
     TokenResponse,
-    MessageResponse,
 )
 from ...services import auth_service
 
-router = APIRouter(tags=["Autenticación"])
+router = APIRouter(tags=["Authentication"])
 
 
 # ──────────────────────────────────────────────
-# REGISTRO — Crear nuevo usuario
+# REGISTER — Create new user
 # ──────────────────────────────────────────────
+
 
 @router.post(
     "/register",
     response_model=TokenResponse,
     status_code=201,
-    summary="Registrar nuevo usuario",
+    summary="Register a new user",
 )
 def register(body: RegisterRequest):
     """
-    Registra un usuario nuevo y devuelve un JWT de acceso.
+    Register a new user and return a JWT access token.
 
-    Flujo:
-      1. Valida que el email no esté registrado
-      2. Hashea la contraseña (TODO: bcrypt)
-      3. Persiste en tabla `users` (TODO: PostgreSQL)
-      4. Genera un JWT de acceso (TODO: python-jose)
+    Flow:
+      1. Validate email is not already registered
+      2. Hash the password (TODO: bcrypt)
+      3. Persist in `users` table (TODO: PostgreSQL)
+      4. Generate a JWT access token (TODO: python-jose)
 
-    Respuestas:
-      - 201: Usuario creado → TokenResponse
-      - 409: Email ya registrado
+    Responses:
+      - 201: User created → TokenResponse
+      - 409: Email already registered
     """
     result = auth_service.register_user(
         email=body.email,
         password=body.password,
-        nombre=body.nombre,
+        name=body.name,
     )
     if result is None:
         raise HTTPException(
             status_code=409,
-            detail=f"El email '{body.email}' ya está registrado",
+            detail=f"Email '{body.email}' is already registered",
         )
     return result
 
 
 # ──────────────────────────────────────────────
-# LOGIN — Iniciar sesión
+# LOGIN — Authenticate user
 # ──────────────────────────────────────────────
+
 
 @router.post(
     "/login",
     response_model=TokenResponse,
-    summary="Iniciar sesión",
+    summary="Log in",
 )
 def login(body: LoginRequest):
     """
-    Autentica al usuario con email y contraseña y devuelve un JWT.
+    Authenticate a user with email and password.
 
-    Flujo:
-      1. Busca al usuario por email
-      2. Verifica la contraseña (TODO: bcrypt.checkpw)
-      3. Genera un JWT de acceso (TODO: python-jose)
+    Flow:
+      1. Look up user by email
+      2. Verify password (TODO: bcrypt.checkpw)
+      3. Generate a JWT access token (TODO: python-jose)
 
-    Respuestas:
-      - 200: Login exitoso → TokenResponse
-      - 401: Credenciales inválidas
+    Responses:
+      - 200: Authentication successful → TokenResponse
+      - 401: Invalid credentials
     """
     result = auth_service.login_user(
         email=body.email,
@@ -90,6 +86,6 @@ def login(body: LoginRequest):
     if result is None:
         raise HTTPException(
             status_code=401,
-            detail="Credenciales inválidas",
+            detail="Invalid credentials",
         )
     return result
