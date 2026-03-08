@@ -8,6 +8,7 @@ class RoadmapBlock(BaseModel):
     block_id: str = Field(..., description="Unique ID for this block (e.g., 'blk_001')")
     content_id: str = Field(..., description="The original Course ID from the catalog/RAG results")
     title: str = Field(..., description="Title of the course IN SPANISH")
+    explanation: Optional[str] = Field(None, description="Detailed pedagogical justification for this course IN SPANISH")
     order: int = Field(..., description="Order of the course within its phase (1, 2, 3...)")
     completed: bool = Field(default=False, description="Whether the user has finished this course")
 

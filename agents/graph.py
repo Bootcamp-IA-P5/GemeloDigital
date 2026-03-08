@@ -15,6 +15,7 @@ from agents.state import AgentState
 # Import our specialized modules
 from agents.nodes.profiling_node import generate_cognitive_profile
 from agents.nodes.planning_node import generate_roadmap
+from agents.nodes.explanatory_node import generate_detailed_explanations
 from agents.rag.retriever import retrieve_relevant_courses
 
 # ==========================================
@@ -79,7 +80,29 @@ def planning_node(state: AgentState):
         
     return {
         "roadmap": roadmap_dict,
-        "next_step": "explain" # Next will be Agent 3 (Explanatory)
+        "next_step": "explain" 
+    }
+
+def explanatory_node(state: AgentState):
+    """
+    Invokes the Explanatory Agent to add personalized justifications to the roadmap.
+    """
+    print("\n--- [NODE] Explanatory Agent ---")
+    
+    if not state["competency_profile"] or not state["roadmap"]:
+        return {"errors": ["Missing profile or roadmap to generate explanations."]}
+    
+    final_roadmap = generate_detailed_explanations(
+        competency_profile=state["competency_profile"],
+        roadmap_dict=state["roadmap"]
+    )
+    
+    if "error" in final_roadmap:
+        return {"errors": [f"Explanation Error: {final_roadmap['error']}"]}
+        
+    return {
+        "roadmap": final_roadmap,
+        "next_step": "end"
     }
 
 # ==========================================
@@ -93,6 +116,7 @@ workflow = StateGraph(AgentState)
 workflow.add_node("profiler", profiling_node)
 workflow.add_node("retriever", retrieval_node)
 workflow.add_node("planner", planning_node)
+workflow.add_node("explainer", explanatory_node)
 
 # Define the flow (Edges)
 workflow.set_entry_point("profiler")
@@ -100,7 +124,8 @@ workflow.set_entry_point("profiler")
 # Logic to choose next step or end
 workflow.add_edge("profiler", "retriever")
 workflow.add_edge("retriever", "planner")
-workflow.add_edge("planner", END)
+workflow.add_edge("planner", "explainer")
+workflow.add_edge("explainer", END)
 
 # Compile the graph
 app = workflow.compile()
