@@ -1,6 +1,15 @@
 import os
+import sys
 import json
 from dotenv import load_dotenv
+
+# Fix Python Path
+# This allows running the script directly: python3 agents/profiling_agent.py
+# by adding the project root to the system path.
+current_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.dirname(current_dir)
+if root_dir not in sys.path:
+    sys.path.append(root_dir)
 
 from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
