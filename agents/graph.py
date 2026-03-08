@@ -1,11 +1,19 @@
+import os
+import sys
 import json
 from typing import Literal
+
+# Fix Python Path to allow running from root
+current_dir = os.path.dirname(os.path.abspath(__file__)) # agents/
+root_dir = os.path.dirname(current_dir) # project root
+if root_dir not in sys.path:
+    sys.path.append(root_dir)
 
 from langgraph.graph import StateGraph, END
 from agents.state import AgentState
 
 # Import our specialized modules
-from agents.profiling_agent import generate_cognitive_profile
+from agents.nodes.profiling_node import generate_cognitive_profile
 from agents.rag.retriever import retrieve_relevant_courses
 
 # ==========================================
