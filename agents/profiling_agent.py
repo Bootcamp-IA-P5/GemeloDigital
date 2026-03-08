@@ -51,10 +51,10 @@ def generate_cognitive_profile(user_answers_json: str, original_user_id: str) ->
     """
     
     # 2. Configure the LLM "Brain"
-    # LLaMA 3 8B on Groq for ultra-fast inference.
+    # llama-3.1-8b-instant on Groq for ultra-fast inference.
     # GUARDRAIL 1: Temperature 0.1 prevents creative hallucinations.
     llm = ChatGroq(
-        model="llama3-8b-8192",
+        model="llama-3.1-8b-instant",
         temperature=0.1,
         max_retries=2 # Groq handles internal network retries
     )
