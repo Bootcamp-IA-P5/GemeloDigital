@@ -14,6 +14,7 @@ from agents.state import AgentState
 
 # Import our specialized modules
 from agents.nodes.profiling_node import generate_cognitive_profile
+from agents.nodes.planning_node import generate_roadmap
 from agents.rag.retriever import retrieve_relevant_courses
 
 # ==========================================
@@ -56,7 +57,29 @@ def retrieval_node(state: AgentState):
     
     return {
         "retrieved_courses": courses,
-        "next_step": "plan" # Next would be Agent 2 (Planning)
+        "next_step": "plan" 
+    }
+
+def planning_node(state: AgentState):
+    """
+    Invokes the Planning Agent to design the roadmap based on profile and courses.
+    """
+    print("\n--- [NODE] Planning Agent ---")
+    
+    if not state["competency_profile"] or not state["retrieved_courses"]:
+        return {"errors": ["Missing profile or courses to design roadmap."]}
+    
+    roadmap_dict = generate_roadmap(
+        competency_profile=state["competency_profile"],
+        retrieved_courses=state["retrieved_courses"]
+    )
+    
+    if "error" in roadmap_dict:
+        return {"errors": [f"Planning Error: {roadmap_dict['error']}"]}
+        
+    return {
+        "roadmap": roadmap_dict,
+        "next_step": "explain" # Next will be Agent 3 (Explanatory)
     }
 
 # ==========================================
@@ -69,13 +92,15 @@ workflow = StateGraph(AgentState)
 # Add our nodes to the graph
 workflow.add_node("profiler", profiling_node)
 workflow.add_node("retriever", retrieval_node)
+workflow.add_node("planner", planning_node)
 
 # Define the flow (Edges)
 workflow.set_entry_point("profiler")
 
 # Logic to choose next step or end
 workflow.add_edge("profiler", "retriever")
-workflow.add_edge("retriever", END)
+workflow.add_edge("retriever", "planner")
+workflow.add_edge("planner", END)
 
 # Compile the graph
 app = workflow.compile()
