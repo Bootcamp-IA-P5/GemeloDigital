@@ -1,0 +1,55 @@
+[
+    {
+        "id": "crs-py-101",
+        "title": "Programación en Python para Principiantes",
+        "description": "Aprende los fundamentos absolutos de la programación usando Python. Desde variables y bucles hasta funciones básicas.",
+        "competencies": [
+            "python",
+            "programming-fundamentals"
+        ],
+        "level": "beginner",
+        "duration_hours": 15,
+        "url": "https://example.com/python-101",
+        "trajectory_affinity": "generalist"
+    },
+    {
+        "id": "crs-data-201",
+        "title": "Análisis de Datos con Pandas y SQL",
+        "description": "Domina la extracción y limpieza de datos estructurados para tomar decisiones de negocio fundamentadas.",
+        "competencies": [
+            "python",
+            "sql",
+            "data-analysis"
+        ],
+        "level": "intermediate",
+        "duration_hours": 25,
+        "url": "https://example.com/data-analysis",
+        "trajectory_affinity": "generalist"
+    },
+    {
+        "id": "crs-ml-301",
+        "title": "Machine Learning Avanzado y Redes Neuronales",
+        "description": "Adéntrate en el entrenamiento de modelos complejos de IA. Requiere fuerte base estadística y programación previa.",
+        "competencies": [
+            "python",
+            "machine-learning",
+            "statistics"
+        ],
+        "level": "advanced",
+        "duration_hours": 40,
+        "url": "https://example.com/ml-advanced",
+        "trajectory_affinity": "specialist"
+    },
+    {
+        "id": "crs-soft-101",
+        "title": "Comunicación Efectiva para Perfiles Técnicos",
+        "description": "Aprende a traducir problemas de código complejos a lenguaje de negocio para hablar con managers y clientes.",
+        "competencies": [
+            "communication"
+        ],
+        "level": "beginner",
+        "duration_hours": 8,
+        "url": "https://example.com/tech-communication",
+        "trajectory_affinity": "both"
+    }
+]
