@@ -1,56 +1,56 @@
-user_id,experience_years,avg_current_level,avg_gap,n_competencies,dominant_domain,chosen_trajectory
-USR-001,1,1.2,3.8,3,Datos e IA,A
-USR-002,0,1.0,4.0,2,Habilidades Transversales,A
-USR-003,2,1.5,3.2,4,Programación y Desarrollo,A
-USR-004,1,1.3,3.5,5,Gestión y Producto,A
-USR-005,0,1.0,3.9,2,Cloud e Infraestructura,A
-USR-006,3,2.0,2.8,6,Datos e IA,A
-USR-007,2,1.8,3.0,4,Habilidades Transversales,A
-USR-008,1,1.1,3.6,3,Gestión y Producto,A
-USR-009,4,2.2,2.5,7,Datos e IA,A
-USR-010,2,1.6,2.9,5,Cloud e Infraestructura,A
-USR-011,3,2.1,2.6,8,Programación y Desarrollo,A
-USR-012,1,1.4,3.3,6,Gestión y Producto,A
-USR-013,5,2.5,2.2,9,Habilidades Transversales,A
-USR-014,0,1.0,3.7,3,Datos e IA,A
-USR-015,2,1.7,3.1,4,Cloud e Infraestructura,A
-USR-016,3,2.3,2.4,7,Gestión y Producto,A
-USR-017,4,2.0,2.7,5,Programación y Desarrollo,A
-USR-018,1,1.2,3.4,6,Datos e IA,A
-USR-019,6,2.8,1.8,10,Datos e IA,A
-USR-020,3,2.4,2.3,8,Habilidades Transversales,A
-USR-021,8,3.5,1.2,4,Datos e IA,B
-USR-022,10,4.0,0.8,3,Programación y Desarrollo,B
-USR-023,6,3.2,1.5,5,Cloud e Infraestructura,B
-USR-024,12,4.5,0.5,2,Datos e IA,B
-USR-025,7,3.8,1.0,3,Gestión y Producto,B
-USR-026,9,3.6,1.3,4,Datos e IA,B
-USR-027,5,3.0,1.8,5,Programación y Desarrollo,B
-USR-028,11,4.2,0.6,3,Cloud e Infraestructura,B
-USR-029,8,3.4,1.4,4,Datos e IA,B
-USR-030,6,3.1,1.6,5,Habilidades Transversales,B
-USR-031,14,4.8,0.3,2,Datos e IA,B
-USR-032,7,3.3,1.5,4,Programación y Desarrollo,B
-USR-033,10,4.1,0.7,3,Gestión y Producto,B
-USR-034,9,3.7,1.1,4,Datos e IA,B
-USR-035,5,2.9,1.9,5,Cloud e Infraestructura,B
-USR-036,13,4.6,0.4,2,Programación y Desarrollo,B
-USR-037,8,3.5,1.3,3,Datos e IA,B
-USR-038,6,3.0,1.7,6,Gestión y Producto,B
-USR-039,15,4.9,0.2,2,Datos e IA,B
-USR-040,7,3.2,1.4,4,Cloud e Infraestructura,B
-USR-041,11,4.3,0.5,3,Programación y Desarrollo,B
-USR-042,9,3.9,0.9,3,Datos e IA,B
-USR-043,5,2.8,2.0,6,Habilidades Transversales,B
-USR-044,10,4.0,1.0,4,Gestión y Producto,B
-USR-045,4,2.6,2.1,6,Datos e IA,A
-USR-046,6,3.0,1.9,7,Cloud e Infraestructura,A
-USR-047,5,2.7,2.3,8,Programación y Desarrollo,B
-USR-048,7,3.4,1.2,3,Datos e IA,B
-USR-049,3,2.2,2.5,9,Gestión y Producto,A
-USR-050,8,3.6,1.1,4,Habilidades Transversales,B
-USR-051,4,2.5,2.4,5,Cloud e Infraestructura,A
-USR-052,9,3.3,1.6,6,Datos e IA,B
-USR-053,2,1.9,2.8,7,Programación y Desarrollo,A
-USR-054,6,2.9,2.0,5,Gestión y Producto,B
-USR-055,3,2.1,2.6,4,Datos e IA,A
+user_id,experience_years,avg_current_level,avg_gap,n_competencies,dominant_domain,objetivo_profesional,chosen_trajectory
+USR-001,1,1.2,3.8,3,Datos e IA,Data Analyst,A
+USR-002,0,1.0,4.0,2,Habilidades Transversales,Consultor Digital,A
+USR-003,2,1.5,3.2,4,Programación y Desarrollo,Full Stack Developer,A
+USR-004,1,1.3,3.5,5,Gestión y Producto,Product Manager,A
+USR-005,0,1.0,3.9,2,Cloud e Infraestructura,DevOps Engineer,A
+USR-006,3,2.0,2.8,6,Datos e IA,Data Scientist,A
+USR-007,2,1.8,3.0,4,Habilidades Transversales,Tech Lead,A
+USR-008,1,1.1,3.6,3,Gestión y Producto,Consultor Digital,A
+USR-009,4,2.2,2.5,7,Datos e IA,Data Analyst,A
+USR-010,2,1.6,2.9,5,Cloud e Infraestructura,DevOps Engineer,A
+USR-011,3,2.1,2.6,8,Programación y Desarrollo,Full Stack Developer,A
+USR-012,1,1.4,3.3,6,Gestión y Producto,Product Manager,A
+USR-013,5,2.5,2.2,9,Habilidades Transversales,Tech Lead,A
+USR-014,0,1.0,3.7,3,Datos e IA,Data Analyst,A
+USR-015,2,1.7,3.1,4,Cloud e Infraestructura,Cloud Architect,A
+USR-016,3,2.3,2.4,7,Gestión y Producto,AI Strategist,A
+USR-017,4,2.0,2.7,5,Programación y Desarrollo,Full Stack Developer,A
+USR-018,1,1.2,3.4,6,Datos e IA,Data Scientist,A
+USR-019,6,2.8,1.8,10,Datos e IA,Data Analyst,A
+USR-020,3,2.4,2.3,8,Habilidades Transversales,Consultor Digital,A
+USR-021,8,3.5,1.2,4,Datos e IA,ML Engineer,B
+USR-022,10,4.0,0.8,3,Programación y Desarrollo,Backend Architect,B
+USR-023,6,3.2,1.5,5,Cloud e Infraestructura,Cloud Architect,B
+USR-024,12,4.5,0.5,2,Datos e IA,ML Engineer,B
+USR-025,7,3.8,1.0,3,Gestión y Producto,AI Strategist,B
+USR-026,9,3.6,1.3,4,Datos e IA,Data Scientist,B
+USR-027,5,3.0,1.8,5,Programación y Desarrollo,Backend Architect,B
+USR-028,11,4.2,0.6,3,Cloud e Infraestructura,Cybersecurity Specialist,B
+USR-029,8,3.4,1.4,4,Datos e IA,ML Engineer,B
+USR-030,6,3.1,1.6,5,Habilidades Transversales,Tech Lead,B
+USR-031,14,4.8,0.3,2,Datos e IA,ML Engineer,B
+USR-032,7,3.3,1.5,4,Programación y Desarrollo,Backend Architect,B
+USR-033,10,4.1,0.7,3,Gestión y Producto,AI Strategist,B
+USR-034,9,3.7,1.1,4,Datos e IA,Data Scientist,B
+USR-035,5,2.9,1.9,5,Cloud e Infraestructura,DevOps Engineer,B
+USR-036,13,4.6,0.4,2,Programación y Desarrollo,Backend Architect,B
+USR-037,8,3.5,1.3,3,Datos e IA,Data Scientist,B
+USR-038,6,3.0,1.7,6,Gestión y Producto,Product Manager,B
+USR-039,15,4.9,0.2,2,Datos e IA,ML Engineer,B
+USR-040,7,3.2,1.4,4,Cloud e Infraestructura,Cloud Architect,B
+USR-041,11,4.3,0.5,3,Programación y Desarrollo,Backend Architect,B
+USR-042,9,3.9,0.9,3,Datos e IA,Data Scientist,B
+USR-043,5,2.8,2.0,6,Habilidades Transversales,Consultor Digital,B
+USR-044,10,4.0,1.0,4,Gestión y Producto,AI Strategist,B
+USR-045,4,2.6,2.1,6,Datos e IA,Data Analyst,A
+USR-046,6,3.0,1.9,7,Cloud e Infraestructura,DevOps Engineer,A
+USR-047,5,2.7,2.3,8,Programación y Desarrollo,Backend Architect,B
+USR-048,7,3.4,1.2,3,Datos e IA,ML Engineer,B
+USR-049,3,2.2,2.5,9,Gestión y Producto,Product Manager,A
+USR-050,8,3.6,1.1,4,Habilidades Transversales,Tech Lead,B
+USR-051,4,2.5,2.4,5,Cloud e Infraestructura,Cloud Architect,A
+USR-052,9,3.3,1.6,6,Datos e IA,Data Scientist,B
+USR-053,2,1.9,2.8,7,Programación y Desarrollo,Full Stack Developer,A
+USR-054,6,2.9,2.0,5,Gestión y Producto,AI Strategist,B
+USR-055,3,2.1,2.6,4,Datos e IA,Data Analyst,A

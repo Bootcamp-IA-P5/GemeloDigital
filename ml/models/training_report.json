@@ -48,6 +48,18 @@
     "dominant_domain_Datos e IA",
     "dominant_domain_Gestión y Producto",
     "dominant_domain_Habilidades Transversales",
-    "dominant_domain_Programación y Desarrollo"
+    "dominant_domain_Programación y Desarrollo",
+    "objetivo_profesional_AI Strategist",
+    "objetivo_profesional_Backend Architect",
+    "objetivo_profesional_Cloud Architect",
+    "objetivo_profesional_Consultor Digital",
+    "objetivo_profesional_Cybersecurity Specialist",
+    "objetivo_profesional_Data Analyst",
+    "objetivo_profesional_Data Scientist",
+    "objetivo_profesional_DevOps Engineer",
+    "objetivo_profesional_Full Stack Developer",
+    "objetivo_profesional_ML Engineer",
+    "objetivo_profesional_Product Manager",
+    "objetivo_profesional_Tech Lead"
   ]
 }

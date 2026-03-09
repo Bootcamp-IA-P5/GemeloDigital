@@ -49,7 +49,7 @@ NUMERIC_FEATURES = [
     "avg_gap",
     "n_competencies",
 ]
-CATEGORICAL_FEATURES = ["dominant_domain"]
+CATEGORICAL_FEATURES = ["dominant_domain", "objetivo_profesional"]
 TARGET = "chosen_trajectory"
 
 
@@ -222,9 +222,11 @@ def main():
     print("=" * 60)
     demo_profiles = [
         {"experience_years": 1, "avg_current_level": 1.2, "avg_gap": 3.5,
-         "n_competencies": 3, "dominant_domain": "Datos e IA"},
+         "n_competencies": 3, "dominant_domain": "Datos e IA",
+         "objetivo_profesional": "Data Analyst"},
         {"experience_years": 10, "avg_current_level": 4.0, "avg_gap": 0.8,
-         "n_competencies": 3, "dominant_domain": "Programación y Desarrollo"},
+         "n_competencies": 3, "dominant_domain": "Programación y Desarrollo",
+         "objetivo_profesional": "ML Engineer"},
     ]
     for profile in demo_profiles:
         cat_vals = encoder.transform([[profile[c] for c in CATEGORICAL_FEATURES]])
