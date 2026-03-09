@@ -1,611 +1,265 @@
 [
     {
-        "id": "DQ-001",
-        "title": "Introducción a la Inteligencia Artificial y el Ecosistema de Datos",
-        "description": "Curso introductorio que sienta las bases de la IA y la analítica de datos para profesionales sin experiencia técnica previa. El alumno aprenderá qué es la IA, cómo se relaciona con el Big Data y cuáles son las aplicaciones prácticas en el entorno empresarial. Ideal para quienes buscan entender el panorama general antes de especializarse.",
+        "id": "crs-py-101",
+        "title": "Programación en Python para Principiantes",
+        "description": "Aprende los fundamentos absolutos de la programación usando Python. Desde variables y bucles hasta funciones básicas.",
         "competencies": [
-            "data_foundations",
-            "ai_strategy"
+            "python",
+            "programming-fundamentals"
         ],
         "level": "beginner",
-        "duration_hours": 8,
-        "url": "https://dataquantum.es/formacion-en-ia/",
+        "duration_hours": 15,
+        "url": "https://example.com/python-101",
         "trajectory_affinity": "generalist"
     },
     {
-        "id": "DQ-002",
-        "title": "Fundamentos de Python para Análisis de Datos",
-        "description": "Programa de iniciación en Python orientado al manejo de datos: desde la sintaxis básica hasta el uso de bibliotecas como Pandas y NumPy. El alumno aprenderá a cargar, limpiar y transformar datasets reales, sentando las bases para proyectos de analítica y machine learning. No requiere experiencia previa en programación.",
+        "id": "crs-data-201",
+        "title": "Análisis de Datos con Pandas y SQL",
+        "description": "Domina la extracción y limpieza de datos estructurados para tomar decisiones de negocio fundamentadas.",
         "competencies": [
-            "programming",
-            "data_foundations"
-        ],
-        "level": "beginner",
-        "duration_hours": 20,
-        "url": "https://dataquantum.es/formacion-personalizada-en-ia/",
-        "trajectory_affinity": "specialist"
-    },
-    {
-        "id": "DQ-003",
-        "title": "Visualización de Datos y Reporting con herramientas BI",
-        "description": "Formación práctica en herramientas de Business Intelligence (Power BI, Tableau) para crear dashboards interactivos y reportes ejecutivos. El alumno aprenderá a transformar datos crudos en visualizaciones claras que faciliten la toma de decisiones, aplicando principios de data storytelling y diseño visual efectivo.",
-        "competencies": [
-            "data_foundations",
-            "communication"
-        ],
-        "level": "beginner",
-        "duration_hours": 16,
-        "url": "https://dataquantum.es/formacion-personalizada-en-ia/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-004",
-        "title": "Conceptos clave de Ciberseguridad para profesionales digitales",
-        "description": "Introducción a los principios fundamentales de la ciberseguridad: amenazas actuales, protección de datos personales, navegación segura y buenas prácticas de seguridad en el entorno laboral digital. El alumno adquirirá una conciencia sólida sobre los riesgos digitales y cómo mitigarlos en su día a día profesional.",
-        "competencies": [
-            "cybersecurity"
-        ],
-        "level": "beginner",
-        "duration_hours": 10,
-        "url": "https://dataquantum.es/servicios-de-ciberseguridad/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-005",
-        "title": "Cultura del Dato: Primeros pasos hacia la transformación digital",
-        "description": "Programa diseñado para entender qué significa ser una organización data-driven y cómo iniciar la transformación digital. El alumno descubrirá cómo los datos impactan en cada área de negocio, qué roles son necesarios y cómo fomentar una mentalidad orientada al dato en equipos no técnicos.",
-        "competencies": [
-            "data_culture",
-            "critical_thinking"
-        ],
-        "level": "beginner",
-        "duration_hours": 6,
-        "url": "https://dataquantum.es/implementacion-de-la-cultura-del-dato/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-006",
-        "title": "Fundamentos de SQL y Bases de Datos Relacionales",
-        "description": "Curso práctico que enseña a consultar y manipular bases de datos relacionales mediante SQL. El alumno aprenderá a escribir consultas de selección, filtrado, agregación y joins, comprendiendo la estructura de las bases de datos que sustentan la mayoría de los sistemas empresariales.",
-        "competencies": [
-            "programming",
-            "data_foundations"
-        ],
-        "level": "beginner",
-        "duration_hours": 14,
-        "url": "https://dataquantum.es/formacion-personalizada-en-ia/",
-        "trajectory_affinity": "specialist"
-    },
-    {
-        "id": "DQ-007",
-        "title": "Comunicación técnica y storytelling con datos",
-        "description": "Formación en técnicas de comunicación para profesionales técnicos, centrada en traducir hallazgos analíticos en narrativas comprensibles para audiencias no técnicas. El alumno aprenderá a estructurar presentaciones ejecutivas, usar visualizaciones persuasivas y adaptar el mensaje según el interlocutor.",
-        "competencies": [
-            "communication",
-            "critical_thinking"
-        ],
-        "level": "beginner",
-        "duration_hours": 8,
-        "url": "https://dataquantum.es/formacion-en-ia/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-008",
-        "title": "Herramientas de IA Generativa aplicadas al entorno profesional",
-        "description": "Taller práctico para aprender a utilizar herramientas de IA generativa (ChatGPT, Copilot, Gemini) de forma productiva en el trabajo diario. El alumno aprenderá técnicas de prompting efectivo, automatización de tareas rutinarias y generación de contenido, con criterio para evaluar la calidad del output.",
-        "competencies": [
-            "gen_ai",
-            "critical_thinking"
-        ],
-        "level": "beginner",
-        "duration_hours": 10,
-        "url": "https://dataquantum.es/formacion-personalizada-en-ia/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-009",
-        "title": "Introducción al Marketing Digital basado en Datos",
-        "description": "Curso que introduce las bases del marketing digital orientado a datos: analítica web, segmentación de audiencias, métricas clave (KPIs) y herramientas de medición. El alumno comprenderá cómo los datos mejoran la toma de decisiones en campañas de marketing y comunicación.",
-        "competencies": [
-            "digital_marketing",
-            "data_foundations"
-        ],
-        "level": "beginner",
-        "duration_hours": 12,
-        "url": "https://dataquantum.es/servicios-de-marketing/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-010",
-        "title": "Glosario y conceptos esenciales de IA para profesionales",
-        "description": "Recurso formativo que cubre la terminología imprescindible de la inteligencia artificial en 2026: desde redes neuronales y transformers hasta RAG, agentes y embeddings. El alumno adquirirá el vocabulario técnico necesario para participar en conversaciones y proyectos de IA con criterio y confianza.",
-        "competencies": [
-            "data_foundations",
-            "communication"
-        ],
-        "level": "beginner",
-        "duration_hours": 4,
-        "url": "https://dataquantum.es/blog/diccionario-ia-imprescindibles-2026/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-011",
-        "title": "Cómo introducir la Inteligencia Artificial en tu empresa",
-        "description": "Guía práctica para directivos y mandos intermedios que quieren iniciar la adopción de IA en su organización. El alumno aprenderá a identificar oportunidades de aplicación, evaluar herramientas, gestionar expectativas y diseñar un plan de implementación realista adaptado a su contexto empresarial.",
-        "competencies": [
-            "ai_strategy",
-            "data_culture"
-        ],
-        "level": "beginner",
-        "duration_hours": 6,
-        "url": "https://dataquantum.es/blog/introducir-inteligencia-artificial-en-empresa/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-012",
-        "title": "Perfiles profesionales en IA y Data: roles clave del mercado",
-        "description": "Formación que mapea los roles profesionales más demandados en el ecosistema de IA y datos: data analyst, data engineer, ML engineer, AI strategist y más. El alumno comprenderá las competencias necesarias para cada perfil, las trayectorias de carrera disponibles y cómo posicionarse en el mercado laboral.",
-        "competencies": [
-            "ai_strategy",
-            "leadership"
-        ],
-        "level": "beginner",
-        "duration_hours": 5,
-        "url": "https://dataquantum.es/blog-ia/perfiles-profesionales-ia-y-data/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-013",
-        "title": "Machine Learning aplicado: de la teoría a la práctica con Python",
-        "description": "Programa intermedio que cubre los algoritmos fundamentales de ML (regresión, clasificación, clustering) con implementación práctica en scikit-learn. El alumno aprenderá a preparar datos, entrenar modelos, evaluar su rendimiento y evitar errores comunes como el overfitting, trabajando con datasets reales.",
-        "competencies": [
-            "machine_learning",
-            "programming"
-        ],
-        "level": "intermediate",
-        "duration_hours": 30,
-        "url": "https://dataquantum.es/formacion-personalizada-en-ia/",
-        "trajectory_affinity": "specialist"
-    },
-    {
-        "id": "DQ-014",
-        "title": "Ingeniería de Datos: Diseño de Pipelines y Arquitecturas Modernas",
-        "description": "Formación en el diseño e implementación de pipelines de datos robustos utilizando herramientas modernas (Airflow, dbt, Spark). El alumno aprenderá a construir flujos ETL/ELT, gestionar data warehouses, garantizar la calidad del dato y orquestar procesos de ingesta en entornos cloud.",
-        "competencies": [
-            "data_engineering",
-            "cloud_infra"
-        ],
-        "level": "intermediate",
-        "duration_hours": 35,
-        "url": "https://dataquantum.es/formacion-personalizada-en-ia/",
-        "trajectory_affinity": "specialist"
-    },
-    {
-        "id": "DQ-015",
-        "title": "Agentes de IA para la automatización empresarial",
-        "description": "Curso práctico que enseña a diseñar, desarrollar y desplegar agentes de IA para automatizar procesos de negocio. El alumno aprenderá sobre arquitecturas de agentes, integración con APIs empresariales, orquestación de tareas y evaluación del impacto de la automatización inteligente.",
-        "competencies": [
-            "gen_ai",
-            "programming",
-            "ai_strategy"
+            "python",
+            "sql",
+            "data-analysis"
         ],
         "level": "intermediate",
         "duration_hours": 25,
-        "url": "https://dataquantum.es/agentes-de-ia-para-empresas/",
-        "trajectory_affinity": "specialist"
-    },
-    {
-        "id": "DQ-016",
-        "title": "Gobernanza de Datos y cumplimiento normativo (RGPD y EU AI Act)",
-        "description": "Programa especializado en marcos de gobernanza de datos corporativos y cumplimiento de la regulación europea. El alumno aprenderá a definir políticas de calidad de datos, trazabilidad, clasificación de riesgo de sistemas de IA según el EU AI Act y a implementar procesos de auditoría y compliance.",
-        "competencies": [
-            "data_governance",
-            "critical_thinking"
-        ],
-        "level": "intermediate",
-        "duration_hours": 18,
-        "url": "https://dataquantum.es/gobernanza-y-etica-de-la-ia/",
+        "url": "https://example.com/data-analysis",
         "trajectory_affinity": "generalist"
     },
     {
-        "id": "DQ-017",
-        "title": "Cloud Computing aplicado: Despliegue de soluciones en la nube",
-        "description": "Formación intermedia en servicios cloud (AWS, Azure, GCP) orientada al despliegue de aplicaciones y modelos de datos. El alumno aprenderá a configurar entornos, usar contenedores (Docker), implementar pipelines CI/CD y gestionar costes en la nube de forma eficiente.",
+        "id": "crs-ml-301",
+        "title": "Machine Learning Avanzado y Redes Neuronales",
+        "description": "Adéntrate en el entrenamiento de modelos complejos de IA. Requiere fuerte base estadística y programación previa.",
         "competencies": [
-            "cloud_infra",
-            "programming"
-        ],
-        "level": "intermediate",
-        "duration_hours": 28,
-        "url": "https://dataquantum.es/formacion-personalizada-en-ia/",
-        "trajectory_affinity": "specialist"
-    },
-    {
-        "id": "DQ-018",
-        "title": "Evaluación y Diagnóstico de Madurez Corporativa en IA",
-        "description": "Programa que enseña a evaluar el nivel de madurez de una organización en IA y datos mediante frameworks estructurados. El alumno aprenderá a diseñar diagnósticos de competencias digitales, identificar gaps de capacidades, priorizar inversiones y elaborar roadmaps de transformación adaptados al contexto empresarial.",
-        "competencies": [
-            "ai_strategy",
-            "data_culture",
-            "leadership"
-        ],
-        "level": "intermediate",
-        "duration_hours": 15,
-        "url": "https://dataquantum.es/madurez-corporativa-en-ia/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-019",
-        "title": "Ciberseguridad aplicada: OSINT y protección de infraestructuras",
-        "description": "Curso intermedio que profundiza en técnicas de inteligencia de fuentes abiertas (OSINT), detección de vulnerabilidades, análisis de amenazas y diseño de políticas de seguridad corporativa. El alumno desarrollará habilidades prácticas para auditar la postura de seguridad de una organización.",
-        "competencies": [
-            "cybersecurity",
-            "critical_thinking"
-        ],
-        "level": "intermediate",
-        "duration_hours": 22,
-        "url": "https://dataquantum.es/servicios-de-ciberseguridad/",
-        "trajectory_affinity": "specialist"
-    },
-    {
-        "id": "DQ-020",
-        "title": "Ventas inteligentes: IA aplicada a la gestión comercial",
-        "description": "Formación en el uso de herramientas de IA para optimizar el ciclo de ventas: scoring predictivo de leads, automatización del CRM, análisis de comportamiento del cliente y personalización de ofertas. El alumno aprenderá a integrar la analítica avanzada en la estrategia comercial diaria.",
-        "competencies": [
-            "sales_ai",
-            "data_foundations",
-            "digital_marketing"
-        ],
-        "level": "intermediate",
-        "duration_hours": 14,
-        "url": "https://dataquantum.es/servicios-ia-para-ventas/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-021",
-        "title": "Liderazgo de Equipos de Datos y Gestión de Proyectos de IA",
-        "description": "Programa dirigido a mandos intermedios y futuros líderes técnicos. El alumno aprenderá metodologías de gestión de proyectos de IA (CRISP-DM, Agile para ML), comunicación con stakeholders, gestión de expectativas y cómo construir y retener equipos de datos de alto rendimiento.",
-        "competencies": [
-            "leadership",
-            "ai_strategy",
-            "communication"
-        ],
-        "level": "intermediate",
-        "duration_hours": 16,
-        "url": "https://dataquantum.es/formacion-en-ia/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-022",
-        "title": "Orquestadores de Agentes de IA: diseño de flujos inteligentes",
-        "description": "Curso intermedio sobre plataformas de orquestación de agentes de IA como n8n, LangChain y CrewAI. El alumno aprenderá a diseñar, conectar y gestionar flujos de trabajo automatizados con múltiples agentes, integrando APIs, bases de datos y servicios externos en arquitecturas multiagente.",
-        "competencies": [
-            "gen_ai",
-            "programming",
-            "data_engineering"
-        ],
-        "level": "intermediate",
-        "duration_hours": 20,
-        "url": "https://dataquantum.es/blog/orquestadores-de-agentes-de-ia/",
-        "trajectory_affinity": "specialist"
-    },
-    {
-        "id": "DQ-023",
-        "title": "IA aplicada a Recursos Humanos: selección, talento y onboarding",
-        "description": "Formación práctica en la aplicación de IA al departamento de RRHH: asistentes de preselección de candidatos, evaluación de desempeño automatizada, chatbots para consultas internas y plataformas de formación personalizada. El alumno aprenderá a transformar procesos clave de gestión del talento.",
-        "competencies": [
-            "hr_ai",
-            "gen_ai",
-            "leadership"
-        ],
-        "level": "intermediate",
-        "duration_hours": 16,
-        "url": "https://dataquantum.es/servicios-ia-para-recursos-humanos/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-024",
-        "title": "Métricas para evaluar modelos de IA Generativa",
-        "description": "Programa intermedio que enseña a evaluar la calidad y fiabilidad de modelos de IA generativa. El alumno aprenderá a aplicar métricas como BLEU, ROUGE, perplexity, factualidad y toxicidad, diseñar benchmarks personalizados y establecer procesos de evaluación continua para sistemas en producción.",
-        "competencies": [
-            "gen_ai",
-            "machine_learning",
-            "critical_thinking"
-        ],
-        "level": "intermediate",
-        "duration_hours": 12,
-        "url": "https://dataquantum.es/blog/metricas-para-evaluar-modelos-de-ia-generativa/",
-        "trajectory_affinity": "specialist"
-    },
-    {
-        "id": "DQ-025",
-        "title": "Chatbots e IA conversacional para Marketing Digital",
-        "description": "Curso intermedio que combina fundamentos de marketing digital con tecnologías de IA conversacional. El alumno aprenderá a diseñar, implementar y optimizar chatbots inteligentes para atención al cliente, generación de leads y automatización del customer journey, integrando analítica para medir el impacto.",
-        "competencies": [
-            "digital_marketing",
-            "gen_ai",
-            "sales_ai"
-        ],
-        "level": "intermediate",
-        "duration_hours": 18,
-        "url": "https://dataquantum.es/blog/como-la-inteligencia-artificial-los-chatbots-revolucionan-el-marketing-digital/",
-        "trajectory_affinity": "both"
-    },
-    {
-        "id": "DQ-026",
-        "title": "Consultoría en IA y DATA para la Transformación Digital corporativa",
-        "description": "Programa intermedio que capacita a consultores y analistas de negocio en la metodología de consultoría de IA y datos. El alumno aprenderá a realizar diagnósticos de madurez, conectar datos empresariales, automatizar flujos de información y empoderar la toma de decisiones en tiempo real.",
-        "competencies": [
-            "ai_strategy",
-            "data_culture",
-            "data_foundations"
-        ],
-        "level": "intermediate",
-        "duration_hours": 20,
-        "url": "https://dataquantum.es/consultoria-ia-y-data-transformacion-digital-2/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-027",
-        "title": "Deep Learning y Redes Neuronales avanzadas",
-        "description": "Programa avanzado que cubre arquitecturas de deep learning (CNNs, RNNs, Transformers) con implementación en TensorFlow/PyTorch. El alumno aprenderá a diseñar, entrenar y optimizar modelos complejos para visión por computador, procesamiento de lenguaje natural y series temporales a escala empresarial.",
-        "competencies": [
-            "machine_learning",
-            "programming"
+            "python",
+            "machine-learning",
+            "statistics"
         ],
         "level": "advanced",
         "duration_hours": 40,
-        "url": "https://dataquantum.es/formacion-personalizada-en-ia/",
+        "url": "https://example.com/ml-advanced",
         "trajectory_affinity": "specialist"
     },
     {
-        "id": "DQ-028",
-        "title": "Arquitectura de Sistemas de IA Generativa y RAG empresarial",
-        "description": "Curso avanzado en el diseño de sistemas de IA generativa para producción: arquitecturas RAG (Retrieval-Augmented Generation), fine-tuning de LLMs, evaluación de modelos, gestión de embeddings y vector stores. El alumno aprenderá a construir soluciones de IA conversacional robustas, seguras y escalables.",
+        "id": "crs-soft-101",
+        "title": "Comunicación Efectiva para Perfiles Técnicos",
+        "description": "Aprende a traducir problemas de código complejos a lenguaje de negocio para hablar con managers y clientes.",
         "competencies": [
-            "gen_ai",
-            "data_engineering",
-            "programming"
+            "communication"
+        ],
+        "level": "beginner",
+        "duration_hours": 8,
+        "url": "https://example.com/tech-communication",
+        "trajectory_affinity": "both"
+    },
+    {
+        "id": "crs-sql-101",
+        "title": "SQL desde Cero: Consultas y Bases de Datos Relacionales",
+        "description": "Aprende a crear, consultar y manipular bases de datos relacionales con SQL. Ideal para perfiles que necesitan extraer información de sistemas empresariales.",
+        "competencies": [
+            "sql",
+            "data-analysis"
+        ],
+        "level": "beginner",
+        "duration_hours": 12,
+        "url": "https://example.com/sql-101",
+        "trajectory_affinity": "generalist"
+    },
+    {
+        "id": "crs-viz-201",
+        "title": "Visualización de Datos con Power BI y Tableau",
+        "description": "Diseña dashboards interactivos y reportes ejecutivos. Transforma datos crudos en narrativas visuales claras para la toma de decisiones.",
+        "competencies": [
+            "data-analysis",
+            "communication"
+        ],
+        "level": "intermediate",
+        "duration_hours": 20,
+        "url": "https://example.com/dataviz-201",
+        "trajectory_affinity": "generalist"
+    },
+    {
+        "id": "crs-stat-201",
+        "title": "Estadística Aplicada para Ciencia de Datos",
+        "description": "Domina los fundamentos estadísticos necesarios para modelado predictivo: distribuciones, test de hipótesis, regresión y análisis multivariante.",
+        "competencies": [
+            "statistics",
+            "data-analysis"
+        ],
+        "level": "intermediate",
+        "duration_hours": 30,
+        "url": "https://example.com/statistics-201",
+        "trajectory_affinity": "specialist"
+    },
+    {
+        "id": "crs-cloud-201",
+        "title": "Despliegue en la Nube con AWS y Docker",
+        "description": "Aprende a desplegar aplicaciones y modelos de ML en la nube. Contenedores Docker, servicios AWS (EC2, S3, Lambda) y CI/CD básico.",
+        "competencies": [
+            "cloud",
+            "devops"
+        ],
+        "level": "intermediate",
+        "duration_hours": 30,
+        "url": "https://example.com/cloud-201",
+        "trajectory_affinity": "specialist"
+    },
+    {
+        "id": "crs-etl-201",
+        "title": "Pipelines de Datos y ETL con Python",
+        "description": "Diseña pipelines de extracción, transformación y carga de datos. Automatiza flujos de datos desde múltiples fuentes hacia data warehouses.",
+        "competencies": [
+            "python",
+            "data-engineering"
+        ],
+        "level": "intermediate",
+        "duration_hours": 25,
+        "url": "https://example.com/etl-201",
+        "trajectory_affinity": "specialist"
+    },
+    {
+        "id": "crs-nlp-301",
+        "title": "Procesamiento de Lenguaje Natural y LLMs",
+        "description": "Explora técnicas de NLP clásicas y modernas: tokenización, embeddings, transformers, GPT y aplicaciones de IA generativa.",
+        "competencies": [
+            "machine-learning",
+            "gen-ai",
+            "python"
         ],
         "level": "advanced",
         "duration_hours": 35,
-        "url": "https://dataquantum.es/agentes-de-ia-para-empresas/",
+        "url": "https://example.com/nlp-301",
         "trajectory_affinity": "specialist"
     },
     {
-        "id": "DQ-029",
-        "title": "MLOps: Operacionalización de modelos de Machine Learning",
-        "description": "Formación avanzada en prácticas de MLOps para llevar modelos de ML a producción con fiabilidad. El alumno aprenderá CI/CD para ML, versionado de datos y modelos (DVC, MLflow), monitorización de drift, testing automatizado y despliegue en contenedores en entornos cloud.",
+        "id": "crs-lead-101",
+        "title": "Liderazgo de Equipos Técnicos",
+        "description": "Desarrolla habilidades para liderar equipos de desarrollo y datos. Gestión ágil, feedback constructivo y comunicación con stakeholders.",
         "competencies": [
-            "machine_learning",
-            "cloud_infra",
-            "data_engineering"
-        ],
-        "level": "advanced",
-        "duration_hours": 30,
-        "url": "https://dataquantum.es/formacion-personalizada-en-ia/",
-        "trajectory_affinity": "specialist"
-    },
-    {
-        "id": "DQ-030",
-        "title": "Estrategia corporativa de IA: del piloto a la escalabilidad",
-        "description": "Programa ejecutivo para diseñar e implementar estrategias de IA a nivel corporativo. El alumno aprenderá a pasar de proyectos piloto aislados a una adopción escalable de la IA, incluyendo gobierno, gestión del cambio, métricas de ROI, alineación con objetivos de negocio y creación de centros de excelencia.",
-        "competencies": [
-            "ai_strategy",
             "leadership",
-            "data_culture"
+            "communication"
         ],
-        "level": "advanced",
-        "duration_hours": 20,
-        "url": "https://dataquantum.es/madurez-corporativa-en-ia/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-031",
-        "title": "Ética avanzada de la IA y diseño de marcos de gobernanza",
-        "description": "Curso avanzado en ética aplicada e implementación de marcos de gobernanza de IA en la empresa. El alumno aprenderá a realizar evaluaciones de impacto ético, diseñar comités de ética de IA, implementar auditorías algorítmicas, gestionar el sesgo y asegurar la transparencia según las exigencias del EU AI Act.",
-        "competencies": [
-            "data_governance",
-            "ai_strategy",
-            "critical_thinking"
-        ],
-        "level": "advanced",
-        "duration_hours": 18,
-        "url": "https://dataquantum.es/gobernanza-y-etica-de-la-ia/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-032",
-        "title": "Desarrollo de Productos de IA: del concepto al mercado",
-        "description": "Programa avanzado que cubre el ciclo completo de desarrollo de productos basados en IA: ideación, validación de hipótesis, diseño de MVP, desarrollo ágil, pruebas con usuarios y estrategia de go-to-market. El alumno aprenderá a liderar la creación de productos de IA desde cero hasta su lanzamiento.",
-        "competencies": [
-            "ai_strategy",
-            "programming",
-            "leadership"
-        ],
-        "level": "advanced",
-        "duration_hours": 25,
-        "url": "https://dataquantum.es/desarrollo-de-nuevos-productos-de-ia/",
+        "level": "beginner",
+        "duration_hours": 10,
+        "url": "https://example.com/tech-leadership",
         "trajectory_affinity": "both"
     },
     {
-        "id": "DQ-033",
-        "title": "Ciberseguridad avanzada: IA para la defensa y respuesta ante incidentes",
-        "description": "Formación especializada en el uso de IA y ML para la detección avanzada de amenazas, análisis de malware, respuesta automatizada ante incidentes y threat intelligence. El alumno aprenderá a implementar sistemas de defensa inteligente que combinen técnicas de ciberseguridad tradicional con capacidades de IA.",
+        "id": "crs-ia-101",
+        "title": "Introducción a la Inteligencia Artificial",
+        "description": "Curso introductorio que sienta las bases de la IA y la analítica de datos para profesionales sin experiencia técnica previa.",
+        "competencies": [
+            "machine-learning",
+            "data-analysis"
+        ],
+        "level": "beginner",
+        "duration_hours": 8,
+        "url": "https://example.com/ia-intro",
+        "trajectory_affinity": "generalist"
+    },
+    {
+        "id": "crs-sec-201",
+        "title": "Ciberseguridad para Profesionales de Datos",
+        "description": "Protección de infraestructuras de datos, detección de amenazas, cumplimiento normativo (RGPD) y buenas prácticas de seguridad en entornos cloud.",
         "competencies": [
             "cybersecurity",
-            "machine_learning"
+            "cloud"
         ],
-        "level": "advanced",
-        "duration_hours": 28,
-        "url": "https://dataquantum.es/servicios-de-ciberseguridad/",
-        "trajectory_affinity": "specialist"
-    },
-    {
-        "id": "DQ-034",
-        "title": "Marketing avanzado con IA: personalización y automatización a escala",
-        "description": "Curso avanzado en la aplicación de IA al marketing digital: modelos de propensión, personalización en tiempo real, generación de contenido automatizada, optimización de campañas con ML y análisis predictivo del comportamiento del cliente. El alumno aprenderá a diseñar estrategias de marketing data-driven de alto impacto.",
-        "competencies": [
-            "digital_marketing",
-            "machine_learning",
-            "data_foundations"
-        ],
-        "level": "advanced",
-        "duration_hours": 22,
-        "url": "https://dataquantum.es/servicios-de-marketing/",
-        "trajectory_affinity": "both"
-    },
-    {
-        "id": "DQ-035",
-        "title": "Innovación empresarial y financiación de proyectos de IA",
-        "description": "Programa avanzado para profesionales que lideran iniciativas de innovación basadas en IA. El alumno aprenderá a identificar oportunidades de financiación (subvenciones, incentivos fiscales), preparar propuestas de proyectos de I+D+i, gestionar la propiedad intelectual y diseñar modelos de negocio escalables basados en datos.",
-        "competencies": [
-            "ai_strategy",
-            "leadership",
-            "data_culture"
-        ],
-        "level": "advanced",
-        "duration_hours": 16,
-        "url": "https://dataquantum.es/servicios-de-innovacion-y-financiacion-empresarial/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-036",
-        "title": "Computación Cuántica aplicada a la empresa: fundamentos y casos de uso",
-        "description": "Programa avanzado que introduce los principios de la computación cuántica y sus aplicaciones empresariales reales. El alumno aprenderá sobre qubits, superposición, algoritmos cuánticos (Grover, Shor), simulación cuántica y cómo la computación cuántica impactará en sectores como finanzas, logística y ciberseguridad.",
-        "competencies": [
-            "quantum_computing",
-            "ai_strategy",
-            "critical_thinking"
-        ],
-        "level": "advanced",
+        "level": "intermediate",
         "duration_hours": 20,
-        "url": "https://dataquantum.es/consultoria-cuantica/",
+        "url": "https://example.com/cybersecurity-201",
         "trajectory_affinity": "specialist"
     },
     {
-        "id": "DQ-037",
-        "title": "Roles técnicos clave para gobernar la IA en producción",
-        "description": "Formación avanzada sobre los perfiles profesionales necesarios para gobernar sistemas de IA en entornos productivos: ML engineer, AI ethicist, data steward, AI auditor y más. El alumno aprenderá a estructurar equipos, definir responsabilidades y diseñar procesos de supervisión continua para sistemas de IA en producción.",
+        "id": "crs-mkt-201",
+        "title": "Marketing Digital basado en Datos e IA",
+        "description": "Uso de analítica avanzada y herramientas de IA para segmentación de audiencias, personalización de campañas y optimización de conversiones.",
         "competencies": [
-            "data_governance",
-            "leadership",
-            "machine_learning"
+            "digital-marketing",
+            "data-analysis"
         ],
-        "level": "advanced",
-        "duration_hours": 14,
-        "url": "https://dataquantum.es/blog/roles-tecnicos-clave-para-gobernar-la-ia-en-produccion/",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-038",
-        "title": "Gobernanza de flujos de IA en sistemas legacy",
-        "description": "Curso avanzado que aborda el desafío de integrar soluciones de IA en infraestructuras empresariales pre-existentes. El alumno aprenderá a diseñar estrategias de migración incremental, gestionar la interoperabilidad entre sistemas legacy y modernos, y aplicar marcos de gobernanza que garanticen la trazabilidad y seguridad de los flujos de IA.",
-        "competencies": [
-            "data_governance",
-            "data_engineering",
-            "cloud_infra"
-        ],
-        "level": "advanced",
+        "level": "intermediate",
         "duration_hours": 18,
-        "url": "https://dataquantum.es/blog/gobernanza-de-flujos-de-ia-en-sistemas-legacy/",
-        "trajectory_affinity": "specialist"
-    },
-    {
-        "id": "DQ-039",
-        "title": "El CFO aumentado: casos de uso de IA en la función financiera",
-        "description": "Programa avanzado dirigido a directivos financieros y controllers que quieren potenciar su función con IA. El alumno aprenderá a aplicar modelos predictivos para forecasting financiero, automatizar la conciliación contable, detectar fraude y optimizar la gestión de tesorería mediante técnicas de ML y analytics.",
-        "competencies": [
-            "ai_strategy",
-            "data_foundations",
-            "critical_thinking"
-        ],
-        "level": "advanced",
-        "duration_hours": 15,
-        "url": "https://dataquantum.es/blog/cfo-aumentado-con-ia/",
+        "url": "https://example.com/marketing-ia",
         "trajectory_affinity": "generalist"
     },
     {
-        "id": "DQ-040",
-        "title": "IA y Datos en el sector asegurador: transformación y regulación",
-        "description": "Formación sectorial avanzada que cubre la aplicación de IA y analítica de datos en seguros: pricing actuarial con ML, detección de fraude, suscripción automatizada y cumplimiento del EU AI Act en high-risk AI systems. El alumno aprenderá a liderar proyectos de IA específicos del sector asegurador.",
+        "id": "crs-gov-201",
+        "title": "Gobernanza de Datos y Ética de la IA",
+        "description": "Marcos de gobernanza de datos, calidad, trazabilidad, cumplimiento RGPD y EU AI Act. Ética aplicada a sistemas de IA.",
         "competencies": [
-            "ai_strategy",
-            "data_governance",
-            "machine_learning"
+            "data-governance",
+            "critical-thinking"
+        ],
+        "level": "intermediate",
+        "duration_hours": 15,
+        "url": "https://example.com/data-governance",
+        "trajectory_affinity": "both"
+    },
+    {
+        "id": "crs-prompt-201",
+        "title": "Prompt Engineering y Aplicaciones con LLMs",
+        "description": "Técnicas de prompting avanzado, RAG, agentes de IA y desarrollo de aplicaciones empresariales con modelos de lenguaje.",
+        "competencies": [
+            "gen-ai",
+            "programming-fundamentals"
+        ],
+        "level": "intermediate",
+        "duration_hours": 20,
+        "url": "https://example.com/prompt-engineering",
+        "trajectory_affinity": "both"
+    },
+    {
+        "id": "crs-scrum-101",
+        "title": "Gestión Ágil de Proyectos de IA",
+        "description": "Metodologías ágiles aplicadas a proyectos de datos e IA. Scrum, Kanban y gestión del ciclo de vida de modelos de ML.",
+        "competencies": [
+            "leadership",
+            "critical-thinking"
+        ],
+        "level": "beginner",
+        "duration_hours": 10,
+        "url": "https://example.com/agile-ia",
+        "trajectory_affinity": "generalist"
+    },
+    {
+        "id": "crs-dl-301",
+        "title": "Deep Learning Aplicado con TensorFlow y PyTorch",
+        "description": "Redes neuronales profundas para visión por computador, series temporales y generación de contenido. Prácticas con GPU.",
+        "competencies": [
+            "machine-learning",
+            "python"
         ],
         "level": "advanced",
-        "duration_hours": 16,
-        "url": "https://dataquantum.es/blog/ia-y-datos-en-el-sector-asegurador/",
+        "duration_hours": 45,
+        "url": "https://example.com/deep-learning",
         "trajectory_affinity": "specialist"
     },
     {
-        "id": "DQ-041",
-        "title": "Emprender con IA: de la idea al modelo de negocio escalable",
-        "description": "Programa avanzado para emprendedores que quieren crear startups basadas en IA. El alumno aprenderá a validar ideas de negocio con datos, construir MVPs con IA generativa, diseñar modelos de negocio escalables, preparar pitch decks para inversores y navegar el ecosistema de startups de IA.",
+        "id": "crs-hr-201",
+        "title": "Recursos Humanos e IA: Selección y Talento",
+        "description": "Aplicación de IA en procesos de selección, evaluación del desempeño, gestión del talento y análisis de clima laboral.",
         "competencies": [
-            "ai_strategy",
+            "hr-ai",
+            "data-analysis"
+        ],
+        "level": "intermediate",
+        "duration_hours": 15,
+        "url": "https://example.com/hr-ia",
+        "trajectory_affinity": "generalist"
+    },
+    {
+        "id": "crs-strategy-301",
+        "title": "Estrategia de IA para Directivos",
+        "description": "Diseño e implementación de estrategias de IA a nivel organizacional. Casos de uso de alto impacto, madurez en IA y liderazgo de programas de innovación.",
+        "competencies": [
+            "ai-strategy",
             "leadership",
-            "programming"
+            "critical-thinking"
         ],
         "level": "advanced",
         "duration_hours": 20,
-        "url": "https://dataquantum.es/blog/ia-para-emprender/",
-        "trajectory_affinity": "both"
-    },
-    {
-        "id": "DQ-042",
-        "title": "7 pasos para cumplir con el AI Act y evitar sanciones millonarias",
-        "description": "Programa práctico que guía a las organizaciones en el cumplimiento paso a paso del Reglamento Europeo de IA (AI Act). El alumno aprenderá a clasificar sistemas de IA por nivel de riesgo, implementar documentación técnica obligatoria, establecer procesos de supervisión humana y prepararse para las auditorías regulatorias.",
-        "competencies": [
-            "data_governance",
-            "ai_strategy"
-        ],
-        "level": "intermediate",
-        "duration_hours": 10,
-        "url": "https://dataquantum.es/blog/7-pasos-para-cumplir-con-el-ai-act-y-evitar-sanciones-millonarias/",
+        "url": "https://example.com/ia-strategy",
         "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "DQ-043",
-        "title": "Herramientas prácticas para la ética y gobernanza de la IA",
-        "description": "Curso intermedio que revisa las herramientas más relevantes para implementar ética y gobernanza de IA en la práctica: frameworks de fairness (AIF360, Fairlearn), explicabilidad (SHAP, LIME), auditorías automatizadas y model cards. El alumno aprenderá a integrar estas herramientas en el ciclo de vida del ML.",
-        "competencies": [
-            "data_governance",
-            "machine_learning",
-            "critical_thinking"
-        ],
-        "level": "intermediate",
-        "duration_hours": 14,
-        "url": "https://dataquantum.es/blog/herramientas-para-la-etica-y-gobernanza-de-la-ia/",
-        "trajectory_affinity": "both"
-    },
-    {
-        "id": "DQ-044",
-        "title": "Automatización de flujos de trabajo con n8n e IA",
-        "description": "Taller práctico intermedio sobre la plataforma de automatización n8n integrada con capacidades de IA. El alumno aprenderá a diseñar y ejecutar workflows automatizados, conectar APIs y servicios, implementar lógica condicional y desencadenadores, y añadir nodos de IA generativa para procesamiento inteligente de datos.",
-        "competencies": [
-            "gen_ai",
-            "programming",
-            "data_engineering"
-        ],
-        "level": "intermediate",
-        "duration_hours": 12,
-        "url": "https://dataquantum.es/blog/n8n/",
-        "trajectory_affinity": "specialist"
-    },
-    {
-        "id": "DQ-045",
-        "title": "Predicción y reducción del Churn empresarial con IA",
-        "description": "Curso intermedio que enseña a construir modelos de predicción de abandono de clientes (churn) usando técnicas de ML. El alumno aprenderá a preparar datos transaccionales, seleccionar features relevantes, entrenar clasificadores, interpretar resultados y diseñar estrategias de retención basadas en las predicciones del modelo.",
-        "competencies": [
-            "machine_learning",
-            "data_foundations",
-            "sales_ai"
-        ],
-        "level": "intermediate",
-        "duration_hours": 16,
-        "url": "https://dataquantum.es/blog/churn-en-las-empresas/",
-        "trajectory_affinity": "specialist"
     }
 ]
