@@ -1,0 +1,31 @@
+# ============================================================
+# Gemelo Cognitivo — .dockerignore
+# ============================================================
+# Archivos que NO se copian al contenedor Docker
+# ============================================================
+
+# Entornos virtuales
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Git
+.git/
+.gitignore
+
+# Entorno local
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Datos locales
+chroma_db/
+*.pkl
+
+# Docker
+docker-compose.yml
