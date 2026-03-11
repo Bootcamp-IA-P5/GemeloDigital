@@ -1,0 +1,200 @@
+[
+    {
+        "id": "python",
+        "label": "Python",
+        "domain": "programming",
+        "description": "Capacidad para escribir, probar y mantener código en Python.",
+        "prerequisites": []
+    },
+    {
+        "id": "javascript",
+        "label": "JavaScript / TypeScript",
+        "domain": "programming",
+        "description": "Desarrollo de aplicaciones web frontend y backend utilizando el ecosistema JS.",
+        "prerequisites": [
+            "web-development"
+        ]
+    },
+    {
+        "id": "java",
+        "label": "Java",
+        "domain": "programming",
+        "description": "Desarrollo de aplicaciones empresariales robustas orientadas a objetos.",
+        "prerequisites": []
+    },
+    {
+        "id": "web-development",
+        "label": "Desarrollo Web (HTML/CSS)",
+        "domain": "programming",
+        "description": "Creación de la estructura y estilos visuales de interfaces web.",
+        "prerequisites": []
+    },
+    {
+        "id": "testing",
+        "label": "Testing y Calidad de Software",
+        "domain": "programming",
+        "description": "Diseño e implementación de pruebas unitarias, de integración y end-to-end.",
+        "prerequisites": []
+    },
+    {
+        "id": "system-design",
+        "label": "Diseño de Sistemas",
+        "domain": "programming",
+        "description": "Arquitectura de software, escalabilidad, alta disponibilidad y patrones de diseño.",
+        "prerequisites": [
+            "programming-fundamentals"
+        ]
+    },
+    {
+        "id": "git",
+        "label": "Control de Versiones (Git)",
+        "domain": "programming",
+        "description": "Gestión del código fuente, branching, merging y colaboración en repositorios.",
+        "prerequisites": []
+    },
+    {
+        "id": "sql",
+        "label": "Bases de Datos SQL",
+        "domain": "data",
+        "description": "Diseño de esquemas, consultas complejas y optimización de bases de datos relacionales.",
+        "prerequisites": []
+    },
+    {
+        "id": "nosql",
+        "label": "Bases de Datos NoSQL",
+        "domain": "data",
+        "description": "Modelado y manejo de bases de datos documentales, clave-valor o de grafos.",
+        "prerequisites": []
+    },
+    {
+        "id": "data-analysis",
+        "label": "Análisis de Datos",
+        "domain": "data",
+        "description": "Habilidad para extraer, limpiar y analizar datos para la toma de decisiones.",
+        "prerequisites": [
+            "sql",
+            "statistics"
+        ]
+    },
+    {
+        "id": "machine-learning",
+        "label": "Machine Learning",
+        "domain": "data",
+        "description": "Entrenamiento, evaluación y despliegue de modelos predictivos y algoritmos de IA.",
+        "prerequisites": [
+            "python",
+            "statistics"
+        ]
+    },
+    {
+        "id": "data-visualization",
+        "label": "Visualización de Datos",
+        "domain": "data",
+        "description": "Creación de dashboards y gráficos interactivos para comunicar insights de negocio.",
+        "prerequisites": [
+            "data-analysis"
+        ]
+    },
+    {
+        "id": "data-engineering",
+        "label": "Ingeniería de Datos",
+        "domain": "data",
+        "description": "Construcción y mantenimiento de pipelines de datos y arquitecturas ETL/ELT.",
+        "prerequisites": [
+            "python",
+            "sql"
+        ]
+    },
+    {
+        "id": "statistics",
+        "label": "Estadística y Probabilidad",
+        "domain": "data",
+        "description": "Fundamentos matemáticos para modelar incertidumbre y validar hipótesis de datos.",
+        "prerequisites": []
+    },
+    {
+        "id": "cloud-infrastructure",
+        "label": "Infraestructura Cloud",
+        "domain": "devops",
+        "description": "Diseño y gestión de recursos en proveedores como AWS, GCP o Azure.",
+        "prerequisites": []
+    },
+    {
+        "id": "containerization",
+        "label": "Docker y Kubernetes",
+        "domain": "devops",
+        "description": "Contenerización de aplicaciones y orquestación de despliegues escalables.",
+        "prerequisites": [
+            "cloud-infrastructure"
+        ]
+    },
+    {
+        "id": "ci-cd",
+        "label": "Integración y Entrega Continua (CI/CD)",
+        "domain": "devops",
+        "description": "Automatización de pipelines de construcción, testing y despliegue de código.",
+        "prerequisites": [
+            "git"
+        ]
+    },
+    {
+        "id": "communication",
+        "label": "Comunicación Efectiva",
+        "domain": "soft-skills",
+        "description": "Capacidad para transmitir ideas técnicas de forma clara a audiencias diversas.",
+        "prerequisites": []
+    },
+    {
+        "id": "problem-solving",
+        "label": "Resolución de Problemas",
+        "domain": "soft-skills",
+        "description": "Pensamiento analítico para descomponer retos complejos y encontrar soluciones lógicas.",
+        "prerequisites": []
+    },
+    {
+        "id": "agile-methodologies",
+        "label": "Metodologías Ágiles",
+        "domain": "soft-skills",
+        "description": "Trabajo iterativo e incremental utilizando frameworks como Scrum o Kanban.",
+        "prerequisites": []
+    },
+    {
+        "id": "product-strategy",
+        "label": "Estrategia de Producto",
+        "domain": "product",
+        "description": "Definición de visión, roadmap y métricas comerciales para productos digitales.",
+        "prerequisites": []
+    },
+    {
+        "id": "user-experience",
+        "label": "Experiencia de Usuario (UX)",
+        "domain": "product",
+        "description": "Investigación y diseño centrado en el usuario para crear interfaces intuitivas.",
+        "prerequisites": []
+    },
+    {
+        "id": "product-management",
+        "label": "Gestión de Producto",
+        "domain": "product",
+        "description": "Coordinación entre negocio, tecnología y diseño para entregar valor al mercado.",
+        "prerequisites": [
+            "agile-methodologies"
+        ]
+    },
+    {
+        "id": "cybersecurity",
+        "label": "Ciberseguridad",
+        "domain": "programming",
+        "description": "Protección de sistemas, redes y datos contra amenazas y vulnerabilidades.",
+        "prerequisites": [
+            "system-design"
+        ]
+    },
+    {
+        "id": "programming-fundamentals",
+        "label": "Fundamentos de Programación",
+        "domain": "programming",
+        "description": "Lógica algorítmica y estructuras de datos básicas.",
+        "prerequisites": []
+    }
+]
