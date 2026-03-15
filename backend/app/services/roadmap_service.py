@@ -13,92 +13,78 @@ Para uso del compañero de backend:
 
 import uuid
 
-# ──────────────────────────────────────────────
-# BASE DE DATOS STUB (en memoria)
-# ──────────────────────────────────────────────
-ROADMAPS_DB: dict[str, dict] = {}
-
+from backend.app.database import SessionLocal
+from backend.app.models import Profile, Roadmap
+from agents.graph import app as agent_graph
+import json
 
 # ──────────────────────────────────────────────
 # GENERAR ROADMAP
 # ──────────────────────────────────────────────
 
-def generate_roadmap(user_id: str, enfoque: str) -> dict:
+def generate_roadmap(user_id: str, approach: str) -> dict:
     """
-    Genera un roadmap personalizado para el usuario.
-
-    Pipeline en producción:
-      1. Profiling Agent → obtener competency_profile
-      2. RAG (ChromaDB) → buscar cursos relevantes
-      3. Planning Agent → estructurar fases y bloques
-      4. ML Predict → clasificar trayectoria A/B
-      5. Explanatory Agent → generar explicación
-
-    Actualmente devuelve un roadmap stub con fases de ejemplo.
+    Generates a personalized roadmap by orchestrating the agent pipeline.
     """
-    roadmap_id = str(uuid.uuid4())
+    print(f"[Service] Starting roadmap generation for user: {user_id} (approach: {approach})")
+    
+    db = SessionLocal()
+    try:
+        # 1. Fetch existing profile
+        profile = db.query(Profile).filter(Profile.user_id == user_id).order_by(Profile.created_at.desc()).first()
+        if not profile:
+            raise ValueError(f"No cognitive profile found for user {user_id}. Please complete the questionnaire first.")
 
-    roadmap = {
-        "roadmap_id": roadmap_id,
-        "user_id": user_id,
-        "enfoque": enfoque,
-        "fases": [
-            {
-                "fase_orden": 1,
-                "nombre": "Fundamentos",
-                "bloques": [
-                    {
-                        "block_id": f"blk-{uuid.uuid4().hex[:8]}",
-                        "contenido_id": "curso-python-101",
-                        "titulo": "Python para Principiantes",
-                        "orden": 1,
-                        "completado": False,
-                    },
-                    {
-                        "block_id": f"blk-{uuid.uuid4().hex[:8]}",
-                        "contenido_id": "curso-stats-101",
-                        "titulo": "Estadística Básica",
-                        "orden": 2,
-                        "completado": False,
-                    },
-                ],
-            },
-            {
-                "fase_orden": 2,
-                "nombre": "Intermedio",
-                "bloques": [
-                    {
-                        "block_id": f"blk-{uuid.uuid4().hex[:8]}",
-                        "contenido_id": "curso-ml-201",
-                        "titulo": "Introducción a Machine Learning",
-                        "orden": 1,
-                        "completado": False,
-                    },
-                ],
-            },
-            {
-                "fase_orden": 3,
-                "nombre": "Avanzado",
-                "bloques": [
-                    {
-                        "block_id": f"blk-{uuid.uuid4().hex[:8]}",
-                        "contenido_id": "curso-dl-301",
-                        "titulo": "Deep Learning Aplicado",
-                        "orden": 1,
-                        "completado": False,
-                    },
-                ],
-            },
-        ],
-        "explicacion": (
-            f"Se ha generado un roadmap con enfoque {enfoque} basado en tu perfil "
-            "cognitivo. Las fases avanzan progresivamente desde fundamentos "
-            "hasta temas avanzados, adaptadas a tus fortalezas y áreas de mejora."
-        ),
-    }
+        # 2. Prepare initial state for LangGraph
+        # We use the raw_answers saved during profiling to ensure the pipeline runs correctly
+        initial_input = {
+            "user_id": str(user_id),
+            "raw_answers": json.dumps(profile.raw_answers) if profile.raw_answers else "{}",
+            "competency_profile": profile.competency_profile,
+            "approach": approach # Pass the user's preferred trajectory
+        }
 
-    ROADMAPS_DB[roadmap_id] = roadmap
-    return roadmap
+        # 3. Invoke the Full Pipeline (Graph)
+        # We use invoke instead of stream for synchronous API response
+        print("[Service] Invoking Agent Graph...")
+        result = agent_graph.invoke(initial_input)
+
+        if result.get("errors"):
+            raise Exception(f"Agent Pipeline Error: {result['errors'][0]}")
+
+        # 4. Extract generated data
+        generated_roadmap = result.get("roadmap", {})
+        ml_prediction_val = result.get("ml_prediction", "A")
+        
+        # 5. Persist the Roadmap in DB
+        trajectory_code = "A" if approach.upper() == "GENERALISTA" else "B"
+        
+        db_roadmap = Roadmap(
+            user_id=user_id,
+            profile_id=profile.id,
+            trajectory=trajectory_code,
+            ml_prediction={
+                "trajectory": ml_prediction_val,
+                "approach": approach
+            },
+            phases=generated_roadmap.get("phases", [])
+        )
+        db.add(db_roadmap)
+        db.commit()
+        db.refresh(db_roadmap)
+
+        return {
+            "roadmap_id": str(db_roadmap.id),
+            "user_id": str(db_roadmap.user_id),
+            "approach": approach,
+            "phases": db_roadmap.phases,
+            "explanation": generated_roadmap.get("explanation", result.get("explanation", ""))
+        }
+    except Exception as e:
+        db.rollback()
+        raise e
+    finally:
+        db.close()
 
 
 # ──────────────────────────────────────────────
@@ -107,53 +93,96 @@ def generate_roadmap(user_id: str, enfoque: str) -> dict:
 
 def get_alternatives(roadmap_id: str) -> dict | None:
     """
-    Devuelve ambas trayectorias (generalista y especialista) para un roadmap.
-
-    TODO:
-      - Consultar BD para obtener ambas versiones del roadmap
-      - Si solo existe una, generar la alternativa con el Planning Agent
+    Retrieves both trajectories (if they exist) for a user's roadmap context.
+    Currently, we return the requested one and check if others exist.
     """
-    roadmap = ROADMAPS_DB.get(roadmap_id)
-    if not roadmap:
-        return None
+    print(f"[Service] Fetching alternatives for roadmap: {roadmap_id}")
+    db = SessionLocal()
+    try:
+        current_roadmap = db.query(Roadmap).filter(Roadmap.id == roadmap_id).first()
+        if not current_roadmap:
+            return None
 
-    # Stub: construir alternativa invertida
-    enfoque_alt = "ESPECIALISTA" if roadmap["enfoque"] == "GENERALISTA" else "GENERALISTA"
+        # Look for other roadmaps for the same profile
+        others = db.query(Roadmap).filter(
+            Roadmap.profile_id == current_roadmap.profile_id,
+            Roadmap.id != current_roadmap.id
+        ).all()
 
-    return {
-        "roadmap_id": roadmap_id,
-        "generalista": roadmap if roadmap["enfoque"] == "GENERALISTA" else {
-            **roadmap,
-            "enfoque": "GENERALISTA",
-            "explicacion": "Trayectoria generalista alternativa (stub).",
-        },
-        "especialista": roadmap if roadmap["enfoque"] == "ESPECIALISTA" else {
-            **roadmap,
-            "enfoque": "ESPECIALISTA",
-            "explicacion": "Trayectoria especialista alternativa (stub).",
-        },
-    }
+        # Build response (Simplified: matching our AlternativeResponse schema)
+        res = {
+            "roadmap_id": str(current_roadmap.id),
+            "generalista": None,
+            "especialista": None
+        }
+
+        # Helper to map to response dict
+        def to_dict(rm):
+            return {
+                "roadmap_id": str(rm.id),
+                "user_id": str(rm.user_id),
+                "approach": "GENERALISTA" if rm.trajectory == "A" else "ESPECIALISTA",
+                "phases": rm.phases,
+                "explanation": "Stored trajectory"
+            }
+
+        if current_roadmap.trajectory == "A":
+            res["generalista"] = to_dict(current_roadmap)
+        else:
+            res["especialista"] = to_dict(current_roadmap)
+
+        for other in others:
+            if other.trajectory == "A":
+                res["generalista"] = to_dict(other)
+            else:
+                res["especialista"] = to_dict(other)
+
+        return res
+    finally:
+        db.close()
 
 
 # ──────────────────────────────────────────────
 # ACTUALIZAR PROGRESO DE BLOQUE
 # ──────────────────────────────────────────────
+from backend.app.models import Progress
 
-def update_block_progress(roadmap_id: str, block_id: str, completado: bool) -> bool:
+def update_block_progress(roadmap_id: str, block_id: str, completed: bool) -> bool:
     """
-    Marca un bloque como completado o pendiente.
-    Devuelve True si se encontró y actualizó, False en caso contrario.
+    Marks a block as completed or pending in the database.
+    """
+    print(f"[Service] Updating progress: Roadmap {roadmap_id}, Block {block_id}, Status {completed}")
+    db = SessionLocal()
+    try:
+        roadmap = db.query(Roadmap).filter(Roadmap.id == roadmap_id).first()
+        if not roadmap:
+            return False
 
-    TODO: Actualizar tabla `progress` en PostgreSQL.
-    """
-    roadmap = ROADMAPS_DB.get(roadmap_id)
-    if not roadmap:
+        if completed:
+            # Check if already exists to avoid duplicates
+            existing = db.query(Progress).filter(
+                Progress.roadmap_id == roadmap_id,
+                Progress.block_id == block_id
+            ).first()
+            
+            if not existing:
+                new_progress = Progress(
+                    user_id=roadmap.user_id,
+                    roadmap_id=roadmap.id,
+                    block_id=block_id
+                )
+                db.add(new_progress)
+        else:
+            # Remove completion
+            db.query(Progress).filter(
+                Progress.roadmap_id == roadmap_id,
+                Progress.block_id == block_id
+            ).delete()
+
+        db.commit()
+        return True
+    except Exception:
+        db.rollback()
         return False
-
-    for fase in roadmap["fases"]:
-        for bloque in fase["bloques"]:
-            if bloque["block_id"] == block_id:
-                bloque["completado"] = completado
-                return True
-
-    return False
+    finally:
+        db.close()

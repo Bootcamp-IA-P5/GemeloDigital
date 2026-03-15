@@ -54,7 +54,7 @@ def create_roadmap(body: RoadmapGenerateRequest):
     """
     roadmap = roadmap_service.generate_roadmap(
         user_id=body.user_id,
-        enfoque=body.enfoque,
+        approach=body.approach,
     )
     return roadmap
 
