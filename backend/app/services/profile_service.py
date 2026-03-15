@@ -68,10 +68,26 @@ def get_profile(user_id: str) -> dict | None:
         profile_data = db_profile.competency_profile
         
         # Add basic IDs needed for the CompetencyProfile schema
+        competencies = []
+        for c in profile_data.get("competencies", []):
+            # Map score logic (normalized to 1-4 for frontend)
+            score_val = c.get("score", 0.5)
+            curr_level = int(score_val * 3) + 1 # 0.0->1, 1.0->4
+            
+            competencies.append({
+                "competency_id": c.get("competency_id"),
+                "name": c.get("name"),
+                "domain": "Default", # We could infer this later
+                "current_level": curr_level,
+                "target_level": 4, # Hardcoded target for now
+                "gap": max(0, 4 - curr_level),
+                "score": score_val
+            })
+
         return {
             "user_id": str(db_profile.user_id),
             "profile_id": str(db_profile.id),
-            "competencies": profile_data.get("competencies", []),
+            "competencies": competencies,
             "recommended_approach": profile_data.get("recommended_approach", "GENERALISTA"),
             "summary": profile_data.get("summary", "")
         }

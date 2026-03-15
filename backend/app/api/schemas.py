@@ -65,10 +65,16 @@ class QuestionnaireAnswers(BaseModel):
 
 class CompetencyScore(BaseModel):
     """Score for an individual competency."""
-    competency_id: str
-    name: str
-    level: str = Field(..., description="Detected level: low/medium/high (bajo/medio/alto)")
-    score: float = Field(..., ge=0, le=1, description="Normalized score 0-1")
+    id: str = Field(..., alias="competency_id")
+    label: str = Field(..., alias="name")
+    domain: str = Field(default="General")
+    current_level: int = Field(..., ge=1, le=4)
+    target_level: int = Field(default=4)
+    gap: int = Field(default=0)
+    score: float = Field(..., ge=0, le=1)
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 class CompetencyProfile(BaseModel):
@@ -101,11 +107,19 @@ class RoadmapGenerateRequest(BaseModel):
 
 class RoadmapBlock(BaseModel):
     """A block (course) within a roadmap phase."""
-    block_id: str
-    content_id: str = Field(..., description="ID of the course in the catalog")
+    id: str = Field(..., alias="block_id")
+    course_id: str = Field(..., alias="content_id")
     title: str
     order: int
     completed: bool = False
+    priority: str = Field(default="required")
+    duration: str = Field(default="8h")
+    level: str = Field(default="intermediate")
+    why: str = Field(default="")
+    competencies_addressed: List[str] = Field(default_factory=list)
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 class RoadmapPhase(BaseModel):

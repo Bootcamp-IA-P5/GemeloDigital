@@ -65,7 +65,8 @@ def generate_roadmap(user_id: str, approach: str) -> dict:
             trajectory=trajectory_code,
             ml_prediction={
                 "trajectory": ml_prediction_val,
-                "approach": approach
+                "approach": approach,
+                "explanation": generated_roadmap.get("explanation", result.get("explanation", ""))
             },
             phases=generated_roadmap.get("phases", [])
         )
@@ -73,13 +74,7 @@ def generate_roadmap(user_id: str, approach: str) -> dict:
         db.commit()
         db.refresh(db_roadmap)
 
-        return {
-            "roadmap_id": str(db_roadmap.id),
-            "user_id": str(db_roadmap.user_id),
-            "approach": approach,
-            "phases": db_roadmap.phases,
-            "explanation": generated_roadmap.get("explanation", result.get("explanation", ""))
-        }
+        return to_dict(db_roadmap)
     except Exception as e:
         db.rollback()
         raise e
@@ -118,12 +113,36 @@ def get_alternatives(roadmap_id: str) -> dict | None:
 
         # Helper to map to response dict
         def to_dict(rm):
+            # Map phases to enrich blocks with secondary info for frontend
+            enriched_phases = []
+            for phase in rm.phases:
+                blocks = []
+                for b in phase.get("blocks", []):
+                    blocks.append({
+                        "block_id": b.get("block_id"),
+                        "content_id": b.get("content_id"),
+                        "title": b.get("title"),
+                        "order": b.get("order", 1),
+                        "completed": b.get("completed", False),
+                        # Placeholders for front-end only display fields
+                        "priority": b.get("priority", "required"),
+                        "duration": b.get("duration", "10h"),
+                        "level": b.get("level", "intermediate"),
+                        "why": b.get("why", "Recommended based on your gaps."),
+                        "competencies_addressed": b.get("competencies_addressed", [])
+                    })
+                enriched_phases.append({
+                    "phase_order": phase.get("phase_order", 1),
+                    "name": phase.get("name", "Fase"),
+                    "blocks": blocks
+                })
+
             return {
                 "roadmap_id": str(rm.id),
                 "user_id": str(rm.user_id),
                 "approach": "GENERALISTA" if rm.trajectory == "A" else "ESPECIALISTA",
-                "phases": rm.phases,
-                "explanation": "Stored trajectory"
+                "phases": enriched_phases,
+                "explanation": rm.ml_prediction.get("explanation", "Stored trajectory") if rm.ml_prediction else "Stored trajectory"
             }
 
         if current_roadmap.trajectory == "A":
