@@ -15,6 +15,8 @@ if root_dir not in sys.path:
 # 1. Imports from our new structure
 from agents.schemas.profiling_schema import CompetencyProfile
 from agents.utils.guardrails import handle_llm_output_error, validate_and_format_response
+from agents.utils.prompt_loader import load_skill_prompt
+from agents.tools.persistence import save_user_profile
 
 # Load environment variables
 load_dotenv()
@@ -82,6 +84,17 @@ def generate_cognitive_profile(user_answers_json: str, original_user_id: str) ->
             "raw_answers": user_answers_json
         })
         
+        # Save to DB (Tool)
+        print(f"[Profiling] Applying Tool: save_user_profile for {original_user_id}...")
+        try:
+            db_status = save_user_profile.invoke({
+                "user_id": original_user_id, 
+                "profile_dict": response_model.dict()
+            })
+            print(f"            {db_status}")
+        except Exception as tool_err:
+            print(f"            [WARNING] Tool failed: {tool_err}")
+
         # Use centralized validation and formatting
         return validate_and_format_response(response_model)
         

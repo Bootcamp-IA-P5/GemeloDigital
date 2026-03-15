@@ -80,7 +80,10 @@ def retrieval_node(state: AgentState):
     if not state.get("competency_profile"):
         return {"errors": ["No competency profile found to perform retrieval."]}
     
-    courses = retrieve_relevant_courses(state.get("competency_profile", {}))
+    courses = retrieve_relevant_courses(
+        competency_profile=state.get("competency_profile", {}),
+        gaps=state.get("prioritized_gaps", [])
+    )
     
     return {
         "retrieved_courses": courses,
