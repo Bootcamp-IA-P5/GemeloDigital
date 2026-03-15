@@ -13,64 +13,38 @@ Para uso del compañero de backend:
 
 import uuid
 
-# ──────────────────────────────────────────────
-# BASE DE DATOS STUB (en memoria)
-# ──────────────────────────────────────────────
-PROFILES_DB: dict[str, dict] = {}
-
+from agents.nodes.profiling_node import generate_cognitive_profile
+from backend.app.api.schemas import QuestionnaireAnswers
 
 # ──────────────────────────────────────────────
 # CREAR PERFIL COGNITIVO
 # ──────────────────────────────────────────────
 
-def create_profile(user_id: str, respuestas: dict) -> dict:
+def create_profile(user_id: str, answers: QuestionnaireAnswers) -> dict:
     """
-    Crea un perfil cognitivo a partir de las respuestas del cuestionario.
-
-    En producción:
-      1. Envía raw_answers al Profiling Agent (LLM)
-      2. El agente analiza y genera un competency_profile
-      3. Se persiste en la tabla `profiles`
-
-    Actualmente devuelve un perfil stub con competencias de ejemplo.
+    Creates a cognitive profile by invoking the Profiling Agent.
     """
-    perfil_id = str(uuid.uuid4())
+    print(f"[Service] Requesting real profiling for user: {user_id}")
+    
+    # 1. Transform Pydantic model to JSON for the agent
+    # The agent expects a JSON string of the answers
+    answers_dict = answers.dict()
+    import json
+    answers_json = json.dumps(answers_dict)
 
-    # Perfil stub — simula la salida del Profiling Agent
-    profile = {
-        "user_id": user_id,
-        "perfil_id": perfil_id,
-        "competencias": [
-            {
-                "competencia_id": "comp-python",
-                "nombre": "Programación en Python",
-                "nivel": "medio",
-                "puntuacion": 0.65,
-            },
-            {
-                "competencia_id": "comp-ml",
-                "nombre": "Machine Learning",
-                "nivel": "bajo",
-                "puntuacion": 0.30,
-            },
-            {
-                "competencia_id": "comp-data",
-                "nombre": "Análisis de Datos",
-                "nivel": "alto",
-                "puntuacion": 0.85,
-            },
-        ],
-        "enfoque_recomendado": "GENERALISTA",
-        "resumen": (
-            "El usuario muestra fortalezas en análisis de datos y un nivel "
-            "intermedio en Python. Se recomienda una trayectoria generalista "
-            "para reforzar las competencias de ML antes de especializar."
-        ),
-    }
+    # 2. Invoke the actual Agent Node
+    # This will return a dict with {competencies, recommended_approach, summary}
+    # and it internally saves to the Database via our new tool.
+    profile_dict = generate_cognitive_profile(
+        user_answers_json=answers_json,
+        original_user_id=user_id
+    )
 
-    PROFILES_DB[user_id] = profile
-    return profile
+    return profile_dict
 
+
+from backend.app.database import SessionLocal
+from backend.app.models import Profile
 
 # ──────────────────────────────────────────────
 # OBTENER PERFIL
@@ -78,9 +52,28 @@ def create_profile(user_id: str, respuestas: dict) -> dict:
 
 def get_profile(user_id: str) -> dict | None:
     """
-    Obtiene el perfil cognitivo de un usuario.
-    Devuelve None si no existe.
-
-    TODO: Consultar tabla `profiles` en PostgreSQL.
+    Retrieves the cognitive profile of a user from PostgreSQL.
+    Returns None if it doesn't exist.
     """
-    return PROFILES_DB.get(user_id)
+    print(f"[Service] Searching for profile in DB for user: {user_id}")
+    
+    db = SessionLocal()
+    try:
+        db_profile = db.query(Profile).filter(Profile.user_id == user_id).first()
+        if not db_profile:
+            return None
+            
+        # Map the DB model (JSON column) to the dictionary format expected by schemas
+        # The tool saves it as {'competencies': [...], 'recommended_approach': "...", 'summary': "..."}
+        profile_data = db_profile.competency_profile
+        
+        # Add basic IDs needed for the CompetencyProfile schema
+        return {
+            "user_id": str(db_profile.user_id),
+            "profile_id": str(db_profile.id),
+            "competencies": profile_data.get("competencies", []),
+            "recommended_approach": profile_data.get("recommended_approach", "GENERALISTA"),
+            "summary": profile_data.get("summary", "")
+        }
+    finally:
+        db.close()

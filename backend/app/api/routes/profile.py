@@ -51,7 +51,7 @@ def create_profile(body: QuestionnaireAnswers):
     """
     profile = profile_service.create_profile(
         user_id=body.user_id,
-        respuestas=body.respuestas,
+        answers=body,
     )
     return profile
 
