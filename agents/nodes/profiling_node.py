@@ -24,7 +24,7 @@ load_dotenv()
 # Reference data and prompts using absolute project root logic
 BASE_DIR = root_dir
 TAXONOMY_PATH = os.path.join(BASE_DIR, "agents", "data", "competencies.json")
-PROMPT_PATH = os.path.join(BASE_DIR, "agents", "prompts", "profiling_prompt.txt")
+PROMPT_PATH = os.path.join(BASE_DIR, "agents", "prompts", "profiling_prompt.md")
 
 def _load_taxonomy_str() -> str:
     """Reads the official 25 competencies dictionary."""
@@ -65,7 +65,7 @@ def generate_cognitive_profile(user_answers_json: str, original_user_id: str) ->
     
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_instructions),
-        ("system", f"OFFICIAL COMPETENCY TAXONOMY JSON:\n{taxonomy_data}"),
+        ("system", "OFFICIAL COMPETENCY TAXONOMY JSON:\n{taxonomy}"),
         ("human", "Analyze this user form and return my profile JSON.\nUser_Id={user_id}\nRaw_Answers:\n{raw_answers}")
     ])
     
@@ -77,6 +77,7 @@ def generate_cognitive_profile(user_answers_json: str, original_user_id: str) ->
     # 6. Execute Inference with centralized Guardrails
     try:
         response_model = profiling_chain.invoke({
+            "taxonomy": taxonomy_data,
             "user_id": original_user_id,
             "raw_answers": user_answers_json
         })
