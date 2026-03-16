@@ -19,7 +19,7 @@ from ..schemas import (
     TokenResponse,
     MessageResponse,
 )
-from ...services import auth_service
+from ...services import auth_service, livekit_service
 
 router = APIRouter(tags=["Autenticación"])
 
@@ -93,3 +93,38 @@ def login(body: LoginRequest):
             detail="Credenciales inválidas",
         )
     return result
+
+
+# ──────────────────────────────────────────────
+# LIVEKIT — Generar token para video/voz
+# ──────────────────────────────────────────────
+
+@router.get(
+    "/livekit-token",
+    summary="Generar token para LiveKit",
+)
+def get_livekit_token(room: str = "datum-digitaltwin", identity: str = None, name: str = "Usuario"):
+    """
+    Genera un token de acceso para unirse a una sala de LiveKit.
+    
+    Parámetros:
+      - room: Nombre de la sala (default: datum-digitaltwin)
+      - identity: ID único del usuario (si es None, se genera uno)
+      - name: Nombre a mostrar
+    """
+    import uuid
+    if not identity:
+        identity = f"user-{str(uuid.uuid4())[:8]}"
+        
+    try:
+        token = livekit_service.generate_livekit_token(
+            room=room,
+            identity=identity,
+            name=name
+        )
+        return {"token": token}
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al generar el token: {str(e)}"
+        )
