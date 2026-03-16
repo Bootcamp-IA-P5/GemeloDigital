@@ -30,7 +30,7 @@ router = APIRouter(tags=["Roadmap"])
 
 
 @router.get(
-    "/",
+    "",
     response_model=RoadmapResponse,
     summary="Obtener roadmap del usuario actual (Usado por Dashboard)",
 )
@@ -53,7 +53,7 @@ def get_current_user_roadmap():
 # ──────────────────────────────────────────────
 
 @router.post(
-    "/",
+    "",
     response_model=RoadmapResponse,
     status_code=201,
     summary="Generar roadmap personalizado",

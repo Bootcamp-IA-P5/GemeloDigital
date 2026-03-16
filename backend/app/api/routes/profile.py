@@ -30,7 +30,7 @@ router = APIRouter(tags=["Perfil"])
 # ──────────────────────────────────────────────
 
 @router.post(
-    "/",
+    "",
     response_model=CompetencyProfile,
     status_code=201,
     summary="Crear perfil cognitivo",
@@ -58,7 +58,7 @@ def create_profile(body: QuestionnaireAnswers):
 
 
 @router.get(
-    "/",
+    "",
     response_model=FullProfileResponse,
     summary="Obtener perfil del usuario actual (Usado por Dashboard)",
 )
