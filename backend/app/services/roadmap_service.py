@@ -2,21 +2,44 @@
 Roadmap Service — Lógica de negocio del roadmap
 ================================================
 Funciones para generar, consultar y actualizar roadmaps.
-Actualmente usa datos stub en memoria; en producción orquestará
-la pipeline completa: Profiling → RAG → Planning → ML → Explanatory.
-
-Para uso del compañero de backend:
-  - Reemplazar ROADMAPS_DB por queries a las tablas `roadmaps` y `progress`
-  - Integrar la llamada al orchestrator para la pipeline completa
-  - Conectar con el modelo ML para clasificación de trayectorias
+Orquesta la pipeline completa: Profiling → RAG → Planning → ML → Explanatory.
 """
 
 import uuid
-
-from app.database import SessionLocal
-from app.models import Profile, Roadmap
-from agents.graph import app as agent_graph
 import json
+from app.database import SessionLocal
+from app.models import Profile, Roadmap, Progress
+from agents.graph import app as agent_graph
+
+def to_dict(rm: Roadmap) -> dict:
+    """Helper to convert Roadmap ORM to dict matching RoadmapResponse schema."""
+    enriched_phases = []
+    for phase in rm.phases:
+        blocks = []
+        for b in phase.get("blocks", []):
+            # Normalizamos el ID del curso para el frontend
+            blocks.append({
+                "course_id": b.get("content_id") or b.get("course_id") or b.get("id"),
+                "title": b.get("title"),
+                "priority": b.get("priority", "required"),
+                "duration": b.get("duration", "10h"),
+                "level": b.get("level", "intermediate"),
+                "completed": b.get("completed", False),
+                "why": b.get("why", "Recomendado basado en tu perfil."),
+                "competencies_addressed": b.get("competencies_addressed", [])
+            })
+        enriched_phases.append({
+            "phase_order": phase.get("phase_order", 1),
+            "name": phase.get("name", "Fase"),
+            "blocks": blocks
+        })
+
+    return {
+        "roadmap_id": str(rm.id),
+        "user_id": str(rm.user_id),
+        "trajectory": "GENERALISTA" if rm.trajectory == "A" else "ESPECIALISTA",
+        "phases": enriched_phases
+    }
 
 # ──────────────────────────────────────────────
 # GENERAR ROADMAP
@@ -36,16 +59,14 @@ def generate_roadmap(user_id: str, approach: str) -> dict:
             raise ValueError(f"No cognitive profile found for user {user_id}. Please complete the questionnaire first.")
 
         # 2. Prepare initial state for LangGraph
-        # We use the raw_answers saved during profiling to ensure the pipeline runs correctly
         initial_input = {
             "user_id": str(user_id),
             "raw_answers": json.dumps(profile.raw_answers) if profile.raw_answers else "{}",
             "competency_profile": profile.competency_profile,
-            "approach": approach # Pass the user's preferred trajectory
+            "approach": approach 
         }
 
         # 3. Invoke the Full Pipeline (Graph)
-        # We use invoke instead of stream for synchronous API response
         print("[Service] Invoking Agent Graph...")
         result = agent_graph.invoke(initial_input)
 
@@ -83,15 +104,31 @@ def generate_roadmap(user_id: str, approach: str) -> dict:
 
 
 # ──────────────────────────────────────────────
+# OBTENER ROADMAP ACTUAL
+# ──────────────────────────────────────────────
+
+def get_current_roadmap(user_id: str) -> dict | None:
+    """
+    Obtiene el roadmap más reciente de un usuario.
+    """
+    db = SessionLocal()
+    try:
+        roadmap = db.query(Roadmap).filter(Roadmap.user_id == user_id).order_by(Roadmap.created_at.desc()).first()
+        if not roadmap:
+            return None
+        return to_dict(roadmap)
+    finally:
+        db.close()
+
+
+# ──────────────────────────────────────────────
 # OBTENER ALTERNATIVAS (Trayectoria A y B)
 # ──────────────────────────────────────────────
 
 def get_alternatives(roadmap_id: str) -> dict | None:
     """
-    Retrieves both trajectories (if they exist) for a user's roadmap context.
-    Currently, we return the requested one and check if others exist.
+    Retrieves both trajectories for comparisons.
     """
-    print(f"[Service] Fetching alternatives for roadmap: {roadmap_id}")
     db = SessionLocal()
     try:
         current_roadmap = db.query(Roadmap).filter(Roadmap.id == roadmap_id).first()
@@ -104,46 +141,11 @@ def get_alternatives(roadmap_id: str) -> dict | None:
             Roadmap.id != current_roadmap.id
         ).all()
 
-        # Build response (Simplified: matching our AlternativeResponse schema)
         res = {
             "roadmap_id": str(current_roadmap.id),
             "generalista": None,
             "especialista": None
         }
-
-        # Helper to map to response dict
-        def to_dict(rm):
-            # Map phases to enrich blocks with secondary info for frontend
-            enriched_phases = []
-            for phase in rm.phases:
-                blocks = []
-                for b in phase.get("blocks", []):
-                    blocks.append({
-                        "block_id": b.get("block_id"),
-                        "content_id": b.get("content_id"),
-                        "title": b.get("title"),
-                        "order": b.get("order", 1),
-                        "completed": b.get("completed", False),
-                        # Placeholders for front-end only display fields
-                        "priority": b.get("priority", "required"),
-                        "duration": b.get("duration", "10h"),
-                        "level": b.get("level", "intermediate"),
-                        "why": b.get("why", "Recommended based on your gaps."),
-                        "competencies_addressed": b.get("competencies_addressed", [])
-                    })
-                enriched_phases.append({
-                    "phase_order": phase.get("phase_order", 1),
-                    "name": phase.get("name", "Fase"),
-                    "blocks": blocks
-                })
-
-            return {
-                "roadmap_id": str(rm.id),
-                "user_id": str(rm.user_id),
-                "approach": "GENERALISTA" if rm.trajectory == "A" else "ESPECIALISTA",
-                "phases": enriched_phases,
-                "explanation": rm.ml_prediction.get("explanation", "Stored trajectory") if rm.ml_prediction else "Stored trajectory"
-            }
 
         if current_roadmap.trajectory == "A":
             res["generalista"] = to_dict(current_roadmap)
@@ -164,13 +166,11 @@ def get_alternatives(roadmap_id: str) -> dict | None:
 # ──────────────────────────────────────────────
 # ACTUALIZAR PROGRESO DE BLOQUE
 # ──────────────────────────────────────────────
-from app.models import Progress
 
 def update_block_progress(roadmap_id: str, block_id: str, completed: bool) -> bool:
     """
     Marks a block as completed or pending in the database.
     """
-    print(f"[Service] Updating progress: Roadmap {roadmap_id}, Block {block_id}, Status {completed}")
     db = SessionLocal()
     try:
         roadmap = db.query(Roadmap).filter(Roadmap.id == roadmap_id).first()
@@ -178,12 +178,10 @@ def update_block_progress(roadmap_id: str, block_id: str, completed: bool) -> bo
             return False
 
         if completed:
-            # Check if already exists to avoid duplicates
             existing = db.query(Progress).filter(
                 Progress.roadmap_id == roadmap_id,
                 Progress.block_id == block_id
             ).first()
-            
             if not existing:
                 new_progress = Progress(
                     user_id=roadmap.user_id,
@@ -192,7 +190,6 @@ def update_block_progress(roadmap_id: str, block_id: str, completed: bool) -> bo
                 )
                 db.add(new_progress)
         else:
-            # Remove completion
             db.query(Progress).filter(
                 Progress.roadmap_id == roadmap_id,
                 Progress.block_id == block_id

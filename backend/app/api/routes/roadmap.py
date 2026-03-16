@@ -29,6 +29,25 @@ from ...services import roadmap_service
 router = APIRouter(tags=["Roadmap"])
 
 
+@router.get(
+    "/",
+    response_model=RoadmapResponse,
+    summary="Obtener roadmap del usuario actual (Usado por Dashboard)",
+)
+def get_current_user_roadmap():
+    """
+    Obtiene el roadmap activo del usuario que tiene la sesión iniciada.
+    """
+    test_user_id = "user-123"
+    profile = roadmap_service.get_current_roadmap(test_user_id)
+    if not profile:
+        raise HTTPException(
+            status_code=404,
+            detail="No se encontró un roadmap activo. Datum te creará uno pronto."
+        )
+    return profile
+
+
 # ──────────────────────────────────────────────
 # GENERAR — Crear roadmap personalizado
 # ──────────────────────────────────────────────
@@ -106,7 +125,7 @@ def update_block_progress(roadmap_id: str, block_id: str, body: BlockProgressUpd
     updated = roadmap_service.update_block_progress(
         roadmap_id=roadmap_id,
         block_id=block_id,
-        completado=body.completado,
+        completed=body.completed,
     )
     if not updated:
         raise HTTPException(
@@ -114,7 +133,7 @@ def update_block_progress(roadmap_id: str, block_id: str, body: BlockProgressUpd
             detail=f"Roadmap '{roadmap_id}' o bloque '{block_id}' no encontrado",
         )
 
-    estado = "completado" if body.completado else "pendiente"
+    estado = "completado" if body.completed else "pendiente"
     return MessageResponse(
         message=f"Bloque '{block_id}' marcado como {estado}",
     )
