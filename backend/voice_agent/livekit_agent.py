@@ -23,30 +23,42 @@ from livekit.agents import (
     WorkerOptions,
     cli,
 )
-from livekit.plugins import cartesia, deepgram, openai, silero
+from livekit.plugins import cartesia, deepgram, openai, silero, llm
 from livekit.plugins.bey import AvatarSession
+import logging
+
+logger = logging.getLogger("voice-agent")
 
 # Cargar .env: Intentar en raíz, si no en el directorio actual
 load_dotenv(os.path.join(os.getcwd(), "../../.env"))
 load_dotenv(".env")
 
 
+class AssistantFunctions(llm.FunctionContext):
+    """Acciones que el agente puede ejecutar durante la charla."""
+
+    @llm.ai_callable(description="Finaliza la entrevista cuando Datum tiene info suficiente y guarda el perfil.")
+    async def finish_onboarding(self):
+        logger.info("BOTÓN PULSADO: Datum finaliza la entrevista.")
+        # Aquí dispararemos la extracción real en el siguiente paso
+        return "Perfecto, he guardado tus datos. En unos segundos verás tu Roadmap en el Dashboard."
+
 class DigitalTwin(Agent):
     def __init__(self, user_name: str = "Usuario", user_details: str = "") -> None:
         instructions = (
-            f"Eres Datum, un asistente de voz de IA para la plataforma Datum Gemelo IA. "
-            f"Estás hablando con {user_name}. "
-            "Tu rol es ayudar al usuario a entender sus competencias profesionales, "
-            "orientarle en su plan de aprendizaje y responder sobre su roadmap de carrera. "
-            "\n\n"
-            "DETALLES DEL USUARIO:\n"
-            f"{user_details}\n\n"
-            "REGLAS ESTRICTAS DE IDIOMA:\n"
-            "- Habla SIEMPRE en español. NUNCA en inglés, ni una sola palabra.\n"
-            "- Si el usuario habla en inglés, respóndele en español de todas formas.\n"
-            "- Habla de forma natural, cercana y motivadora.\n"
-            "- Sé conciso: respuestas cortas de 1-3 oraciones al inicio.\n"
-            "- El usuario te puede interrumpir — para de hablar si lo hace.\n"
+            f"Eres Datum, el Asistente de IA de la plataforma Datum. Hablas con {user_name}.\n\n"
+            "TU MISIÓN: Entrevistar al usuario para conocer su perfil profesional. Debes averiguar:\n"
+            "1. Su rol actual o profesión.\n"
+            "2. Su objetivo profesional (qué quiere ser).\n"
+            "3. Su nivel de experiencia o tiempo disponible.\n\n"
+            "GUARDARRAÍLES Y REGLAS ESTRICTAS:\n"
+            "- NUNCA menciones a 'DataQuantum'. Si te preguntan, di que solo conoces Datum.\n"
+            "- NUNCA recomiendes cursos específicos de otras plataformas ni hables de contenido formativo externo.\n"
+            "- Habla SIEMPRE en español. NUNCA en inglés.\n"
+            "- Cuando tengas toda la info (los 3 puntos de arriba), usa la función 'finish_onboarding'.\n\n"
+            "ESTILO:\n"
+            "- Sé conciso, cálido y motivador.\n"
+            "- No hagas las 3 preguntas a la vez; haz una entrevista fluida."
         )
         super().__init__(instructions=instructions)
 
@@ -88,6 +100,8 @@ async def entrypoint(ctx: JobContext):
     )
 
     # Sesión de voz con STT español + LLM + TTS español
+    fnc_ctx = AssistantFunctions()
+    
     session = AgentSession(
         vad=silero.VAD.load(),
         stt=deepgram.STT(
@@ -100,6 +114,7 @@ async def entrypoint(ctx: JobContext):
             language="es",
             voice="ccfea4bf-b3f4-421e-87ed-dd05dae01431",
         ),
+        fnc_ctx=fnc_ctx,
     )
 
     # Iniciar el avatar + la sesión de voz juntos
