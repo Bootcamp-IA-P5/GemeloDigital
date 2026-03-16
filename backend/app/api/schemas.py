@@ -95,6 +95,14 @@ class CompetencyProfile(BaseModel):
     summary: str = Field(..., description="Textual summary of the profile")
 
 
+class AvatarState(BaseModel):
+    """Visual and personality state of the digital twin."""
+    url: Optional[str] = None
+    personality: Optional[str] = None
+    color: Optional[str] = None
+
+
+
 # ──────────────────────────────────────────────
 # ROADMAP — Generación y gestión de roadmaps
 # ──────────────────────────────────────────────
@@ -142,6 +150,18 @@ class RoadmapResponse(BaseModel):
         ...,
         description="Explanation from the Explanatory Agent on why this roadmap is recommended",
     )
+
+
+class FullProfileResponse(BaseModel):
+    """Unified state for the frontend (Profile + Radar + Roadmap + Avatar)."""
+    user_id: str
+    full_name: str
+    current_role: str
+    target_role: str
+    experience_years: int
+    avatar: AvatarState
+    competency_profile: Optional[CompetencyProfile] = None
+    roadmap: Optional[RoadmapResponse] = None
 
 
 class AlternativesResponse(BaseModel):

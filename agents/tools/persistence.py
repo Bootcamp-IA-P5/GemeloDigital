@@ -9,8 +9,8 @@ if root_dir not in sys.path:
     sys.path.append(root_dir)
 
 from langchain_core.tools import tool
-from backend.app.database import SessionLocal, Base, engine
-from backend.app.models import User, Profile
+from app.database import SessionLocal, Base, engine
+from app.models import User, Profile
 
 load_dotenv()
 
@@ -21,7 +21,7 @@ def save_user_profile(user_id: str, profile_dict: dict) -> str:
     Useful for persisting cognitive profiles after the Profiling Agent runs.
     
     Args:
-        user_id (str): The unique ID of the user (UUID format expected by DB).
+        user_id (str): The unique ID of the user (String format expected by DB).
         profile_dict (dict): The generated profile containing competencies, recommended_approach, and summary.
     """
     print(f"\n[TOOL: Persistence] Attempting to save profile for user: {user_id}")
@@ -43,12 +43,16 @@ def save_user_profile(user_id: str, profile_dict: dict) -> str:
         if existing_profile:
             # Update existing profile
             existing_profile.competency_profile = profile_dict
+            existing_profile.avatar_personality = profile_dict.get("avatar_personality")
+            existing_profile.avatar_color = profile_dict.get("avatar_color")
             print("[TOOL: Persistence] Updated existing profile.")
         else:
             # Create new profile
             new_profile = Profile(
                 user_id=user_id,
-                competency_profile=profile_dict
+                competency_profile=profile_dict,
+                avatar_personality=profile_dict.get("avatar_personality"),
+                avatar_color=profile_dict.get("avatar_color")
             )
             db.add(new_profile)
             print("[TOOL: Persistence] Created new profile.")

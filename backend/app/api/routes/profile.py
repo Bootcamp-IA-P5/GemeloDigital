@@ -18,6 +18,7 @@ from fastapi import APIRouter, HTTPException
 from ..schemas import (
     QuestionnaireAnswers,
     CompetencyProfile,
+    FullProfileResponse,
 )
 from ...services import profile_service
 
@@ -62,8 +63,8 @@ def create_profile(body: QuestionnaireAnswers):
 
 @router.get(
     "/{user_id}",
-    response_model=CompetencyProfile,
-    summary="Obtener perfil cognitivo de un usuario",
+    response_model=FullProfileResponse,
+    summary="Obtener estado unificado (Perfil + Radar + Roadmap + Avatar)",
 )
 def get_profile(user_id: str):
     """

@@ -14,7 +14,9 @@ Para uso del compañero de backend:
 import uuid
 
 from agents.nodes.profiling_node import generate_cognitive_profile
-from backend.app.api.schemas import QuestionnaireAnswers
+from app.api.schemas import QuestionnaireAnswers
+from app.database import SessionLocal
+from app.models import Profile, User, Roadmap
 
 # ──────────────────────────────────────────────
 # CREAR PERFIL COGNITIVO
@@ -43,59 +45,103 @@ def create_profile(user_id: str, answers: QuestionnaireAnswers) -> dict:
     return profile_dict
 
 
-from backend.app.database import SessionLocal
-from backend.app.models import Profile
 
 # ──────────────────────────────────────────────
-# OBTENER PERFIL
+# OBTENER PERFIL UNIFICADO (Paso 2)
 # ──────────────────────────────────────────────
 
 def get_profile(user_id: str) -> dict | None:
     """
-    Retrieves the cognitive profile of a user from PostgreSQL.
-    Returns None if it doesn't exist.
+    Retrieves the full unified state (Profile + Roadmap + Avatar).
     """
-    print(f"[Service] Searching for profile in DB for user: {user_id}")
+    print(f"[Service] Searching for full state in DB for user: {user_id}")
     
     db = SessionLocal()
     try:
-        db_profile = db.query(Profile).filter(Profile.user_id == user_id).first()
+        # 1. Fetch User
+        user = db.query(User).filter(User.id == user_id).first()
+        
+        # 2. Fetch Latest Profile
+        db_profile = db.query(Profile).filter(Profile.user_id == user_id).order_by(Profile.created_at.desc()).first()
         if not db_profile:
             return None
             
-        # Map the DB model (JSON column) to the dictionary format expected by schemas
-        # The tool saves it as {'competencies': [...], 'recommended_approach': "...", 'summary': "..."}
-        profile_data = db_profile.competency_profile
-        
-        # Add basic IDs needed for the CompetencyProfile schema
+        # 3. Fetch Latest Roadmap
+        db_roadmap = db.query(Roadmap).filter(Roadmap.user_id == user_id).order_by(Roadmap.created_at.desc()).first()
+
+        # Map competencies
+        profile_data = db_profile.competency_profile or {}
         competencies = []
         for c in profile_data.get("competencies", []):
-            # Map score logic (normalized to 1-4 for frontend)
             score_val = c.get("score", 0.5)
-            curr_level = int(score_val * 3) + 1 # 0.0->1, 1.0->4
-            
+            curr_level = int(score_val * 3) + 1
             competencies.append({
                 "competency_id": c.get("competency_id"),
                 "name": c.get("name"),
-                "domain": "Default", # We could infer this later
+                "domain": "Default",
                 "current_level": curr_level,
-                "target_level": 4, # Hardcoded target for now
+                "target_level": 4,
                 "gap": max(0, 4 - curr_level),
                 "score": score_val
             })
 
-        # Data from questionnaire results
         raw = db_profile.raw_answers or {}
         
+        # Roadmap Formatting
+        roadmap_data = None
+        if db_roadmap:
+            enriched_phases = []
+            for phase in db_roadmap.phases:
+                blocks = []
+                for b in phase.get("blocks", []):
+                    blocks.append({
+                        "block_id": b.get("block_id"),
+                        "content_id": b.get("content_id"),
+                        "title": b.get("title"),
+                        "order": b.get("order", 1),
+                        "completed": b.get("completed", False),
+                        "priority": b.get("priority", "required"),
+                        "duration": b.get("duration", "10h"),
+                        "level": b.get("level", "intermediate"),
+                        "why": b.get("why", "Recommended based on your gaps."),
+                        "competencies_addressed": b.get("competencies_addressed", [])
+                    })
+                enriched_phases.append({
+                    "phase_order": phase.get("phase_order", 1),
+                    "name": phase.get("name", "Fase"),
+                    "blocks": blocks
+                })
+            
+            roadmap_data = {
+                "roadmap_id": str(db_roadmap.id),
+                "user_id": str(db_roadmap.user_id),
+                "approach": "GENERALISTA" if db_roadmap.trajectory == "A" else "ESPECIALISTA",
+                "phases": enriched_phases,
+                "explanation": db_roadmap.ml_prediction.get("explanation", "") if db_roadmap.ml_prediction else ""
+            }
+
         return {
-            "user_id": str(db_profile.user_id),
-            "profile_id": str(db_profile.id),
+            "user_id": str(user_id),
+            "full_name": user.name if user else "Usuario",
             "current_role": raw.get("currentRole", "Developer"),
             "target_role": raw.get("targetRole", "Senior"),
             "experience_years": raw.get("experience", 0),
-            "competencies": competencies,
-            "recommended_approach": profile_data.get("recommended_approach", "GENERALISTA"),
-            "summary": profile_data.get("summary", "")
+            "avatar": {
+                "url": db_profile.avatar_url,
+                "personality": db_profile.avatar_personality,
+                "color": db_profile.avatar_color
+            },
+            "competency_profile": {
+                "user_id": str(user_id),
+                "profile_id": str(db_profile.id),
+                "current_role": raw.get("currentRole", "Developer"),
+                "target_role": raw.get("targetRole", "Senior"),
+                "experience_years": raw.get("experience", 0),
+                "competencies": competencies,
+                "recommended_approach": profile_data.get("recommended_approach", "GENERALISTA"),
+                "summary": profile_data.get("summary", "")
+            },
+            "roadmap": roadmap_data
         }
     finally:
         db.close()

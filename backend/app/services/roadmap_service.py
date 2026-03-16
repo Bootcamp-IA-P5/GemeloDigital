@@ -13,8 +13,8 @@ Para uso del compañero de backend:
 
 import uuid
 
-from backend.app.database import SessionLocal
-from backend.app.models import Profile, Roadmap
+from app.database import SessionLocal
+from app.models import Profile, Roadmap
 from agents.graph import app as agent_graph
 import json
 
@@ -164,7 +164,7 @@ def get_alternatives(roadmap_id: str) -> dict | None:
 # ──────────────────────────────────────────────
 # ACTUALIZAR PROGRESO DE BLOQUE
 # ──────────────────────────────────────────────
-from backend.app.models import Progress
+from app.models import Progress
 
 def update_block_progress(roadmap_id: str, block_id: str, completed: bool) -> bool:
     """

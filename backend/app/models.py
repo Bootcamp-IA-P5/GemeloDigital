@@ -17,7 +17,7 @@ Relaciones:
     roadmaps  1──N  progress
 
 Uso:
-    from backend.app.models import User, Profile, Course, Roadmap, Progress
+    from app.models import User, Profile, Course, Roadmap, Progress
 """
 
 import uuid
@@ -38,7 +38,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID, JSON
 from sqlalchemy.orm import relationship
 
-from backend.app.database import Base
+from app.database import Base
 
 
 # ──────────────────────────────────────────────
@@ -62,7 +62,7 @@ class User(Base):
     """
     __tablename__ = "users"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(100), primary_key=True, default=lambda: str(uuid.uuid4()))
     email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)  # bcrypt hash
     name = Column(String(255), nullable=True)
@@ -95,9 +95,9 @@ class Profile(Base):
     """
     __tablename__ = "profiles"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(100), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(
-        UUID(as_uuid=True),
+        String(100),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -109,6 +109,11 @@ class Profile(Base):
     # JSON con el perfil de competencias generado por el agente
     # Estructura esperada: { competencies: [...], recommended_approach: "...", summary: "..." }
     competency_profile = Column(JSON, nullable=True)
+
+    # ── CAMPOS DEL AVATAR (Paso 1) ──
+    avatar_url = Column(String(500), nullable=True)
+    avatar_personality = Column(Text, nullable=True)
+    avatar_color = Column(String(50), nullable=True)
 
     created_at = Column(DateTime(timezone=True), default=_utcnow, nullable=False)
 
@@ -180,15 +185,15 @@ class Roadmap(Base):
     """
     __tablename__ = "roadmaps"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(100), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(
-        UUID(as_uuid=True),
+        String(100),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
     profile_id = Column(
-        UUID(as_uuid=True),
+        String(100),
         ForeignKey("profiles.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
@@ -227,15 +232,15 @@ class Progress(Base):
     """
     __tablename__ = "progress"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(100), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(
-        UUID(as_uuid=True),
+        String(100),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
     roadmap_id = Column(
-        UUID(as_uuid=True),
+        String(100),
         ForeignKey("roadmaps.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
