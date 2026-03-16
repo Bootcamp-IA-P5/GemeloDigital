@@ -84,9 +84,15 @@ def get_profile(user_id: str) -> dict | None:
                 "score": score_val
             })
 
+        # Data from questionnaire results
+        raw = db_profile.raw_answers or {}
+        
         return {
             "user_id": str(db_profile.user_id),
             "profile_id": str(db_profile.id),
+            "current_role": raw.get("currentRole", "Developer"),
+            "target_role": raw.get("targetRole", "Senior"),
+            "experience_years": raw.get("experience", 0),
             "competencies": competencies,
             "recommended_approach": profile_data.get("recommended_approach", "GENERALISTA"),
             "summary": profile_data.get("summary", "")
