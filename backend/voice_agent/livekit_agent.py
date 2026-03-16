@@ -1,19 +1,31 @@
+"""
+Datum Voice Agent — Entrevistador Cognitivo con Avatar
+======================================================
+Usa LiveKit Agents 1.x con @function_tool para extraer
+el perfil profesional del usuario mediante conversación
+y guardarlo automáticamente en PostgreSQL.
+"""
+
 import os
-import sys
+import json
+import uuid
+import logging
+import httpx
 from dotenv import load_dotenv
 
+# ── DB imports (funciona tanto en Docker como en local) ──
 try:
     from backend.app.database import SessionLocal
     from backend.app.models import User, Profile
-    DB_ID_AVAILABLE = True
+    DB_AVAILABLE = True
 except ImportError:
     try:
         from app.database import SessionLocal
         from app.models import User, Profile
-        DB_ID_AVAILABLE = True
+        DB_AVAILABLE = True
     except ImportError:
-        DB_ID_AVAILABLE = False
-        print("⚠️ No se pudo cargar el backend para consultar la BD. Usando modo genérico.")
+        DB_AVAILABLE = False
+        print("⚠️ BD no disponible. El perfil no se guardará.")
 
 from livekit.agents import (
     Agent,
@@ -22,69 +34,189 @@ from livekit.agents import (
     JobContext,
     WorkerOptions,
     cli,
+    function_tool,
+    RunContext,
 )
-from livekit.plugins import cartesia, deepgram, openai, silero, llm
+from livekit.plugins import cartesia, deepgram, openai, silero
 from livekit.plugins.bey import AvatarSession
-import logging
 
-logger = logging.getLogger("voice-agent")
+logger = logging.getLogger("datum-voice-agent")
 
-# Cargar .env: Intentar en raíz, si no en el directorio actual
+# Cargar variables de entorno
 load_dotenv(os.path.join(os.getcwd(), "../../.env"))
 load_dotenv(".env")
 
 
-class AssistantFunctions(llm.FunctionContext):
-    """Acciones que el agente puede ejecutar durante la charla."""
-
-    @llm.ai_callable(description="Finaliza la entrevista cuando Datum tiene info suficiente y guarda el perfil.")
-    async def finish_onboarding(self):
-        logger.info("BOTÓN PULSADO: Datum finaliza la entrevista.")
-        # Aquí dispararemos la extracción real en el siguiente paso
-        return "Perfecto, he guardado tus datos. En unos segundos verás tu Roadmap en el Dashboard."
+# ══════════════════════════════════════════════
+# AGENTE PRINCIPAL — Datum
+# ══════════════════════════════════════════════
 
 class DigitalTwin(Agent):
-    def __init__(self, user_name: str = "Usuario", user_details: str = "") -> None:
+    def __init__(self) -> None:
         instructions = (
-            f"Eres Datum, el Asistente de IA de la plataforma Datum. Hablas con {user_name}.\n\n"
-            "TU MISIÓN: Entrevistar al usuario para conocer su perfil profesional. Debes averiguar:\n"
-            "1. Su rol actual o profesión.\n"
-            "2. Su objetivo profesional (qué quiere ser).\n"
-            "3. Su nivel de experiencia o tiempo disponible.\n\n"
-            "GUARDARRAÍLES Y REGLAS ESTRICTAS:\n"
-            "- NUNCA menciones a 'DataQuantum'. Si te preguntan, di que solo conoces Datum.\n"
-            "- NUNCA recomiendes cursos específicos de otras plataformas ni hables de contenido formativo externo.\n"
-            "- Habla SIEMPRE en español. NUNCA en inglés.\n"
-            "- Cuando tengas toda la info (los 3 puntos de arriba), usa la función 'finish_onboarding'.\n\n"
+            "Eres Datum, el Asistente de IA de la plataforma Datum.\n\n"
+            "TU MISIÓN: Entrevistar al usuario para conocer su perfil profesional. "
+            "Debes averiguar estos 3 datos:\n"
+            "1. Su rol actual o profesión (ej: desarrollador, diseñador, estudiante).\n"
+            "2. Su objetivo profesional — qué quiere ser o aprender.\n"
+            "3. Su nivel de experiencia (años, junior/senior, etc.).\n\n"
+            "GUARDARRAÍLES:\n"
+            "- NUNCA menciones 'DataQuantum'. Solo conoces 'Datum'.\n"
+            "- NUNCA recomiendes cursos de otras plataformas ni hables de contenido externo.\n"
+            "- Si te preguntan algo fuera de tu misión (política, deportes, etc.), "
+            "redirige educadamente: 'Eso no es lo mío, pero cuéntame más de tu carrera.'\n"
+            "- Habla SIEMPRE en español. NUNCA en inglés.\n\n"
+            "CUANDO TENGAS LOS 3 DATOS: llama a la función 'finish_onboarding' "
+            "pasándole el rol actual, el objetivo y los años de experiencia.\n\n"
             "ESTILO:\n"
             "- Sé conciso, cálido y motivador.\n"
-            "- No hagas las 3 preguntas a la vez; haz una entrevista fluida."
+            "- No hagas las 3 preguntas a la vez; haz una entrevista fluida natural.\n"
+            "- Respuestas de 1-3 frases."
         )
         super().__init__(instructions=instructions)
 
+    @function_tool()
+    async def finish_onboarding(
+        self,
+        context: RunContext,
+        current_role: str,
+        target_role: str,
+        experience_years: int,
+    ):
+        """Finaliza la entrevista cognitiva y guarda el perfil del usuario.
 
-async def entrypoint(ctx: JobContext):
-    # Conectar al room — necesitamos audio y vídeo para el avatar
-    await ctx.connect(auto_subscribe=AutoSubscribe.SUBSCRIBE_ALL)
+        Args:
+            current_role: El rol o profesión actual del usuario.
+            target_role: El objetivo profesional o lo que quiere aprender.
+            experience_years: Años de experiencia profesional del usuario.
+        """
+        logger.info("═══════════════════════════════════════════")
+        logger.info("🎯 FINISH ONBOARDING — Extrayendo perfil...")
+        logger.info(f"   Rol actual: {current_role}")
+        logger.info(f"   Objetivo:   {target_role}")
+        logger.info(f"   Experiencia: {experience_years} años")
+        logger.info("═══════════════════════════════════════════")
 
-    user_name = "Usuario"
-    user_details = "Aún no tenemos datos detallados de tu perfil."
+        if not DB_AVAILABLE:
+            logger.warning("BD no disponible. No se guardará el perfil.")
+            return "He recogido tus datos pero no puedo guardarlos ahora. Inténtalo más tarde."
 
-    # Intentar obtener el perfil del último usuario registrado para la demo
-    if DB_ID_AVAILABLE:
         db = SessionLocal()
         try:
-            # Buscamos el perfil más reciente
-            profile = db.query(Profile).order_by(Profile.created_at.desc()).first()
-            if profile and profile.user:
-                user_name = profile.user.name or "Usuario"
-                competencies = profile.competency_profile or {}
-                summary = competencies.get("summary", "Sin resumen.")
-                user_details = f"El usuario se llama {user_name}. Su resumen de perfil es: {summary}"
+            # Buscar o crear usuario de demo
+            user = db.query(User).filter(User.id == "user-123").first()
+            if not user:
+                user = User(
+                    id="user-123",
+                    email="demo@datum.ai",
+                    password_hash="not-a-real-hash",
+                    name="Usuario Demo",
+                    role="user",
+                )
+                db.add(user)
+                db.commit()
+                db.refresh(user)
+                logger.info("✅ Usuario demo creado: user-123")
+
+            # Construir el perfil de competencias
+            # Generamos competencias básicas según el target_role
+            competencies = _generate_basic_competencies(target_role)
+
+            raw_answers = {
+                "user_id": "user-123",
+                "currentRole": current_role,
+                "targetRole": target_role,
+                "experience": experience_years,
+                "source": "voice_interview",
+            }
+
+            competency_profile = {
+                "competencies": competencies,
+                "recommended_approach": "GENERALISTA" if experience_years < 3 else "ESPECIALISTA",
+                "summary": (
+                    f"Profesional con {experience_years} años de experiencia como {current_role}. "
+                    f"Busca transición hacia {target_role}."
+                ),
+            }
+
+            # Guardar en BD
+            profile = Profile(
+                id=str(uuid.uuid4()),
+                user_id="user-123",
+                raw_answers=raw_answers,
+                competency_profile=competency_profile,
+            )
+            db.add(profile)
+            db.commit()
+            logger.info(f"✅ Perfil guardado en BD: {profile.id}")
+
+            return (
+                f"¡Perfecto! Ya he guardado tu perfil. "
+                f"Eres {current_role} y quieres orientarte hacia {target_role}. "
+                f"En unos segundos verás tu Roadmap en el Dashboard. ¡Mucho ánimo!"
+            )
+
         except Exception as e:
-            print(f"Error consultando BD: {e}")
+            db.rollback()
+            logger.error(f"❌ Error guardando perfil: {e}")
+            return "Ha habido un problema guardando tus datos. Inténtalo de nuevo."
         finally:
             db.close()
+
+
+def _generate_basic_competencies(target_role: str) -> list:
+    """
+    Genera competencias básicas según el objetivo del usuario.
+    En producción esto lo haría el Profiling Agent con un LLM.
+    """
+    role_lower = target_role.lower()
+
+    # Competencias base según área
+    if any(k in role_lower for k in ["data", "dato", "machine learning", "ml", "ia", "inteligencia"]):
+        return [
+            {"competency_id": "python", "name": "Python", "score": 0.5},
+            {"competency_id": "ml-fundamentals", "name": "ML Fundamentals", "score": 0.3},
+            {"competency_id": "statistics", "name": "Estadística", "score": 0.4},
+            {"competency_id": "deep-learning", "name": "Deep Learning", "score": 0.2},
+            {"competency_id": "sql", "name": "SQL & Bases de Datos", "score": 0.5},
+            {"competency_id": "data-viz", "name": "Visualización de Datos", "score": 0.4},
+        ]
+    elif any(k in role_lower for k in ["front", "web", "react", "diseño", "ux", "ui"]):
+        return [
+            {"competency_id": "html-css", "name": "HTML & CSS", "score": 0.6},
+            {"competency_id": "javascript", "name": "JavaScript", "score": 0.5},
+            {"competency_id": "react", "name": "React", "score": 0.3},
+            {"competency_id": "ux-design", "name": "Diseño UX/UI", "score": 0.4},
+            {"competency_id": "responsive", "name": "Responsive Design", "score": 0.5},
+            {"competency_id": "testing-fe", "name": "Testing Frontend", "score": 0.2},
+        ]
+    elif any(k in role_lower for k in ["back", "server", "api", "devops", "cloud"]):
+        return [
+            {"competency_id": "python", "name": "Python", "score": 0.5},
+            {"competency_id": "rest-api", "name": "REST APIs", "score": 0.4},
+            {"competency_id": "docker", "name": "Docker & Containers", "score": 0.3},
+            {"competency_id": "databases", "name": "Bases de Datos", "score": 0.5},
+            {"competency_id": "ci-cd", "name": "CI/CD", "score": 0.2},
+            {"competency_id": "security", "name": "Seguridad Web", "score": 0.3},
+        ]
+    else:
+        # Competencias genéricas
+        return [
+            {"competency_id": "problem-solving", "name": "Resolución de Problemas", "score": 0.5},
+            {"competency_id": "communication", "name": "Comunicación", "score": 0.5},
+            {"competency_id": "digital-literacy", "name": "Competencia Digital", "score": 0.4},
+            {"competency_id": "teamwork", "name": "Trabajo en Equipo", "score": 0.5},
+            {"competency_id": "self-learning", "name": "Autoaprendizaje", "score": 0.4},
+            {"competency_id": "project-mgmt", "name": "Gestión de Proyectos", "score": 0.3},
+        ]
+
+
+# ══════════════════════════════════════════════
+# ENTRYPOINT — Punto de entrada del agente
+# ══════════════════════════════════════════════
+
+async def entrypoint(ctx: JobContext):
+    await ctx.connect(auto_subscribe=AutoSubscribe.SUBSCRIBE_ALL)
 
     # LLM: Groq con Llama 3.1 (gratis)
     groq_llm = openai.LLM(
@@ -99,39 +231,32 @@ async def entrypoint(ctx: JobContext):
         api_key=os.environ.get("BEY_API_KEY"),
     )
 
-    # Sesión de voz con STT español + LLM + TTS español
-    fnc_ctx = AssistantFunctions()
-    
+    # Sesión de voz
     session = AgentSession(
         vad=silero.VAD.load(),
-        stt=deepgram.STT(
-            language="es",
-            model="nova-2",
-        ),
+        stt=deepgram.STT(language="es", model="nova-2"),
         llm=groq_llm,
         tts=cartesia.TTS(
             model="sonic-multilingual",
             language="es",
             voice="ccfea4bf-b3f4-421e-87ed-dd05dae01431",
         ),
-        fnc_ctx=fnc_ctx,
     )
 
-    # Iniciar el avatar + la sesión de voz juntos
+    # Iniciar avatar + sesión
     await avatar.start(session, room=ctx.room)
 
     await session.start(
         room=ctx.room,
-        agent=DigitalTwin(user_name=user_name, user_details=user_details),
+        agent=DigitalTwin(),
     )
 
-    # Saludo inicial en español
+    # Saludo inicial
     await session.generate_reply(
         instructions=(
-            f"Saluda a {user_name} en español de España de manera cálida y profesional. "
-            "Dile que eres Datum, el asistente de voz de Datum Gemelo IA. "
-            "Menciona algo breve sobre que ya conoces su perfil si tienes datos disponibles. "
-            "Dile que estás listo para ayudarle con su plan de carrera y competencias. "
+            "Saluda al usuario en español de manera cálida y profesional. "
+            "Dile que eres Datum y que te gustaría conocerle para crear su ruta de aprendizaje. "
+            "Pregúntale a qué se dedica actualmente. "
             "Hazlo en 2 frases máximo. SOLO en español."
         )
     )
