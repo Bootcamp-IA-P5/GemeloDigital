@@ -76,8 +76,8 @@ def get_profile(user_id: str) -> dict | None:
             score_val = c.get("score", 0.5)
             curr_level = int(score_val * 3) + 1
             competencies.append({
-                "competency_id": c.get("competency_id"),
-                "name": c.get("name"),
+                "id": c.get("competency_id"),
+                "label": c.get("name"),
                 "domain": "Default",
                 "current_level": curr_level,
                 "target_level": 4,

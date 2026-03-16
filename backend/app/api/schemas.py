@@ -65,16 +65,13 @@ class QuestionnaireAnswers(BaseModel):
 
 class CompetencyScore(BaseModel):
     """Score for an individual competency."""
-    id: str = Field(..., alias="competency_id")
-    label: str = Field(..., alias="name")
+    id: str = Field(..., description="ID de la competencia")
+    label: str = Field(..., description="Nombre legible")
     domain: str = Field(default="General")
     current_level: int = Field(..., ge=1, le=4)
     target_level: int = Field(default=4)
     gap: int = Field(default=0)
     score: float = Field(..., ge=0, le=1)
-
-    class Config:
-        allow_population_by_field_name = True
 
 
 class CompetencyProfile(BaseModel):
@@ -118,19 +115,14 @@ class RoadmapGenerateRequest(BaseModel):
 
 class RoadmapBlock(BaseModel):
     """A block (course) within a roadmap phase."""
-    id: str = Field(..., alias="block_id")
-    course_id: str = Field(..., alias="content_id")
-    title: str
-    order: int
-    completed: bool = False
+    course_id: str = Field(..., description="ID del curso (mismo que content_id)")
     priority: str = Field(default="required")
+    title: str
     duration: str = Field(default="8h")
     level: str = Field(default="intermediate")
+    completed: bool = False
     why: str = Field(default="")
     competencies_addressed: List[str] = Field(default_factory=list)
-
-    class Config:
-        allow_population_by_field_name = True
 
 
 class RoadmapPhase(BaseModel):
@@ -144,12 +136,8 @@ class RoadmapResponse(BaseModel):
     """Complete roadmap generated for a user."""
     roadmap_id: str
     user_id: str
-    approach: str
+    trajectory: str = Field(..., description="GENERALISTA o ESPECIALISTA")
     phases: List[RoadmapPhase] = Field(default_factory=list)
-    explanation: str = Field(
-        ...,
-        description="Explanation from the Explanatory Agent on why this roadmap is recommended",
-    )
 
 
 class FullProfileResponse(BaseModel):
