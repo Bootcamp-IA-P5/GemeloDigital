@@ -10,9 +10,10 @@ uvicorn[standard]>=0.34.0
 pydantic[email]>=2.0.0
 python-dotenv>=1.0.0
 
-# ── Security (auth, password hashing) ──────────
+# ── Security (auth, password hashing, AES) ─────
 bcrypt>=4.1.0
 python-jose[cryptography]>=3.3.0
+cryptography>=42.0.0
 
 # ── Database (PostgreSQL + ORM + migrations) ───
 sqlalchemy>=2.0.0
