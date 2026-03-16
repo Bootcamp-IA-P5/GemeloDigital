@@ -57,8 +57,28 @@ def create_profile(body: QuestionnaireAnswers):
     return profile
 
 
+@router.get(
+    "/",
+    response_model=FullProfileResponse,
+    summary="Obtener perfil del usuario actual (Usado por Dashboard)",
+)
+def get_current_user_profile():
+    """
+    Obtiene el estado unificado del usuario que tiene la sesión iniciada.
+    Por ahora usamos un ID de test (user-123) hasta implementar auth completo.
+    """
+    test_user_id = "user-123"
+    profile = profile_service.get_profile(test_user_id)
+    if not profile:
+        raise HTTPException(
+            status_code=404,
+            detail="Perfil no encontrado. Por favor, habla con Datum para generar uno."
+        )
+    return profile
+
+
 # ──────────────────────────────────────────────
-# CONSULTAR — Obtener perfil de un usuario
+# CONSULTAR — Obtener perfil por ID (Admin/Debug)
 # ──────────────────────────────────────────────
 
 @router.get(
