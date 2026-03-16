@@ -47,8 +47,8 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-root}@db:5432/gemelo_cognitivo
     volumes:
-      # Montar código para hot-reload en desarrollo
-      - ./backend:/app/backend
+      # Montar código para que 'app' esté en la raíz del contenedor
+      - ./backend:/app
       - ./agents:/app/agents
       - ./ml:/app/ml
       - ./data:/app/data
@@ -56,6 +56,23 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  # ── Agente de Voz (LiveKit) ──────────────────
+  voice_agent:
+    build:
+      context: ./backend/voice_agent
+      dockerfile: Dockerfile
+    container_name: gemelo_voice_agent
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-root}@db:5432/gemelo_cognitivo
+    volumes:
+      - ./backend/voice_agent:/app
+      - ./backend/app:/app/app
+    depends_on:
+      - backend
 
 volumes:
   pgdata:

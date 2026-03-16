@@ -2,17 +2,18 @@ import os
 import sys
 from dotenv import load_dotenv
 
-# Al estar dentro de backend/voice_agent, el path del código de la app es ..
-backend_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-sys.path.append(backend_path)
-
 try:
-    from app.database import SessionLocal
-    from app.models import User, Profile
+    from backend.app.database import SessionLocal
+    from backend.app.models import User, Profile
     DB_ID_AVAILABLE = True
 except ImportError:
-    DB_ID_AVAILABLE = False
-    print("⚠️ No se pudo cargar el backend para consultar la BD. Usando modo genérico.")
+    try:
+        from app.database import SessionLocal
+        from app.models import User, Profile
+        DB_ID_AVAILABLE = True
+    except ImportError:
+        DB_ID_AVAILABLE = False
+        print("⚠️ No se pudo cargar el backend para consultar la BD. Usando modo genérico.")
 
 from livekit.agents import (
     Agent,
@@ -25,8 +26,9 @@ from livekit.agents import (
 from livekit.plugins import cartesia, deepgram, openai, silero
 from livekit.plugins.bey import AvatarSession
 
-# Intentar cargar .env desde la raíz del proyecto (un nivel arriba de backend/)
-load_dotenv(os.path.join(backend_path, "../.env"))
+# Cargar .env: Intentar en raíz, si no en el directorio actual
+load_dotenv(os.path.join(os.getcwd(), "../../.env"))
+load_dotenv(".env")
 
 
 class DigitalTwin(Agent):
