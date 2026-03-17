@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse           # Para construir respuestas
 # ──────────────────────────────────────────────────────────────
 # 📌 IMPORTS DE ROUTERS (endpoints organizados por dominio)
 # ──────────────────────────────────────────────────────────────
-from app.api.routes import auth, profile, roadmap, admin
+from app.api.routes import auth, profile, roadmap, admin, courses
 
 # ──────────────────────────────────────────────────────────────
 # 📌 LIFESPAN — Ciclo de vida de la aplicación
@@ -113,6 +113,12 @@ app.include_router(
     roadmap.router,
     prefix="/api/roadmap",         # Rutas de roadmap bajo /api/roadmap/...
     tags=["Roadmap"],
+)
+
+app.include_router(
+    courses.router,
+    prefix="/api/courses",         # Rutas de cursos públicos bajo /api/courses/...
+    tags=["Cursos"],
 )
 
 app.include_router(
