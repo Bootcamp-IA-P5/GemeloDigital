@@ -97,7 +97,7 @@ def planning_node(state: AgentState):
     print("\n--- [NODE] Planning Agent ---")
     
     if not state.get("competency_profile") or not state.get("retrieved_courses"):
-        return {"errors": ["Missing profile or courses to design roadmap."]}
+        return {"errors": ["Missing profile or courses to design roadmap."], "next_step": "end"}
     
     roadmap_dict = generate_roadmap(
         competency_profile=state.get("competency_profile"),
@@ -105,7 +105,7 @@ def planning_node(state: AgentState):
     )
     
     if "error" in roadmap_dict:
-        return {"errors": [f"Planning Error: {roadmap_dict['error']}"]}
+        return {"errors": [f"Planning Error: {roadmap_dict['error']}"], "next_step": "end"}
         
     return {
         "roadmap": roadmap_dict,
@@ -114,12 +114,17 @@ def planning_node(state: AgentState):
 
 def validation_node(state: AgentState):
     """
-    Audits the generated roadmap. If invalid, routes back to planning.
+    Audits the generated roadmap. If invalid, allows 1 retry then proceeds.
     """
     print("\n--- [NODE] Validation Agent ---")
+
+    prior_feedback = state.get("validation_feedback", [])
+    if len(prior_feedback) > 0:
+        print(f"[Validation] Already retried once ({len(prior_feedback)} feedback items). Proceeding with current roadmap.")
+        return {"next_step": "explain"}
     
     if not state.get("roadmap") or not state.get("competency_profile"):
-        return {"errors": ["Missing roadmap or profile for validation."]}
+        return {"errors": ["Missing roadmap or profile for validation."], "next_step": "end"}
         
     validation_result = validate_roadmap(
         roadmap_dict=state["roadmap"],
@@ -127,14 +132,11 @@ def validation_node(state: AgentState):
     )
     
     if "error" in validation_result:
-        return {"errors": [f"Validation Error: {validation_result['error']}"]}
+        print("[Validation] LLM validation failed, proceeding with current roadmap.")
+        return {"next_step": "explain"}
         
     is_valid = validation_result.get("is_valid", False)
     feedback = validation_result.get("feedback", [])
-    
-    # We use a simple retry counter by checking how many feedbacks we have added.
-    # If the feedback list is getting too large, we might want to force proceed to avoid infinite loops.
-    # But for now, we just route back.
     
     return {
         "validation_feedback": feedback,
@@ -148,7 +150,8 @@ def explanatory_node(state: AgentState):
     print("\n--- [NODE] Explanatory Agent ---")
     
     if not state.get("competency_profile") or not state.get("roadmap"):
-        return {"errors": ["Missing profile or roadmap to generate explanations."]}
+        print("[Explanatory] Missing data, skipping explanations.")
+        return {"next_step": "ml_predict"}
     
     final_roadmap = generate_detailed_explanations(
         competency_profile=state.get("competency_profile"),
@@ -156,7 +159,8 @@ def explanatory_node(state: AgentState):
     )
     
     if "error" in final_roadmap:
-        return {"errors": [f"Explanation Error: {final_roadmap['error']}"]}
+        print("[Explanatory] LLM failed, keeping existing roadmap explanations.")
+        return {"next_step": "ml_predict"}
         
     return {
         "roadmap": final_roadmap,

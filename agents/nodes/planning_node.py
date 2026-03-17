@@ -40,7 +40,7 @@ def generate_roadmap(competency_profile: dict, retrieved_courses: list) -> dict:
     
     # 2. Configure the LLM "Brain"
     llm = ChatGroq(
-        model="llama-3.1-8b-instant",
+        model="llama-3.3-70b-versatile",
         temperature=0.1,
         max_retries=2
     )

@@ -12,11 +12,24 @@ Para uso del compañero de backend:
 """
 
 import uuid
+import json as _json
+import time as _time
 
 from agents.nodes.profiling_node import generate_cognitive_profile
 from app.api.schemas import QuestionnaireAnswers
 from app.database import SessionLocal
 from app.models import Profile, User, Roadmap
+
+# #region agent log
+_DBG_LOG = "/Users/barbara/Desktop/gemelo_digital/GemeloDigital/.cursor/debug-9b2746.log"
+def _dbg(loc, msg, data=None):
+    try:
+        import json, time
+        entry = {"sessionId":"9b2746","location":loc,"message":msg,"data":data or {},"timestamp":int(time.time()*1000),"hypothesisId":"H1H2"}
+        with open(_DBG_LOG, "a") as f:
+            f.write(json.dumps(entry) + "\n")
+    except: pass
+# #endregion
 
 # ──────────────────────────────────────────────
 # CREAR PERFIL COGNITIVO
@@ -96,6 +109,7 @@ def get_profile(user_id: str) -> dict | None:
                 for b in phase.get("blocks", []):
                     blocks.append({
                         "block_id": b.get("block_id"),
+                        "course_id": b.get("content_id") or b.get("course_id", ""),
                         "content_id": b.get("content_id"),
                         "title": b.get("title"),
                         "order": b.get("order", 1),
@@ -112,13 +126,22 @@ def get_profile(user_id: str) -> dict | None:
                     "blocks": blocks
                 })
             
+            trajectory_val = db_roadmap.trajectory or "GENERALISTA"
+            if trajectory_val == "A":
+                trajectory_val = "GENERALISTA"
+            elif trajectory_val == "B":
+                trajectory_val = "ESPECIALISTA"
+
             roadmap_data = {
                 "roadmap_id": str(db_roadmap.id),
                 "user_id": str(db_roadmap.user_id),
-                "approach": "GENERALISTA" if db_roadmap.trajectory == "A" else "ESPECIALISTA",
+                "trajectory": trajectory_val,
                 "phases": enriched_phases,
                 "explanation": db_roadmap.ml_prediction.get("explanation", "") if db_roadmap.ml_prediction else ""
             }
+            # #region agent log
+            _dbg("profile_service.py:roadmap_data", "roadmap_data built", {"trajectory": trajectory_val, "num_phases": len(enriched_phases), "first_block_keys": list(enriched_phases[0]["blocks"][0].keys()) if enriched_phases and enriched_phases[0].get("blocks") else []})
+            # #endregion
 
         return {
             "user_id": str(user_id),
