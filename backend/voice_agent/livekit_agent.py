@@ -186,21 +186,29 @@ def _generate_basic_competencies(target_role: str) -> list:
             {"competency_id": "deep-learning", "name": "Deep Learning", "score": 0.2},
             {"competency_id": "sql", "name": "SQL & Bases de Datos", "score": 0.5},
             {"competency_id": "data-viz", "name": "Visualización de Datos", "score": 0.4},
-            {"competency_id": "docker", "name": "Docker & MLOps", "score": 0.2},
             {"competency_id": "statistics", "name": "Estadística", "score": 0.4},
+            {"competency_id": "docker", "name": "Docker & MLOps", "score": 0.2},
+            {"competency_id": "ci-cd", "name": "CI/CD Pipelines", "score": 0.15},
             {"competency_id": "communication", "name": "Comunicación Técnica", "score": 0.6},
             {"competency_id": "problem-solving", "name": "Resolución de Problemas", "score": 0.5},
+            {"competency_id": "product-strategy", "name": "Visión de Producto IA", "score": 0.25},
+            {"competency_id": "ux-design", "name": "UX para Productos de Datos", "score": 0.2},
+            {"competency_id": "agile-methodologies", "name": "Metodologías Ágiles", "score": 0.5},
         ]
     elif any(k in role_lower for k in ["front", "web", "react", "diseño", "ux", "ui"]):
         return [
             {"competency_id": "html-css", "name": "HTML & CSS", "score": 0.6},
             {"competency_id": "javascript", "name": "JavaScript", "score": 0.5},
             {"competency_id": "react", "name": "React", "score": 0.3},
-            {"competency_id": "ux-design", "name": "Diseño UX/UI", "score": 0.4},
             {"competency_id": "testing-fe", "name": "Testing Frontend", "score": 0.2},
-            {"competency_id": "ci-cd", "name": "CI/CD", "score": 0.2},
-            {"competency_id": "communication", "name": "Comunicación", "score": 0.5},
+            {"competency_id": "ux-design", "name": "Diseño UX/UI", "score": 0.4},
             {"competency_id": "product-strategy", "name": "Estrategia de Producto", "score": 0.3},
+            {"competency_id": "ci-cd", "name": "CI/CD", "score": 0.2},
+            {"competency_id": "docker", "name": "Docker Básico", "score": 0.15},
+            {"competency_id": "communication", "name": "Comunicación", "score": 0.5},
+            {"competency_id": "agile-methodologies", "name": "Metodologías Ágiles", "score": 0.4},
+            {"competency_id": "sql", "name": "SQL Básico", "score": 0.3},
+            {"competency_id": "problem-solving", "name": "Resolución de Problemas", "score": 0.5},
         ]
     elif any(k in role_lower for k in ["back", "server", "api", "devops", "cloud"]):
         return [
@@ -211,18 +219,26 @@ def _generate_basic_competencies(target_role: str) -> list:
             {"competency_id": "ci-cd", "name": "CI/CD", "score": 0.2},
             {"competency_id": "security", "name": "Seguridad Web", "score": 0.3},
             {"competency_id": "problem-solving", "name": "Resolución de Problemas", "score": 0.5},
+            {"competency_id": "communication", "name": "Comunicación", "score": 0.5},
             {"competency_id": "project-mgmt", "name": "Gestión de Proyectos", "score": 0.3},
+            {"competency_id": "agile-methodologies", "name": "Metodologías Ágiles", "score": 0.4},
+            {"competency_id": "product-strategy", "name": "Visión de Producto", "score": 0.2},
+            {"competency_id": "ml-fundamentals", "name": "ML Básico", "score": 0.15},
         ]
     else:
         return [
             {"competency_id": "problem-solving", "name": "Resolución de Problemas", "score": 0.5},
             {"competency_id": "communication", "name": "Comunicación", "score": 0.5},
-            {"competency_id": "digital-literacy", "name": "Competencia Digital", "score": 0.4},
             {"competency_id": "teamwork", "name": "Trabajo en Equipo", "score": 0.5},
-            {"competency_id": "self-learning", "name": "Autoaprendizaje", "score": 0.4},
+            {"competency_id": "agile-methodologies", "name": "Metodologías Ágiles", "score": 0.4},
             {"competency_id": "project-mgmt", "name": "Gestión de Proyectos", "score": 0.3},
+            {"competency_id": "product-strategy", "name": "Estrategia de Producto", "score": 0.3},
             {"competency_id": "python", "name": "Python Básico", "score": 0.2},
             {"competency_id": "sql", "name": "SQL Básico", "score": 0.2},
+            {"competency_id": "docker", "name": "Docker Básico", "score": 0.1},
+            {"competency_id": "ux-design", "name": "UX Básico", "score": 0.3},
+            {"competency_id": "digital-literacy", "name": "Competencia Digital", "score": 0.4},
+            {"competency_id": "self-learning", "name": "Autoaprendizaje", "score": 0.4},
         ]
 
 

@@ -38,10 +38,10 @@ def _load_domain_map() -> dict:
         "rest-api": "programming", "docker": "devops", "databases": "data",
         "ci-cd": "devops", "security": "devops", "digital-literacy": "soft-skills",
         "teamwork": "soft-skills", "self-learning": "soft-skills",
-        "project-mgmt": "product",
+        "project-mgmt": "product", "agile-methodologies": "methodologies",
     }
     for k, v in extras.items():
-        mapping.setdefault(k, v)
+        mapping[k] = v
     return mapping
 
 _DOMAIN_MAP = _load_domain_map()
@@ -52,6 +52,7 @@ _DOMAIN_LABELS = {
     "devops": "DevOps & Cloud",
     "soft-skills": "Soft Skills",
     "product": "Producto & UX",
+    "methodologies": "Metodologías",
 }
 
 # #region agent log
