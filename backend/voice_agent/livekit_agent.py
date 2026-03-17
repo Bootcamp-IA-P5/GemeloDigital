@@ -16,12 +16,12 @@ from dotenv import load_dotenv
 # ── DB imports (funciona tanto en Docker como en local) ──
 try:
     from backend.app.database import SessionLocal
-    from backend.app.models import User, Profile
+    from backend.app.models import User, Profile, Roadmap
     DB_AVAILABLE = True
 except ImportError:
     try:
         from app.database import SessionLocal
-        from app.models import User, Profile
+        from app.models import User, Profile, Roadmap
         DB_AVAILABLE = True
     except ImportError:
         DB_AVAILABLE = False
@@ -150,10 +150,31 @@ class DigitalTwin(Agent):
             db.commit()
             logger.info(f"✅ Perfil guardado en BD: {profile.id}")
 
+            # ── GENERAR ROADMAP AUTOMÁTICAMENTE ──
+            approach = competency_profile["recommended_approach"]
+            trajectory_code = "A" if approach == "GENERALISTA" else "B"
+            phases = _generate_roadmap_phases(competencies, target_role)
+
+            roadmap = Roadmap(
+                id=str(uuid.uuid4()),
+                user_id="user-123",
+                profile_id=profile.id,
+                trajectory=trajectory_code,
+                ml_prediction={
+                    "trajectory": approach,
+                    "confidence": 0.85,
+                    "source": "voice_onboarding",
+                },
+                phases=phases,
+            )
+            db.add(roadmap)
+            db.commit()
+            logger.info(f"✅ Roadmap generado automáticamente: {roadmap.id}")
+
             return (
-                f"¡Perfecto! Ya he guardado tu perfil. "
+                f"¡Perfecto! Ya he guardado tu perfil y he creado tu ruta de aprendizaje. "
                 f"Eres {current_role} y quieres orientarte hacia {target_role}. "
-                f"En unos segundos verás tu Roadmap en el Dashboard. ¡Mucho ánimo!"
+                f"Entra al Dashboard para ver tu Roadmap personalizado. ¡Mucho ánimo!"
             )
 
         except Exception as e:
@@ -209,6 +230,60 @@ def _generate_basic_competencies(target_role: str) -> list:
             {"competency_id": "self-learning", "name": "Autoaprendizaje", "score": 0.4},
             {"competency_id": "project-mgmt", "name": "Gestión de Proyectos", "score": 0.3},
         ]
+
+
+def _generate_roadmap_phases(competencies: list, target_role: str) -> list:
+    """
+    Genera un roadmap de 3 fases basado en las competencias del usuario.
+    Las competencias con score más bajo van primero (mayor gap).
+    """
+    # Ordenar por score (menor primero = mayor gap)
+    sorted_comps = sorted(competencies, key=lambda c: c.get("score", 0.5))
+
+    # Dividir en 3 fases
+    phase_1_comps = sorted_comps[:2]  # Las 2 más débiles → Fundamentos
+    phase_2_comps = sorted_comps[2:4]  # Las 2 intermedias → Profundización
+    phase_3_comps = sorted_comps[4:]   # Las restantes → Especialización
+
+    def _make_blocks(comps, phase_num):
+        blocks = []
+        for i, c in enumerate(comps):
+            cid = c.get("competency_id", f"comp-{i}")
+            name = c.get("name", "Curso")
+            blocks.append({
+                "content_id": f"course-{cid}",
+                "course_id": f"course-{cid}",
+                "title": f"Curso de {name} para {target_role}",
+                "priority": "required" if phase_num == 1 else "recommended",
+                "duration": "10h" if phase_num <= 2 else "15h",
+                "level": ["beginner", "intermediate", "advanced"][phase_num - 1],
+                "completed": False,
+                "why": f"Tu nivel actual en {name} necesita refuerzo para alcanzar tu objetivo.",
+                "competencies_addressed": [cid],
+            })
+        return blocks
+
+    phases = [
+        {
+            "phase_order": 1,
+            "name": "Fase 1: Fundamentos",
+            "blocks": _make_blocks(phase_1_comps, 1),
+        },
+        {
+            "phase_order": 2,
+            "name": "Fase 2: Profundización",
+            "blocks": _make_blocks(phase_2_comps, 2),
+        },
+    ]
+
+    if phase_3_comps:
+        phases.append({
+            "phase_order": 3,
+            "name": "Fase 3: Especialización",
+            "blocks": _make_blocks(phase_3_comps, 3),
+        })
+
+    return phases
 
 
 # ══════════════════════════════════════════════
