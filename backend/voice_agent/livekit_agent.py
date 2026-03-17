@@ -140,7 +140,7 @@ class DigitalTwin(Agent):
                 ),
             }
 
-            # Guardar en BD
+            # Guardar en BD (solo perfil; el roadmap lo generará el pipeline de agentes en el backend)
             profile = Profile(
                 id=str(uuid.uuid4()),
                 user_id="user-123",
@@ -151,31 +151,10 @@ class DigitalTwin(Agent):
             db.commit()
             logger.info(f"✅ Perfil guardado en BD: {profile.id}")
 
-            # ── GENERAR ROADMAP AUTOMÁTICAMENTE ──
-            approach = competency_profile["recommended_approach"]
-            trajectory_code = "A" if approach == "GENERALISTA" else "B"
-            phases = _generate_roadmap_phases(competencies, target_role)
-
-            roadmap = Roadmap(
-                id=str(uuid.uuid4()),
-                user_id="user-123",
-                profile_id=profile.id,
-                trajectory=trajectory_code,
-                ml_prediction={
-                    "trajectory": approach,
-                    "confidence": 0.85,
-                    "source": "voice_onboarding",
-                },
-                phases=phases,
-            )
-            db.add(roadmap)
-            db.commit()
-            logger.info(f"✅ Roadmap generado automáticamente: {roadmap.id}")
-
             return (
-                f"¡Perfecto! Ya he guardado tu perfil y he creado tu ruta de aprendizaje. "
+                f"¡Perfecto! Ya he guardado tu perfil. "
                 f"Eres {current_role} y quieres orientarte hacia {target_role}. "
-                f"Entra al Dashboard para ver tu Roadmap personalizado. ¡Mucho ánimo!"
+                f"Entra al Dashboard para generar y ver tu Roadmap personalizado. ¡Mucho ánimo!"
             )
 
         except Exception as e:
