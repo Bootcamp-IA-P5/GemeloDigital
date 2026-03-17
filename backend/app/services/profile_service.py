@@ -13,12 +13,46 @@ Para uso del compañero de backend:
 
 import uuid
 import json as _json
+import os
 import time as _time
 
 from agents.nodes.profiling_node import generate_cognitive_profile
 from app.api.schemas import QuestionnaireAnswers
 from app.database import SessionLocal
 from app.models import Profile, User, Roadmap
+
+def _load_domain_map() -> dict:
+    """Build competency_id → domain from competencies.json + fallback heuristics."""
+    mapping = {}
+    comp_file = os.path.join(os.path.dirname(__file__), "..", "..", "agents", "data", "competencies.json")
+    try:
+        with open(comp_file) as f:
+            for c in _json.load(f):
+                mapping[c["id"]] = c.get("domain", "general")
+    except Exception:
+        pass
+    extras = {
+        "ml-fundamentals": "data", "deep-learning": "data", "statistics": "data",
+        "data-viz": "data", "html-css": "programming", "react": "programming",
+        "ux-design": "product", "responsive": "programming", "testing-fe": "programming",
+        "rest-api": "programming", "docker": "devops", "databases": "data",
+        "ci-cd": "devops", "security": "devops", "digital-literacy": "soft-skills",
+        "teamwork": "soft-skills", "self-learning": "soft-skills",
+        "project-mgmt": "product",
+    }
+    for k, v in extras.items():
+        mapping.setdefault(k, v)
+    return mapping
+
+_DOMAIN_MAP = _load_domain_map()
+
+_DOMAIN_LABELS = {
+    "programming": "Programación",
+    "data": "Datos & ML",
+    "devops": "DevOps & Cloud",
+    "soft-skills": "Soft Skills",
+    "product": "Producto & UX",
+}
 
 # #region agent log
 _DBG_LOG = "/Users/barbara/Desktop/gemelo_digital/GemeloDigital/.cursor/debug-9b2746.log"
@@ -88,10 +122,13 @@ def get_profile(user_id: str) -> dict | None:
         for c in profile_data.get("competencies", []):
             score_val = c.get("score", 0.5)
             curr_level = int(score_val * 3) + 1
+            cid = c.get("competency_id", "")
+            raw_domain = _DOMAIN_MAP.get(cid, "general")
+            domain_label = _DOMAIN_LABELS.get(raw_domain, raw_domain.replace("-", " ").title())
             competencies.append({
-                "id": c.get("competency_id"),
+                "id": cid,
                 "label": c.get("name"),
-                "domain": "Default",
+                "domain": domain_label,
                 "current_level": curr_level,
                 "target_level": 4,
                 "gap": max(0, 4 - curr_level),

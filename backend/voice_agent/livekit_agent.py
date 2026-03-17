@@ -183,10 +183,13 @@ def _generate_basic_competencies(target_role: str) -> list:
         return [
             {"competency_id": "python", "name": "Python", "score": 0.5},
             {"competency_id": "ml-fundamentals", "name": "ML Fundamentals", "score": 0.3},
-            {"competency_id": "statistics", "name": "Estadística", "score": 0.4},
             {"competency_id": "deep-learning", "name": "Deep Learning", "score": 0.2},
             {"competency_id": "sql", "name": "SQL & Bases de Datos", "score": 0.5},
             {"competency_id": "data-viz", "name": "Visualización de Datos", "score": 0.4},
+            {"competency_id": "docker", "name": "Docker & MLOps", "score": 0.2},
+            {"competency_id": "statistics", "name": "Estadística", "score": 0.4},
+            {"competency_id": "communication", "name": "Comunicación Técnica", "score": 0.6},
+            {"competency_id": "problem-solving", "name": "Resolución de Problemas", "score": 0.5},
         ]
     elif any(k in role_lower for k in ["front", "web", "react", "diseño", "ux", "ui"]):
         return [
@@ -194,8 +197,10 @@ def _generate_basic_competencies(target_role: str) -> list:
             {"competency_id": "javascript", "name": "JavaScript", "score": 0.5},
             {"competency_id": "react", "name": "React", "score": 0.3},
             {"competency_id": "ux-design", "name": "Diseño UX/UI", "score": 0.4},
-            {"competency_id": "responsive", "name": "Responsive Design", "score": 0.5},
             {"competency_id": "testing-fe", "name": "Testing Frontend", "score": 0.2},
+            {"competency_id": "ci-cd", "name": "CI/CD", "score": 0.2},
+            {"competency_id": "communication", "name": "Comunicación", "score": 0.5},
+            {"competency_id": "product-strategy", "name": "Estrategia de Producto", "score": 0.3},
         ]
     elif any(k in role_lower for k in ["back", "server", "api", "devops", "cloud"]):
         return [
@@ -205,9 +210,10 @@ def _generate_basic_competencies(target_role: str) -> list:
             {"competency_id": "databases", "name": "Bases de Datos", "score": 0.5},
             {"competency_id": "ci-cd", "name": "CI/CD", "score": 0.2},
             {"competency_id": "security", "name": "Seguridad Web", "score": 0.3},
+            {"competency_id": "problem-solving", "name": "Resolución de Problemas", "score": 0.5},
+            {"competency_id": "project-mgmt", "name": "Gestión de Proyectos", "score": 0.3},
         ]
     else:
-        # Competencias genéricas
         return [
             {"competency_id": "problem-solving", "name": "Resolución de Problemas", "score": 0.5},
             {"competency_id": "communication", "name": "Comunicación", "score": 0.5},
@@ -215,6 +221,8 @@ def _generate_basic_competencies(target_role: str) -> list:
             {"competency_id": "teamwork", "name": "Trabajo en Equipo", "score": 0.5},
             {"competency_id": "self-learning", "name": "Autoaprendizaje", "score": 0.4},
             {"competency_id": "project-mgmt", "name": "Gestión de Proyectos", "score": 0.3},
+            {"competency_id": "python", "name": "Python Básico", "score": 0.2},
+            {"competency_id": "sql", "name": "SQL Básico", "score": 0.2},
         ]
 
 
