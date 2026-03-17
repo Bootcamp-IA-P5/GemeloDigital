@@ -154,6 +154,7 @@ def get_profile(user_id: str) -> dict | None:
                 "personality": db_profile.avatar_personality,
                 "color": db_profile.avatar_color
             },
+            "competencies": competencies,
             "competency_profile": {
                 "user_id": str(user_id),
                 "profile_id": str(db_profile.id),

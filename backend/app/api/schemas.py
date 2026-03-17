@@ -148,6 +148,7 @@ class FullProfileResponse(BaseModel):
     target_role: str
     experience_years: int
     avatar: AvatarState
+    competencies: List[CompetencyScore] = Field(default_factory=list)
     competency_profile: Optional[CompetencyProfile] = None
     roadmap: Optional[RoadmapResponse] = None
 

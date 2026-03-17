@@ -140,7 +140,12 @@ class DigitalTwin(Agent):
                 ),
             }
 
-            # Guardar en BD (solo perfil; el roadmap lo generará el pipeline de agentes en el backend)
+            old_roadmaps = db.query(Roadmap).filter(Roadmap.user_id == "user-123").all()
+            for rm in old_roadmaps:
+                db.delete(rm)
+            if old_roadmaps:
+                logger.info(f"🗑️ Eliminados {len(old_roadmaps)} roadmap(s) previos para regeneración")
+
             profile = Profile(
                 id=str(uuid.uuid4()),
                 user_id="user-123",
