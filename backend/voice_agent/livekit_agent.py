@@ -10,6 +10,7 @@ import os
 import json
 import uuid
 import logging
+import traceback
 import httpx
 from dotenv import load_dotenv
 
@@ -180,6 +181,7 @@ class DigitalTwin(Agent):
         except Exception as e:
             db.rollback()
             logger.error(f"❌ Error guardando perfil: {e}")
+            logger.exception("Traceback completo (para diagnosticar BD, tablas o constraints):")
             return "Ha habido un problema guardando tus datos. Inténtalo de nuevo."
         finally:
             db.close()
@@ -314,7 +316,7 @@ async def entrypoint(ctx: JobContext):
         tts=cartesia.TTS(
             model="sonic-multilingual",
             language="es",
-            voice="ccfea4bf-b3f4-421e-87ed-dd05dae01431",
+            voice=os.environ.get("CARTESIA_VOICE_ID", "ccfea4bf-b3f4-421e-87ed-dd05dae01431"),
         ),
     )
 
