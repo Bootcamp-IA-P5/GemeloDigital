@@ -48,6 +48,18 @@ def generate_course_from_source(body: GenerateCourseFromSourceRequest):
     if course_err:
         raise HTTPException(status_code=502, detail=course_err)
 
+    # Fase 2-2: generar prompts de imagen por slide
+    image_dict, image_err = course_generator_service.generate_course_image_prompts(
+        course_dict.get("slides", []),
+        body.prompt,
+    )
+    if image_err:
+        raise HTTPException(status_code=502, detail=image_err)
+
+    # Normalizamos la estructura para el frontend
+    course_dict["image_style"] = image_dict.get("image_style", "")
+    course_dict["image_prompts"] = image_dict.get("slides_image_prompts", [])
+
     return {
         "status": "generated",
         "source": "url",
