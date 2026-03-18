@@ -1,14 +1,16 @@
 """
 Course Generator Service — Extracción de contenido desde URL (Fase 1)
 =====================================================================
-Extrae el texto principal de una URL para usarlo como fuente del curso.
+Fase 1: extrae el texto principal de una URL para usarlo como fuente del curso.
 Usa solo biblioteca estándar (sin dependencias nuevas).
+
+Fase 2: generará estructura del curso (diapositivas + guion) usando un LLM.
 """
 
 import re
 import urllib.error
 import urllib.request
-from typing import Tuple
+from typing import List, Optional, Tuple
 
 # Límite de caracteres para no cargar páginas enormes en memoria
 MAX_CONTENT_CHARS = 150_000
@@ -64,3 +66,117 @@ def extract_text_from_url(url: str) -> Tuple[str, str | None]:
     if len(text) > MAX_CONTENT_CHARS:
         text = text[:MAX_CONTENT_CHARS] + " [truncado]"
     return text, None
+
+
+# ==========================================
+# Fase 2: Generación de slides + guion
+# ==========================================
+
+
+# Nota: Definimos los esquemas aquí para mantener el cambio aislado.
+try:
+    from pydantic import BaseModel, Field
+
+    class _SlideModel(BaseModel):
+        slide_number: int = Field(..., ge=1)
+        title: str
+        bullets: List[str] = Field(default_factory=list, description="3-5 bullets breves")
+        script: str = Field(..., description="Guion narrativo para el slide (2-4 frases)")
+
+    class _CourseGenerationResult(BaseModel):
+        course_title: str
+        target_audience: str
+        learning_objectives: List[str] = Field(default_factory=list, description="5-7 objetivos")
+        slides: List[_SlideModel] = Field(default_factory=list, description="8-12 slides")
+
+except Exception:  # pragma: no cover
+    # Si por alguna razón falla la importación de pydantic/langchain en runtime,
+    # dejaremos la función de generación fallar con un error claro.
+    _SlideModel = None
+    _CourseGenerationResult = None
+
+
+def generate_course_slides_and_script(
+    source_text: str,
+    prompt: Optional[str] = None,
+    *,
+    max_source_chars: int = 30_000,
+) -> Tuple[dict, str | None]:
+    """
+    Genera una estructura de curso (diapositivas + guion) a partir del texto fuente.
+
+    Returns:
+        (result_dict, error). Si error es None, result_dict contiene el JSON del curso.
+    """
+    if not source_text or not source_text.strip():
+        return {}, "No hay texto fuente para generar el curso"
+    if _CourseGenerationResult is None:
+        return {}, "El generador de curso requiere dependencias de LLM que no se pudieron cargar"
+
+    try:
+        from dotenv import load_dotenv
+        from langchain_groq import ChatGroq
+        from langchain_core.prompts import ChatPromptTemplate
+
+        from agents.utils.guardrails import handle_llm_output_error, validate_and_format_response
+
+        load_dotenv()
+
+        source_text_limited = source_text[:max_source_chars]
+        user_prompt = prompt.strip() if prompt else ""
+
+        llm = ChatGroq(
+            model="llama-3.1-8b-instant",
+            temperature=0.2,
+            max_retries=2,
+        )
+
+        structured_llm = llm.with_structured_output(_CourseGenerationResult)
+
+        system_instructions = (
+            "Eres un diseñador instruccional y guionista pedagógico. "
+            "Genera un curso coherente en ESPAÑOL usando únicamente el texto fuente proporcionado. "
+            "Devuelve una respuesta que cumpla estrictamente el esquema JSON solicitado."
+        )
+
+        human_instructions = (
+            "PROMPT DEL USUARIO (opcional, sigue sus instrucciones si no contradicen el texto):\n"
+            "{user_prompt}\n\n"
+            "TEXTO FUENTE (puede estar ruidoso y truncado):\n"
+            "{source_text}\n\n"
+            "Genera:\n"
+            "- Un `course_title` claro.\n"
+            "- `target_audience` en 1 frase.\n"
+            "- `learning_objectives` con 5-7 objetivos accionables.\n"
+            "- `slides` con 8-12 slides.\n"
+            "  - Cada slide debe tener 3-5 `bullets` breves.\n"
+            "  - Cada slide debe incluir un `script` de 2-4 frases para narración.\n"
+            "Reglas:\n"
+            "- No inventes datos específicos no presentes en el texto.\n"
+            "- Mantén coherencia conceptual entre slides.\n"
+        )
+
+        prompt_template = ChatPromptTemplate.from_messages(
+            [
+                ("system", system_instructions),
+                ("human", human_instructions),
+            ]
+        )
+
+        chain = prompt_template | structured_llm
+        response_model = chain.invoke(
+            {
+                "user_prompt": user_prompt if user_prompt else "(sin prompt adicional)",
+                "source_text": source_text_limited,
+            }
+        )
+
+        return validate_and_format_response(response_model), None
+    except Exception as error:
+        # Reutilizamos guardrails para mantener formato consistente.
+        try:
+            from agents.utils.guardrails import handle_llm_output_error
+
+            return handle_llm_output_error(error), str(error)
+        except Exception:
+            return {}, str(error)
