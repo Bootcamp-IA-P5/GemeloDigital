@@ -21,11 +21,27 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from dotenv import load_dotenv
 
-load_dotenv()
-
 
 DEFAULT_HF_MODEL = os.getenv("HF_IMAGE_MODEL", "stabilityai/stable-diffusion-2")
 HF_ENDPOINT = f"https://api-inference.huggingface.co/models/{DEFAULT_HF_MODEL}"
+
+
+def _try_load_dotenv_from_filesystem() -> None:
+    """
+    En Docker, el `.env` puede no estar en el CWD.
+    Buscamos el archivo cerca del path del código (subiendo directorios).
+    """
+    start_dir = os.path.dirname(os.path.abspath(__file__))
+    cur = start_dir
+    for _ in range(8):
+        candidate = os.path.join(cur, ".env")
+        if os.path.exists(candidate):
+            load_dotenv(dotenv_path=candidate, override=False)
+            return
+        parent = os.path.dirname(cur)
+        if parent == cur:
+            break
+        cur = parent
 
 
 def _static_generated_root() -> str:
@@ -54,11 +70,17 @@ def generate_images_from_prompts(
     Returns:
         (items, err). items incluye {slide_number, image_url, image_path, alt_text}
     """
+    _try_load_dotenv_from_filesystem()
+
     # Obtenemos el token en runtime (evita problemas si el módulo se importó antes
     # de que el contenedor inyectara variables de entorno).
     hf_api_key = os.getenv("HF_API_KEY") or os.getenv("HUGGINGFACEHUB_API_TOKEN")
     if not hf_api_key or hf_api_key == "your_hf_token_here":
-        return [], "Falta HF API token (HF_API_KEY o HUGGINGFACEHUB_API_TOKEN) en el entorno"
+        return [], (
+            "Falta HF API token (HF_API_KEY o HUGGINGFACEHUB_API_TOKEN) en el entorno. "
+            "En Docker normalmente hay que asegurar que el contenedor recibe la `.env` correcta "
+            "y reiniciar/rebuild el backend."
+        )
     if not image_prompts:
         return [], "No hay image_prompts para generar"
 
