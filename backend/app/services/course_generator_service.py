@@ -87,6 +87,13 @@ try:
 
     class _CourseGenerationResult(BaseModel):
         course_title: str
+        # Metadatos del catálogo (para insertar/reindexar en RAG)
+        description: str
+        level: str = Field(..., description="beginner/intermediate/advanced")
+        trajectory_affinity: str = Field(..., description="generalist/specialist/both")
+        # Lista de IDs de competencias (ej: ['python','sql'])
+        competencies: List[str] = Field(default_factory=list, description="Competency IDs from taxonomy")
+
         target_audience: str
         learning_objectives: List[str] = Field(default_factory=list, description="5-7 objetivos")
         slides: List[_SlideModel] = Field(default_factory=list, description="8-12 slides")
@@ -151,6 +158,21 @@ def generate_course_slides_and_script(
 
         structured_llm = llm.with_structured_output(_CourseGenerationResult)
 
+        import os as _os
+        project_root = _os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+        taxonomy_path = _os.path.join(project_root, "agents", "data", "competencies.json")
+
+        competencies_taxonomy_ids = []
+        try:
+            import json as _json
+
+            with open(taxonomy_path, "r", encoding="utf-8") as f:
+                taxonomy_data = _json.load(f)
+            competencies_taxonomy_ids = [c.get("id") for c in taxonomy_data if c.get("id")]
+        except Exception:
+            # Si falla, dejamos la lista vacía: el LLM igual puede elegir, pero perderíamos constraint.
+            competencies_taxonomy_ids = []
+
         system_instructions = (
             "Eres un diseñador instruccional y guionista pedagógico. "
             "Genera un curso coherente en ESPAÑOL usando únicamente el texto fuente proporcionado. "
@@ -164,6 +186,12 @@ def generate_course_slides_and_script(
             "{source_text}\n\n"
             "Genera:\n"
             "- Un `course_title` claro.\n"
+            "- Un `description` breve (1-3 frases) en español.\n"
+            "- `level` EXACTAMENTE en beginner/intermediate/advanced.\n"
+            "- `trajectory_affinity` EXACTAMENTE en generalist/specialist/both.\n"
+            "- `competencies` con 5-7 IDs de competencias tomadas de la taxonomía oficial.\n"
+            "  - Si incluyes IDs que no existan, el output fallará: respeta el set permitido.\n"
+            f"  - IDs permitidos: {', '.join(competencies_taxonomy_ids) if competencies_taxonomy_ids else '(no disponible)'}\n"
             "- `target_audience` en 1 frase.\n"
             "- `learning_objectives` con 5-7 objetivos accionables.\n"
             "- `slides` con 8-12 slides.\n"
