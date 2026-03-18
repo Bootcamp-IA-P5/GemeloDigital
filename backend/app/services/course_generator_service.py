@@ -78,7 +78,9 @@ try:
     from pydantic import BaseModel, Field
 
     class _SlideModel(BaseModel):
-        slide_number: int = Field(..., ge=1)
+        # El LLM a veces omite esta propiedad. La hacemos opcional y
+        # rellenamos nosotros en post-procesado para evitar fallos de validación.
+        slide_number: Optional[int] = Field(default=None, ge=1)
         title: str
         bullets: List[str] = Field(default_factory=list, description="3-5 bullets breves")
         script: str = Field(..., description="Guion narrativo para el slide (2-4 frases)")
@@ -149,6 +151,7 @@ def generate_course_slides_and_script(
             "- `target_audience` en 1 frase.\n"
             "- `learning_objectives` con 5-7 objetivos accionables.\n"
             "- `slides` con 8-12 slides.\n"
+            "- En cada slide incluye `slide_number` (empieza en 1 y sigue en orden).\n"
             "  - Cada slide debe tener 3-5 `bullets` breves.\n"
             "  - Cada slide debe incluir un `script` de 2-4 frases para narración.\n"
             "Reglas:\n"
@@ -171,7 +174,14 @@ def generate_course_slides_and_script(
             }
         )
 
-        return validate_and_format_response(response_model), None
+        course_dict = validate_and_format_response(response_model)
+        # Normaliza slide_number en caso de que el LLM lo haya omitido.
+        slides = course_dict.get("slides") or []
+        for idx, s in enumerate(slides):
+            if isinstance(s, dict) and not s.get("slide_number"):
+                s["slide_number"] = idx + 1
+        course_dict["slides"] = slides
+        return course_dict, None
     except Exception as error:
         # Reutilizamos guardrails para mantener formato consistente.
         try:
