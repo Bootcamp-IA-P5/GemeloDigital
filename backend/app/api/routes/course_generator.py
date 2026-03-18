@@ -130,7 +130,12 @@ def save_generated_course_from_source(body: GenerateCourseFromSourceRequest):
         course_id=generated_course_id,
     )
     if hf_err:
-        raise HTTPException(status_code=502, detail=hf_err)
+        # Fallback: si el error es por falta de token HF, permitimos crear el PPTX
+        # sin imágenes para validar el resto del pipeline (DB/RAG/static).
+        if "Falta HF API token" in hf_err:
+            images = []
+        else:
+            raise HTTPException(status_code=502, detail=hf_err)
 
     # 4) Construir PPTX
     deck_url, pptx_err = pptx_deck_service.build_pptx_deck(
