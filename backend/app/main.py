@@ -1,11 +1,13 @@
 # ──────────────────────────────────────────────────────────────
 # 📌 IMPORTS
 # ──────────────────────────────────────────────────────────────
+import os
 from contextlib import asynccontextmanager          # Para gestionar el ciclo de vida de la app (startup/shutdown)
 
 from fastapi import FastAPI, HTTPException, Request, status        # Framework web + objeto Request + códigos HTTP
 from fastapi.middleware.cors import CORSMiddleware   # Middleware para permitir peticiones cross-origin (frontend)
 from fastapi.responses import JSONResponse           # Para construir respuestas JSON personalizadas
+from fastapi.staticfiles import StaticFiles          # Para servir archivos estáticos (PPTX, imágenes, etc.)
 
 # ──────────────────────────────────────────────────────────────
 # 📌 IMPORTS DE ROUTERS (endpoints organizados por dominio)
@@ -23,7 +25,14 @@ from app.api.routes import auth, profile, roadmap, admin, courses, course_genera
 async def lifespan(app: FastAPI):
     # ── STARTUP: se ejecuta UNA VEZ al arrancar el servidor ──
     print("🚀 Servidor arrancando...")
-    # TODO: Conectar a PostgreSQL
+    # Asegura que existan las tablas (incluye nuevas entidades como CourseDeck).
+    try:
+        from app.database import init_db
+
+        init_db()
+    except Exception as e:
+        print(f"[WARNING] init_db() falló en startup: {e}")
+
     # TODO: Cargar modelo ML (joblib.load)
     # TODO: Inicializar cliente de ChromaDB
 
@@ -72,6 +81,15 @@ app.add_middleware(
     allow_methods=["*"],            # Métodos HTTP permitidos (GET, POST, PATCH, DELETE, etc.)
     allow_headers=["*"],            # Headers permitidos (Authorization, Content-Type, etc.)
 )
+
+# ──────────────────────────────────────────────────────────────
+# SERVE DE ESTÁTICOS
+# ──────────────────────────────────────────────────────────────
+# Servimos `backend/app/static/**` como `/static/**`.
+app_dir = os.path.dirname(os.path.abspath(__file__))  # backend/app
+static_dir = os.path.join(app_dir, "static")
+os.makedirs(static_dir, exist_ok=True)
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 
 # ──────────────────────────────────────────────────────────────

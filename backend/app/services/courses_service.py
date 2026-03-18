@@ -13,6 +13,9 @@ import json
 import os
 from typing import List, Dict, Any, Optional
 
+from app.database import SessionLocal
+from app.models import Course
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 COURSES_FILE = os.path.join(BASE_DIR, "data", "seed", "courses.json")
@@ -76,15 +79,52 @@ def list_courses(
         level: nivel del curso (beginner/intermediate/advanced)
         affinity: afinidad de trayectoria (generalist/specialist/both)
     """
-    raw_courses = _load_all_courses()
+    # Preferimos leer desde PostgreSQL (incluye cursos generados por admin).
+    db = SessionLocal()
+    try:
+        db_courses = db.query(Course).all()
+    finally:
+        db.close()
+
+    # Fallback DEV: si la BD está vacía, usamos seed JSON.
+    if not db_courses:
+        raw_courses = _load_all_courses()
+        results: List[Dict[str, Any]] = []
+        for c in raw_courses:
+            competencies = c.get("competencies", []) or []
+            traj_affinity = c.get("trajectory_affinity", "")
+            lvl = c.get("level", "")
+
+            if level and lvl != level:
+                continue
+            if affinity and traj_affinity != affinity:
+                continue
+
+            if category:
+                comp_set = CATEGORY_COMPETENCIES_MAP.get(category)
+                if comp_set and not any(comp in comp_set for comp in competencies):
+                    continue
+
+            results.append(
+                {
+                    "id": c.get("id"),
+                    "title": c.get("title"),
+                    "description": c.get("description"),
+                    "level": lvl,
+                    "affinity": traj_affinity,
+                    "competencies": competencies,
+                    "duration_hours": c.get("duration_hours", 0),
+                    "url": c.get("url"),
+                }
+            )
+        return results
 
     results: List[Dict[str, Any]] = []
-    for c in raw_courses:
-        competencies = c.get("competencies", []) or []
-        traj_affinity = c.get("trajectory_affinity", "")
-        lvl = c.get("level", "")
+    for c in db_courses:
+        competencies = c.competencies or []
+        traj_affinity = c.trajectory_affinity or ""
+        lvl = c.level or ""
 
-        # Filtros opcionales
         if level and lvl != level:
             continue
         if affinity and traj_affinity != affinity:
@@ -92,21 +132,19 @@ def list_courses(
 
         if category:
             comp_set = CATEGORY_COMPETENCIES_MAP.get(category)
-            if comp_set:
-                if not any(comp in comp_set for comp in competencies):
-                    continue
+            if comp_set and not any(comp in comp_set for comp in competencies):
+                continue
 
-        # Adaptamos la estructura al esquema CourseResponse
         results.append(
             {
-                "id": c.get("id"),
-                "title": c.get("title"),
-                "description": c.get("description"),
+                "id": c.id,
+                "title": c.title,
+                "description": c.description,
                 "level": lvl,
                 "affinity": traj_affinity,
                 "competencies": competencies,
-                "duration_hours": c.get("duration_hours", 0),
-                "url": c.get("url"),
+                "duration_hours": c.duration_hours or 0,
+                "url": c.url,
             }
         )
 

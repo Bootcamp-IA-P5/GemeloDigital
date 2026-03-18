@@ -173,6 +173,50 @@ class Course(Base):
 
 
 # ══════════════════════════════════════════════
+# COURSE DECKS — Cursos generados por el admin
+# ══════════════════════════════════════════════
+
+
+class CourseDeck(Base):
+    """
+    Contiene el contenido generado por el admin para un curso del catálogo:
+    - slides (JSON)
+    - image URLs (o base64 en el futuro)
+    - deck file (pptx) servible por backend
+    """
+
+    __tablename__ = "course_decks"
+
+    id = Column(String(100), primary_key=True, default=lambda: str(uuid.uuid4()))
+    course_id = Column(
+        String(50),
+        ForeignKey("courses.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    source_url = Column(String(1000), nullable=True)
+    prompt = Column(Text, nullable=True)
+
+    # JSON con slides generadas (incluye script, bullets, slide_number, etc.)
+    slides_json = Column(JSON, nullable=False, default=list)
+
+    # JSON con rutas/urls de imágenes por slide_number
+    image_urls = Column(JSON, nullable=False, default=list)
+
+    deck_format = Column(String(10), nullable=False, default="pptx")
+    deck_file_url = Column(String(1000), nullable=True)
+
+    created_at = Column(DateTime(timezone=True), default=_utcnow, nullable=False)
+
+    # Relaciones
+    course = relationship("Course")
+
+    def __repr__(self):
+        return f"<CourseDeck {self.id} course_id={self.course_id}>"
+
+
+# ══════════════════════════════════════════════
 # ROADMAPS — Hojas de ruta personalizadas
 # ══════════════════════════════════════════════
 

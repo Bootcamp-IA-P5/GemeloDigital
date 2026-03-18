@@ -11,6 +11,8 @@ protobuf==3.20.3
 livekit-api>=0.8.0
 sqlalchemy>=2.0.0
 psycopg2-binary>=2.9.0
+python-pptx
+Pillow
 
 
 
