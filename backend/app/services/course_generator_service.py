@@ -91,11 +91,27 @@ try:
         learning_objectives: List[str] = Field(default_factory=list, description="5-7 objetivos")
         slides: List[_SlideModel] = Field(default_factory=list, description="8-12 slides")
 
+    class _SlideImagePromptModel(BaseModel):
+        # El LLM puede omitir slide_number. Lo dejamos opcional y lo normalizamos luego.
+        slide_number: Optional[int] = Field(default=None, ge=1)
+        # Prompt pensado para un generador de imágenes (idealmente en inglés) y sin texto embebido.
+        image_prompt: str = Field(..., description="Prompt para generar la imagen de la slide (evita texto en la imagen)")
+        # Texto alternativo en español (para accesibilidad / frontend).
+        alt_text: str = Field(..., description="Descripción alternativa de la imagen (en español)")
+
+    class _ImagePromptsResult(BaseModel):
+        image_style: str = Field(..., description="Estilo visual general consistente para todas las slides")
+        slides_image_prompts: List[_SlideImagePromptModel] = Field(
+            default_factory=list,
+            description="Lista de prompts por slide (misma cantidad y orden)",
+        )
+
 except Exception:  # pragma: no cover
     # Si por alguna razón falla la importación de pydantic/langchain en runtime,
     # dejaremos la función de generación fallar con un error claro.
     _SlideModel = None
     _CourseGenerationResult = None
+    _ImagePromptsResult = None
 
 
 def generate_course_slides_and_script(
@@ -184,6 +200,107 @@ def generate_course_slides_and_script(
         return course_dict, None
     except Exception as error:
         # Reutilizamos guardrails para mantener formato consistente.
+        try:
+            from agents.utils.guardrails import handle_llm_output_error
+
+            return handle_llm_output_error(error), str(error)
+        except Exception:
+            return {}, str(error)
+
+
+def generate_course_image_prompts(
+    slides: List[dict],
+    prompt: Optional[str] = None,
+    *,
+    max_slides: int = 12,
+) -> Tuple[dict, str | None]:
+    """
+    Fase 2-2: genera prompts de imagen (uno por slide) a partir de `slides`.
+
+    Nota: en este MVP todavía no generamos bitmaps; devolvemos prompts listos
+    para que el frontend/servicio de imágenes los renderice más adelante.
+    """
+    if not slides:
+        return {}, "No hay slides para generar image_prompts"
+    if _ImagePromptsResult is None:
+        return {}, "El generador de prompts de imagen requiere dependencias de LLM que no se pudieron cargar"
+
+    try:
+        from dotenv import load_dotenv
+        from langchain_groq import ChatGroq
+        from langchain_core.prompts import ChatPromptTemplate
+
+        from agents.utils.guardrails import handle_llm_output_error, validate_and_format_response
+
+        load_dotenv()
+
+        limited_slides = slides[:max_slides]
+
+        # Compactamos el contexto: suficiente para que el LLM proponga composición + estilo,
+        # pero evitando meter guiones completos.
+        slides_context = [
+            {
+                "slide_number": s.get("slide_number"),
+                "title": s.get("title"),
+                "bullets": s.get("bullets", [])[:5],
+                "script_snippet": (s.get("script") or "")[:180],
+            }
+            for s in limited_slides
+        ]
+
+        user_prompt = prompt.strip() if prompt else ""
+
+        llm = ChatGroq(
+            model="llama-3.1-8b-instant",
+            temperature=0.3,
+            max_retries=2,
+        )
+        structured_llm = llm.with_structured_output(_ImagePromptsResult)
+
+        system_instructions = (
+            "Eres un director de arte para educación digital. "
+            "Debes proponer prompts consistentes para un generador de imágenes. "
+            "Reglas: NO incluyas texto dentro de la imagen (sin letras, sin frases, sin títulos). "
+            "Mantén coherencia de estilo entre todas las slides."
+        )
+
+        human_instructions = (
+            "PROMPT DEL USUARIO (opcional):\n"
+            "{user_prompt}\n\n"
+            "OBJETIVO: generar prompts de imagen para CADA slide.\n\n"
+            "SLIDES (entrada):\n"
+            "{slides_json}\n\n"
+            "Salida requerida (JSON estructurado):\n"
+            "- `image_style`: describe el estilo consistente (ej: flat vector, isométrico, etc.)\n"
+            "- `slides_image_prompts`: lista con 1 elemento por slide, en el mismo orden.\n"
+            "  - Cada elemento con `slide_number` (si es posible), `image_prompt` (en inglés, sin texto) y `alt_text` (en español).\n"
+        )
+
+        prompt_template = ChatPromptTemplate.from_messages(
+            [
+                ("system", system_instructions),
+                ("human", human_instructions),
+            ]
+        )
+
+        chain = prompt_template | structured_llm
+        response_model = chain.invoke(
+            {
+                "user_prompt": user_prompt if user_prompt else "(sin prompt adicional)",
+                "slides_json": slides_context,
+            }
+        )
+
+        image_dict = validate_and_format_response(response_model)
+        # Normaliza slide_number si el LLM no lo devolvió.
+        ip = image_dict.get("slides_image_prompts") or []
+        for idx, s in enumerate(ip):
+            if isinstance(s, dict) and not s.get("slide_number"):
+                s["slide_number"] = idx + 1
+        image_dict["slides_image_prompts"] = ip
+        return image_dict, None
+
+    except Exception as error:
         try:
             from agents.utils.guardrails import handle_llm_output_error
 
