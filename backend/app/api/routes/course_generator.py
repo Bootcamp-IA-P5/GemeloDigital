@@ -24,11 +24,11 @@ class GenerateCourseFromSourceRequest(BaseModel):
 
 @router.post(
     "/from-source",
-    summary="Generar curso desde URL (extrae contenido; slides en siguiente fase)",
+    summary="Generar curso desde URL (extrae contenido y genera slides)",
 )
 def generate_course_from_source(body: GenerateCourseFromSourceRequest):
     """
-    Extrae el texto de la URL y lo devuelve (preview). La generación de diapositivas con LLM vendrá después.
+    Extrae el texto de la URL, genera diapositivas + guion con un LLM y devuelve el curso.
     """
     if not body.url:
         raise HTTPException(
@@ -39,9 +39,19 @@ def generate_course_from_source(body: GenerateCourseFromSourceRequest):
     if err:
         raise HTTPException(status_code=422, detail=err)
     preview = text[:PREVIEW_CHARS] + ("..." if len(text) > PREVIEW_CHARS else "")
+
+    # Fase 2-1: generación de slides + guion usando el texto extraído.
+    course_dict, course_err = course_generator_service.generate_course_slides_and_script(
+        text,
+        body.prompt,
+    )
+    if course_err:
+        raise HTTPException(status_code=502, detail=course_err)
+
     return {
-        "status": "extracted",
+        "status": "generated",
         "source": "url",
         "content_length": len(text),
         "content_preview": preview,
+        "course": course_dict,
     }
