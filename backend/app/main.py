@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse           # Para construir respuestas
 # ──────────────────────────────────────────────────────────────
 # 📌 IMPORTS DE ROUTERS (endpoints organizados por dominio)
 # ──────────────────────────────────────────────────────────────
-from app.api.routes import auth, profile, roadmap, admin, courses
+from app.api.routes import auth, profile, roadmap, admin, courses, course_generator
 
 # ──────────────────────────────────────────────────────────────
 # 📌 LIFESPAN — Ciclo de vida de la aplicación
@@ -125,6 +125,12 @@ app.include_router(
     admin.router,
     prefix="/api/admin",           # Rutas de admin bajo /api/admin/...
     tags=["Administración"],
+)
+
+app.include_router(
+    course_generator.router,
+    prefix="/api/admin/generate-course",  # Generar curso desde URL/PDF
+    tags=["Generador de cursos"],
 )
 
 
