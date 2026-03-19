@@ -11,7 +11,7 @@ errores y acelerar el test del pipeline de texto/PPTX.
 import uuid
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from ...services import course_generator_service
@@ -92,7 +92,7 @@ def generate_course_from_source(body: GenerateCourseFromSourceRequest):
     "/save-from-source",
     summary="Generar y guardar curso generado (PPTX + imágenes) (admin)",
 )
-def save_generated_course_from_source(body: GenerateCourseFromSourceRequest):
+def save_generated_course_from_source(body: GenerateCourseFromSourceRequest, request: Request):
     """
     Genera un curso completo desde URL:
       1) Slides + guion + metadata de catálogo
@@ -148,6 +148,10 @@ def save_generated_course_from_source(body: GenerateCourseFromSourceRequest):
         images_by_slide_number=images,
         deck_title=course_dict.get("course_title"),
     )
+    # `pptx_deck_service` devuelve rutas relativas (ej: /static/...)
+    # Si el frontend intenta abrirlas, React Router puede interceptarlo.
+    # Convertimos a URL absoluta usando el host real del request.
+    deck_url_abs = f"{str(request.base_url).rstrip('/')}{deck_url}" if deck_url else deck_url
     # #region agent log
     print(f"[DEBUG-9b2746] step4:pptx deck_url={deck_url} pptx_err={pptx_err}", flush=True)
     # #endregion
@@ -178,7 +182,7 @@ def save_generated_course_from_source(body: GenerateCourseFromSourceRequest):
             slides_json=course_dict.get("slides", []),
             image_urls=[],
             deck_format="pptx",
-            deck_file_url=deck_url,
+            deck_file_url=deck_url_abs,
         )
         db.add(db_deck)
         db.commit()
@@ -210,5 +214,5 @@ def save_generated_course_from_source(body: GenerateCourseFromSourceRequest):
     return {
         "status": "saved",
         "course_id": generated_course_id,
-        "deck_file_url": deck_url,
+        "deck_file_url": deck_url_abs,
     }
