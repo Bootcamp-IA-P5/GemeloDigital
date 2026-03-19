@@ -124,6 +124,8 @@ def save_generated_course_from_source(body: GenerateCourseFromSourceRequest, req
         slides=course_dict.get("slides", []),
         images_by_slide_number=[],
         deck_title=course_dict.get("course_title"),
+        course_description=course_dict.get("description"),
+        learning_objectives=course_dict.get("learning_objectives", []),
     )
     deck_download_url = f"{str(request.base_url).rstrip('/')}{deck_url}" if deck_url else None
     if pptx_err:
