@@ -49,6 +49,7 @@ class DeckTheme:
     typography: Dict[str, float]
     spacing: Dict[str, float]
     limits: Dict[str, int]
+    structure: Dict[str, int]
     layout_order: List[str]
 
 
@@ -62,6 +63,7 @@ def _load_theme() -> DeckTheme:
         typography=cfg.get("typography", {}),
         spacing=cfg.get("spacing", {}),
         limits=cfg.get("limits", {}),
+        structure=cfg.get("structure", {}),
         layout_order=cfg.get("layout_order", []),
     )
 
@@ -138,7 +140,7 @@ def _add_title_bar(slide_obj, *, x, y, w, h, color_hex: str):
     bar.line.fill.background()
 
 
-def _add_footer(slide_obj, *, theme: DeckTheme, slide_number: int, page_w, page_h):
+def _add_footer(slide_obj, *, theme: DeckTheme, slide_number: int, page_w, page_h, deck_label: str = "Data Quantum"):
     from pptx.util import Inches
 
     margin_l = Inches(theme.spacing.get("margin_left_in", 0.7))
@@ -150,7 +152,7 @@ def _add_footer(slide_obj, *, theme: DeckTheme, slide_number: int, page_w, page_
     tf_left = left_box.text_frame
     tf_left.clear()
     p_left = tf_left.paragraphs[0]
-    p_left.text = "Data Quantum"
+    p_left.text = deck_label
     _apply_font(
         p_left,
         font_name=theme.typography.get("font_family", "Calibri"),
@@ -172,7 +174,7 @@ def _add_footer(slide_obj, *, theme: DeckTheme, slide_number: int, page_w, page_
     )
 
 
-def _render_cover(prs, *, theme: DeckTheme, title: str, subtitle: str):
+def _render_cover(prs, *, theme: DeckTheme, title: str, subtitle: str, kicker: str):
     from pptx.util import Inches
 
     slide = prs.slides.add_slide(prs.slide_layouts[6] if len(prs.slide_layouts) > 6 else prs.slide_layouts[0])
@@ -186,7 +188,20 @@ def _render_cover(prs, *, theme: DeckTheme, title: str, subtitle: str):
         color_hex=theme.palette.get("navy", "#012061"),
     )
 
-    title_box = slide.shapes.add_textbox(Inches(0.9), Inches(1.5), Inches(11.2), Inches(2.1))
+    kicker_box = slide.shapes.add_textbox(Inches(0.9), Inches(0.9), Inches(11.2), Inches(0.8))
+    ktf = kicker_box.text_frame
+    ktf.clear()
+    kp = ktf.paragraphs[0]
+    kp.text = kicker or "HABILIDADES TRANSVERSALES"
+    _apply_font(
+        kp,
+        font_name=theme.typography.get("font_family", "Calibri"),
+        size_pt=int(theme.typography.get("cover_kicker_pt", 20)),
+        color_hex=theme.palette.get("green", "#00CC66"),
+        bold=True,
+    )
+
+    title_box = slide.shapes.add_textbox(Inches(0.9), Inches(1.6), Inches(11.2), Inches(2.1))
     tf_title = title_box.text_frame
     tf_title.clear()
     p = tf_title.paragraphs[0]
@@ -199,7 +214,7 @@ def _render_cover(prs, *, theme: DeckTheme, title: str, subtitle: str):
         bold=True,
     )
 
-    subtitle_box = slide.shapes.add_textbox(Inches(0.9), Inches(4.0), Inches(10.8), Inches(1.2))
+    subtitle_box = slide.shapes.add_textbox(Inches(0.9), Inches(4.0), Inches(10.8), Inches(1.7))
     tf_sub = subtitle_box.text_frame
     tf_sub.clear()
     ps = tf_sub.paragraphs[0]
@@ -224,7 +239,7 @@ def _render_agenda(prs, *, theme: DeckTheme, items: List[str]):
     tf = tbox.text_frame
     tf.clear()
     p = tf.paragraphs[0]
-    p.text = "Agenda"
+    p.text = "Indice de Modulos"
     _apply_font(
         p,
         font_name=theme.typography.get("font_family", "Calibri"),
@@ -238,7 +253,7 @@ def _render_agenda(prs, *, theme: DeckTheme, items: List[str]):
     tf_list.clear()
     for i, item in enumerate(items[:8]):
         para = tf_list.paragraphs[0] if i == 0 else tf_list.add_paragraph()
-        para.text = f"{i + 1}. {item}"
+        para.text = f"{i + 1}  {item}"
         _apply_font(
             para,
             font_name=theme.typography.get("font_family", "Calibri"),
@@ -248,14 +263,27 @@ def _render_agenda(prs, *, theme: DeckTheme, items: List[str]):
     return slide
 
 
-def _render_section_divider(prs, *, theme: DeckTheme, title: str, subtitle: str):
+def _render_section_divider(prs, *, theme: DeckTheme, title: str, subtitle: str, module_number: int):
     from pptx.util import Inches
 
     slide = prs.slides.add_slide(prs.slide_layouts[6] if len(prs.slide_layouts) > 6 else prs.slide_layouts[0])
     _add_background(slide, width=prs.slide_width, height=prs.slide_height, color_hex=theme.palette.get("navy", "#012061"))
     _add_title_bar(slide, x=Inches(0), y=Inches(0), w=Inches(12.8), h=Inches(0.24), color_hex=theme.palette.get("green", "#00CC66"))
 
-    tbox = slide.shapes.add_textbox(Inches(0.9), Inches(2.4), Inches(11.0), Inches(1.4))
+    mbox = slide.shapes.add_textbox(Inches(0.9), Inches(1.8), Inches(4.0), Inches(0.9))
+    mtf = mbox.text_frame
+    mtf.clear()
+    mp = mtf.paragraphs[0]
+    mp.text = f"MODULO {module_number}"
+    _apply_font(
+        mp,
+        font_name=theme.typography.get("font_family", "Calibri"),
+        size_pt=20,
+        color_hex=theme.palette.get("green", "#00CC66"),
+        bold=True,
+    )
+
+    tbox = slide.shapes.add_textbox(Inches(0.9), Inches(2.6), Inches(11.0), Inches(1.4))
     tf = tbox.text_frame
     tf.clear()
     p = tf.paragraphs[0]
@@ -282,14 +310,35 @@ def _render_section_divider(prs, *, theme: DeckTheme, title: str, subtitle: str)
     return slide
 
 
-def _render_content_bullets(prs, *, theme: DeckTheme, title: str, bullets: List[str], script: str):
+def _render_content_bullets(
+    prs,
+    *,
+    theme: DeckTheme,
+    title: str,
+    bullets: List[str],
+    script: str,
+    module_label: str,
+    progress_label: str,
+):
     from pptx.util import Inches
 
     slide = prs.slides.add_slide(prs.slide_layouts[6] if len(prs.slide_layouts) > 6 else prs.slide_layouts[0])
     _add_background(slide, width=prs.slide_width, height=prs.slide_height, color_hex=theme.palette.get("white", "#FFFFFF"))
     _add_title_bar(slide, x=Inches(0.7), y=Inches(0.6), w=Inches(2.4), h=Inches(0.18), color_hex=theme.palette.get("navy", "#012061"))
 
-    tbox = slide.shapes.add_textbox(Inches(0.7), Inches(0.85), Inches(11.2), Inches(0.9))
+    module_box = slide.shapes.add_textbox(Inches(0.7), Inches(0.82), Inches(8.0), Inches(0.5))
+    mtf = module_box.text_frame
+    mtf.clear()
+    mp = mtf.paragraphs[0]
+    mp.text = module_label
+    _apply_font(
+        mp,
+        font_name=theme.typography.get("font_family", "Calibri"),
+        size_pt=14,
+        color_hex=theme.palette.get("text_secondary", "#6B7280"),
+    )
+
+    tbox = slide.shapes.add_textbox(Inches(0.7), Inches(1.1), Inches(11.2), Inches(0.9))
     tf = tbox.text_frame
     tf.clear()
     p = tf.paragraphs[0]
@@ -328,6 +377,18 @@ def _render_content_bullets(prs, *, theme: DeckTheme, title: str, bullets: List[
             size_pt=11,
             color_hex=theme.palette.get("text_secondary", "#6B7280"),
         )
+    pbox = slide.shapes.add_textbox(Inches(10.5), Inches(6.15), Inches(1.2), Inches(0.45))
+    ptf = pbox.text_frame
+    ptf.clear()
+    pp = ptf.paragraphs[0]
+    pp.text = progress_label
+    pp.alignment = 2
+    _apply_font(
+        pp,
+        font_name=theme.typography.get("font_family", "Calibri"),
+        size_pt=11,
+        color_hex=theme.palette.get("text_secondary", "#6B7280"),
+    )
     return slide
 
 
@@ -338,7 +399,7 @@ def _render_content_two_columns(prs, *, theme: DeckTheme, title: str, bullets: L
     _add_background(slide, width=prs.slide_width, height=prs.slide_height, color_hex=theme.palette.get("light_bg", "#F8F9FA"))
     _add_title_bar(slide, x=Inches(0.7), y=Inches(0.6), w=Inches(2.6), h=Inches(0.18), color_hex=theme.palette.get("orange", "#F97316"))
 
-    tbox = slide.shapes.add_textbox(Inches(0.7), Inches(0.85), Inches(11.2), Inches(0.9))
+    tbox = slide.shapes.add_textbox(Inches(0.7), Inches(1.1), Inches(11.2), Inches(0.9))
     tf = tbox.text_frame
     tf.clear()
     p = tf.paragraphs[0]
@@ -464,6 +525,7 @@ def _build_semantic_blocks(
                     "title": f"{title}{suffix}",
                     "bullets": chunk,
                     "script": script,
+                    "origin_slide": i,
                 }
             )
     return blocks, trunc_count, split_count
@@ -519,57 +581,97 @@ def build_pptx_deck(
     if not content_layouts:
         content_layouts = ["content-bullets", "content-two-columns"]
 
+    module_size = int(theme.structure.get("module_size", 3))
+    modules: List[List[Dict[str, Any]]] = []
+    for i in range(0, len(semantic_blocks), module_size):
+        modules.append(semantic_blocks[i : i + module_size])
+
     # 1) Cover
     cover = _render_cover(
         prs,
         theme=theme,
         title=(deck_title or "Curso generado"),
-        subtitle=(course_description or "Ruta formativa para revision de administracion"),
+        subtitle=f"{course_description or 'Ruta formativa para revision de administracion'}\nNivel: {('N/A')}",
+        kicker="HABILIDADES TRANSVERSALES",
     )
-    _add_footer(cover, theme=theme, slide_number=1, page_w=prs.slide_width, page_h=prs.slide_height)
+    _add_footer(
+        cover,
+        theme=theme,
+        slide_number=1,
+        page_w=prs.slide_width,
+        page_h=prs.slide_height,
+        deck_label="dataquantum",
+    )
     print("[PPTX] layout seleccionado: cover", flush=True)
 
     # 2) Agenda
-    agenda_items = [b.get("title", "") for b in semantic_blocks[:8]]
+    agenda_items = [m[0].get("title", "") for m in modules[:8] if m]
     agenda = _render_agenda(prs, theme=theme, items=agenda_items)
-    _add_footer(agenda, theme=theme, slide_number=2, page_w=prs.slide_width, page_h=prs.slide_height)
+    _add_footer(
+        agenda,
+        theme=theme,
+        slide_number=2,
+        page_w=prs.slide_width,
+        page_h=prs.slide_height,
+        deck_label=f"dataquantum  ·  {deck_title or 'Curso'}",
+    )
     print("[PPTX] layout seleccionado: agenda", flush=True)
 
     slide_counter = 3
 
-    # 3) Section divider
-    divider = _render_section_divider(
-        prs,
-        theme=theme,
-        title="Contenido del curso",
-        subtitle="Bloques clave para dominar el tema",
-    )
-    _add_footer(divider, theme=theme, slide_number=slide_counter, page_w=prs.slide_width, page_h=prs.slide_height)
-    print("[PPTX] layout seleccionado: section-divider", flush=True)
-    slide_counter += 1
-
-    # 4) Content slides (alternando dos layouts)
-    for idx, block in enumerate(semantic_blocks):
-        layout_type = content_layouts[idx % len(content_layouts)]
-        if layout_type == "content-bullets":
-            s = _render_content_bullets(
-                prs,
-                theme=theme,
-                title=block.get("title") or "Contenido",
-                bullets=block.get("bullets") or [],
-                script=block.get("script") or "",
-            )
-        else:
-            s = _render_content_two_columns(
-                prs,
-                theme=theme,
-                title=block.get("title") or "Contenido",
-                bullets=block.get("bullets") or [],
-                script=block.get("script") or "",
-            )
-        _add_footer(s, theme=theme, slide_number=slide_counter, page_w=prs.slide_width, page_h=prs.slide_height)
-        print(f"[PPTX] layout seleccionado: {layout_type} | title={block.get('title','')[:60]}", flush=True)
+    # 3) Divisor + contenido por modulo
+    for mod_idx, module_blocks in enumerate(modules, start=1):
+        divider = _render_section_divider(
+            prs,
+            theme=theme,
+            title=module_blocks[0].get("title") if module_blocks else "Contenido",
+            subtitle="Bloque de aprendizaje",
+            module_number=mod_idx,
+        )
+        _add_footer(
+            divider,
+            theme=theme,
+            slide_number=slide_counter,
+            page_w=prs.slide_width,
+            page_h=prs.slide_height,
+            deck_label=f"dataquantum  ·  {deck_title or 'Curso'}",
+        )
+        print("[PPTX] layout seleccionado: section-divider", flush=True)
         slide_counter += 1
+
+        total_in_module = max(1, len(module_blocks))
+        for idx, block in enumerate(module_blocks):
+            layout_type = content_layouts[idx % len(content_layouts)]
+            module_label = f"Modulo {mod_idx}: {module_blocks[0].get('title','Contenido')}"
+            progress_label = f"{idx + 1} / {total_in_module}"
+            if layout_type == "content-bullets":
+                s = _render_content_bullets(
+                    prs,
+                    theme=theme,
+                    title=block.get("title") or "Contenido",
+                    bullets=block.get("bullets") or [],
+                    script=block.get("script") or "",
+                    module_label=module_label,
+                    progress_label=progress_label,
+                )
+            else:
+                s = _render_content_two_columns(
+                    prs,
+                    theme=theme,
+                    title=block.get("title") or "Contenido",
+                    bullets=block.get("bullets") or [],
+                    script=block.get("script") or "",
+                )
+            _add_footer(
+                s,
+                theme=theme,
+                slide_number=slide_counter,
+                page_w=prs.slide_width,
+                page_h=prs.slide_height,
+                deck_label=f"dataquantum  ·  {deck_title or 'Curso'}",
+            )
+            print(f"[PPTX] layout seleccionado: {layout_type} | title={block.get('title','')[:60]}", flush=True)
+            slide_counter += 1
 
     # 5) Closing
     next_steps = (learning_objectives or [])[:6]
