@@ -1,11 +1,12 @@
 """
 Course Generator API — Generar curso desde fuente (prompt y/o url)
-==============================================================
-Fase 1: extracción de contenido desde URL (si existe).
-Fase 2: generación de slides + guion con LLM.
+==================================================================
+Genera un curso completo (slides + guion + metadata) a partir de un prompt
+del administrador, una URL fuente, o ambos.
 
-Nota temporal: deshabilitamos la generación/descarga de imágenes para evitar
-errores y acelerar el test del pipeline de texto/PPTX.
+Endpoints:
+ - POST /from-source       → preview rápido (no guarda en BD)
+ - POST /save-from-source  → genera, guarda en BD y devuelve curso completo
 """
 
 import uuid
@@ -37,15 +38,8 @@ class GenerateCourseFromSourceRequest(BaseModel):
     )
 
 
-@router.post(
-    "/from-source",
-    summary="Generar curso desde URL (extrae contenido y genera slides)",
-)
-def generate_course_from_source(body: GenerateCourseFromSourceRequest):
-    """
-    Extrae el texto de la URL, genera diapositivas + guion con un LLM y devuelve el curso.
-    """
-    # Aceptamos: url, prompt o ambos.
+def _resolve_source(body: GenerateCourseFromSourceRequest):
+    """Extrae texto fuente y prompt de usuario a partir del body."""
     if not (body.url or body.prompt):
         raise HTTPException(
             status_code=400,
@@ -65,19 +59,28 @@ def generate_course_from_source(body: GenerateCourseFromSourceRequest):
 
     if not text or not text.strip():
         raise HTTPException(status_code=422, detail="No hay texto para generar el curso")
+
+    return text, user_prompt, source
+
+
+@router.post(
+    "/from-source",
+    summary="Preview: generar curso desde prompt/url (no guarda en BD)",
+)
+def generate_course_from_source(body: GenerateCourseFromSourceRequest):
+    """
+    Genera un preview del curso (slides + guion) sin persistir en BD.
+    Útil para que el admin vea cómo quedaría antes de guardar.
+    """
+    text, user_prompt, source = _resolve_source(body)
     preview = text[:PREVIEW_CHARS] + ("..." if len(text) > PREVIEW_CHARS else "")
 
-    # Fase 2-1: generación de slides + guion usando el texto extraído.
     course_dict, course_err = course_generator_service.generate_course_slides_and_script(
         text,
         user_prompt,
     )
     if course_err:
         raise HTTPException(status_code=502, detail=course_err)
-
-    # Imágenes deshabilitadas temporalmente para evitar errores.
-    course_dict["image_style"] = ""
-    course_dict["image_prompts"] = []
 
     return {
         "status": "generated",
@@ -90,75 +93,43 @@ def generate_course_from_source(body: GenerateCourseFromSourceRequest):
 
 @router.post(
     "/save-from-source",
-    summary="Generar y guardar curso generado (PPTX + imágenes) (admin)",
+    summary="Generar y guardar curso completo (admin)",
 )
 def save_generated_course_from_source(body: GenerateCourseFromSourceRequest, request: Request):
     """
-    Genera un curso completo desde URL:
-      1) Slides + guion + metadata de catálogo
-      2) Image prompts -> imágenes reales (HF)
-      3) Construye un `.pptx` con la imagen embebida por slide
-      4) Guarda `Course` + `CourseDeck` en BD y devuelve URLs
+    Pipeline completo:
+      1) Extrae texto de URL (si existe) o usa el prompt como fuente
+      2) LLM genera slides + guion + metadata de catálogo
+      3) Construye un `.pptx` descargable
+      4) Guarda `Course` + `CourseDeck` en BD
       5) Re-indexa para RAG
+      6) Devuelve el curso completo en JSON para revisión del admin
     """
-    # #region agent log
-    print(f"[DEBUG-9b2746] save-from-source ENTRY url={repr(body.url)[:80]} prompt={repr(body.prompt)[:80]}", flush=True)
-    # #endregion
+    text, user_prompt, source = _resolve_source(body)
 
-    if not (body.url or body.prompt):
-        raise HTTPException(
-            status_code=400,
-            detail="Indica al menos una fuente: 'url' o 'prompt'.",
-        )
-
-    if body.url:
-        text, err = course_generator_service.extract_text_from_url(body.url)
-        if err:
-            raise HTTPException(status_code=422, detail=err)
-        user_prompt = body.prompt
-    else:
-        text = body.prompt or ""
-        user_prompt = None
-
-    if not text or not text.strip():
-        raise HTTPException(status_code=422, detail="No hay texto para generar el curso")
-
-    # 1) Slides + metadata
+    # 1) Slides + metadata via LLM
     course_dict, course_err = course_generator_service.generate_course_slides_and_script(
         text,
         user_prompt,
     )
-    # #region agent log
-    _sl = course_dict.get("slides",[]) if isinstance(course_dict, dict) else []
-    print(f"[DEBUG-9b2746] route:after_generate has_err={bool(course_err)} num_slides={len(_sl)} keys={list(_sl[0].keys()) if _sl else []} has_title={bool(_sl[0].get('title')) if _sl else False}", flush=True)
-    # #endregion
     if course_err:
         raise HTTPException(status_code=502, detail=course_err)
 
-    # ID del curso generado (catálogo)
+    # 2) ID del curso
     generated_course_id = f"crs-gen-{uuid.uuid4().hex[:8]}"
 
-    # 3) Imágenes deshabilitadas temporalmente.
-    images = []
-
-    # 4) Construir PPTX
+    # 3) Construir PPTX descargable (sin imágenes por ahora)
     deck_url, pptx_err = pptx_deck_service.build_pptx_deck(
         course_id=generated_course_id,
         slides=course_dict.get("slides", []),
-        images_by_slide_number=images,
+        images_by_slide_number=[],
         deck_title=course_dict.get("course_title"),
     )
-    # `pptx_deck_service` devuelve rutas relativas (ej: /static/...)
-    # Si el frontend intenta abrirlas, React Router puede interceptarlo.
-    # Convertimos a URL absoluta usando el host real del request.
-    deck_url_abs = f"{str(request.base_url).rstrip('/')}{deck_url}" if deck_url else deck_url
-    # #region agent log
-    print(f"[DEBUG-9b2746] step4:pptx deck_url={deck_url} pptx_err={pptx_err}", flush=True)
-    # #endregion
+    deck_download_url = f"{str(request.base_url).rstrip('/')}{deck_url}" if deck_url else None
     if pptx_err:
-        raise HTTPException(status_code=502, detail=pptx_err)
+        deck_download_url = None
 
-    # 5) Persistir en BD
+    # 4) Persistir en BD
     db = SessionLocal()
     try:
         db_course = Course(
@@ -182,7 +153,7 @@ def save_generated_course_from_source(body: GenerateCourseFromSourceRequest, req
             slides_json=course_dict.get("slides", []),
             image_urls=[],
             deck_format="pptx",
-            deck_file_url=deck_url_abs,
+            deck_file_url=deck_download_url,
         )
         db.add(db_deck)
         db.commit()
@@ -194,7 +165,7 @@ def save_generated_course_from_source(body: GenerateCourseFromSourceRequest, req
     finally:
         db.close()
 
-    # 6) Re-index en ChromaDB para RAG (usar los metadatos del catálogo)
+    # 5) Re-index en ChromaDB para RAG
     try:
         from agents.rag.indexer import reindex_course
 
@@ -208,11 +179,22 @@ def save_generated_course_from_source(body: GenerateCourseFromSourceRequest, req
         }
         _ = reindex_course(course_dict_for_rag)
     except Exception:
-        # No bloqueamos el flujo si falla el reindex.
         pass
 
+    # 6) Respuesta completa con todo el contenido del curso
     return {
         "status": "saved",
+        "source": source,
         "course_id": generated_course_id,
-        "deck_file_url": deck_url_abs,
+        "course": {
+            "title": course_dict.get("course_title", ""),
+            "description": course_dict.get("description", ""),
+            "level": course_dict.get("level", ""),
+            "trajectory_affinity": course_dict.get("trajectory_affinity", ""),
+            "target_audience": course_dict.get("target_audience", ""),
+            "competencies": course_dict.get("competencies", []),
+            "learning_objectives": course_dict.get("learning_objectives", []),
+            "slides": course_dict.get("slides", []),
+        },
+        "deck_download_url": deck_download_url,
     }
