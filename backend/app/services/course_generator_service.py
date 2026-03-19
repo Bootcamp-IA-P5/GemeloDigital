@@ -78,12 +78,12 @@ try:
     from pydantic import BaseModel, Field
 
     class _SlideModel(BaseModel):
-        # El LLM a veces omite esta propiedad. La hacemos opcional y
+        # El LLM a veces omite propiedades. Las hacemos opcionales y
         # rellenamos nosotros en post-procesado para evitar fallos de validación.
         slide_number: Optional[int] = Field(default=None, ge=1)
-        title: str
+        title: Optional[str] = Field(default=None, description="Título del slide")
         bullets: List[str] = Field(default_factory=list, description="3-5 bullets breves")
-        script: str = Field(..., description="Guion narrativo para el slide (2-4 frases)")
+        script: Optional[str] = Field(default=None, description="Guion narrativo para el slide (2-4 frases)")
 
     class _CourseGenerationResult(BaseModel):
         course_title: str
@@ -156,7 +156,7 @@ def generate_course_slides_and_script(
             max_retries=2,
         )
 
-        structured_llm = llm.with_structured_output(_CourseGenerationResult)
+        structured_llm = llm.with_structured_output(_CourseGenerationResult, method="json_mode")
 
         import os as _os
         project_root = _os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
@@ -195,7 +195,9 @@ def generate_course_slides_and_script(
             "- `target_audience` en 1 frase.\n"
             "- `learning_objectives` con 5-7 objetivos accionables.\n"
             "- `slides` con 8-12 slides.\n"
+            "- OBLIGATORIO en cada slide: `slide_number`, `title`, `bullets`, `script`.\n"
             "- En cada slide incluye `slide_number` (empieza en 1 y sigue en orden).\n"
+            "  - `title`: titulo descriptivo del slide (OBLIGATORIO, no omitir).\n"
             "  - Cada slide debe tener 3-5 `bullets` breves.\n"
             "  - Cada slide debe incluir un `script` de 2-4 frases para narración.\n"
             "Reglas:\n"
@@ -219,15 +221,27 @@ def generate_course_slides_and_script(
         )
 
         course_dict = validate_and_format_response(response_model)
-        # Normaliza slide_number en caso de que el LLM lo haya omitido.
         slides = course_dict.get("slides") or []
         for idx, s in enumerate(slides):
-            if isinstance(s, dict) and not s.get("slide_number"):
+            if not isinstance(s, dict):
+                continue
+            if not s.get("slide_number"):
                 s["slide_number"] = idx + 1
+            if not s.get("title"):
+                bullets = s.get("bullets") or []
+                s["title"] = bullets[0] if bullets else f"Slide {idx + 1}"
+            if not s.get("script"):
+                s["script"] = ""
         course_dict["slides"] = slides
+        # #region agent log
+        import json as _jl
+        print(f"[DEBUG-9b2746] post_process: num_slides={len(slides)}, keys={list(slides[0].keys()) if slides else []}, first_title={slides[0].get('title','(none)') if slides else None}", flush=True)
+        # #endregion
         return course_dict, None
     except Exception as error:
-        # Reutilizamos guardrails para mantener formato consistente.
+        # #region agent log
+        print(f"[DEBUG-9b2746] EXCEPTION in generate_course: {type(error).__name__}: {str(error)[:500]}", flush=True)
+        # #endregion
         try:
             from agents.utils.guardrails import handle_llm_output_error
 
@@ -283,7 +297,7 @@ def generate_course_image_prompts(
             temperature=0.3,
             max_retries=2,
         )
-        structured_llm = llm.with_structured_output(_ImagePromptsResult)
+        structured_llm = llm.with_structured_output(_ImagePromptsResult, method="json_mode")
 
         system_instructions = (
             "Eres un director de arte para educación digital. "

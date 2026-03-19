@@ -22,8 +22,8 @@ from typing import Any, Dict, List, Optional, Tuple
 from dotenv import load_dotenv
 
 
-DEFAULT_HF_MODEL = os.getenv("HF_IMAGE_MODEL", "stabilityai/stable-diffusion-2")
-HF_ENDPOINT = f"https://api-inference.huggingface.co/models/{DEFAULT_HF_MODEL}"
+DEFAULT_HF_MODEL = os.getenv("HF_IMAGE_MODEL", "black-forest-labs/FLUX.1-dev")
+HF_ENDPOINT = f"https://router.huggingface.co/hf-inference/models/{DEFAULT_HF_MODEL}"
 
 
 def _try_load_dotenv_from_filesystem() -> None:

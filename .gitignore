@@ -33,3 +33,6 @@ env/
 # ============================
 .env
 chroma_db/
+
+# Archivos generados por el backend (PPTX + imágenes)
+backend/app/static/generated-courses/

@@ -1,11 +1,11 @@
 """
-Course Generator API — Generar curso desde fuente (link o PDF)
+Course Generator API — Generar curso desde fuente (prompt y/o url)
 ==============================================================
-Fase 1: extracción de contenido desde URL. Próximamente PDF y generación de slides.
+Fase 1: extracción de contenido desde URL (si existe).
+Fase 2: generación de slides + guion con LLM.
 
-Incluye endpoints admin:
- - /from-source: devuelve preview + slides/imágenes (prompts) para debug
- - /save-from-source: genera imágenes reales, construye un deck PPTX, lo guarda y reindexa RAG
+Nota temporal: deshabilitamos la generación/descarga de imágenes para evitar
+errores y acelerar el test del pipeline de texto/PPTX.
 """
 
 import uuid
@@ -15,7 +15,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from ...services import course_generator_service
-from ...services import hf_image_service, pptx_deck_service
+from ...services import pptx_deck_service
 
 from ...database import SessionLocal
 from ...models import Course, CourseDeck
@@ -26,9 +26,15 @@ PREVIEW_CHARS = 500
 
 
 class GenerateCourseFromSourceRequest(BaseModel):
-    """Entrada para generar un curso desde una fuente (link o, en el futuro, PDF)."""
-    prompt: Optional[str] = Field(None, description="Instrucciones o tema del curso (ej: 'Introducción a Python para no técnicos')")
-    url: Optional[str] = Field(None, description="Enlace a un artículo o recurso para usar como base del contenido")
+    """Entrada para generar un curso desde `prompt`, `url` o ambos."""
+    prompt: Optional[str] = Field(
+        None,
+        description="Instrucciones o tema del curso (ej: 'Introducción a Python para no técnicos'). Si no hay url, se usa como fuente base.",
+    )
+    url: Optional[str] = Field(
+        None,
+        description="Enlace a un artículo o recurso para usar como base del contenido.",
+    )
 
 
 @router.post(
@@ -39,39 +45,43 @@ def generate_course_from_source(body: GenerateCourseFromSourceRequest):
     """
     Extrae el texto de la URL, genera diapositivas + guion con un LLM y devuelve el curso.
     """
-    if not body.url:
+    # Aceptamos: url, prompt o ambos.
+    if not (body.url or body.prompt):
         raise HTTPException(
             status_code=400,
-            detail="Indica al menos una fuente: 'url' (por ahora). Subida de PDF en un siguiente paso.",
+            detail="Indica al menos una fuente: 'url' o 'prompt'.",
         )
-    text, err = course_generator_service.extract_text_from_url(body.url)
-    if err:
-        raise HTTPException(status_code=422, detail=err)
+
+    if body.url:
+        text, err = course_generator_service.extract_text_from_url(body.url)
+        if err:
+            raise HTTPException(status_code=422, detail=err)
+        user_prompt = body.prompt
+        source = "url"
+    else:
+        text = body.prompt or ""
+        user_prompt = None
+        source = "prompt"
+
+    if not text or not text.strip():
+        raise HTTPException(status_code=422, detail="No hay texto para generar el curso")
     preview = text[:PREVIEW_CHARS] + ("..." if len(text) > PREVIEW_CHARS else "")
 
     # Fase 2-1: generación de slides + guion usando el texto extraído.
     course_dict, course_err = course_generator_service.generate_course_slides_and_script(
         text,
-        body.prompt,
+        user_prompt,
     )
     if course_err:
         raise HTTPException(status_code=502, detail=course_err)
 
-    # Fase 2-2: generar prompts de imagen por slide
-    image_dict, image_err = course_generator_service.generate_course_image_prompts(
-        course_dict.get("slides", []),
-        body.prompt,
-    )
-    if image_err:
-        raise HTTPException(status_code=502, detail=image_err)
-
-    # Normalizamos la estructura para el frontend
-    course_dict["image_style"] = image_dict.get("image_style", "")
-    course_dict["image_prompts"] = image_dict.get("slides_image_prompts", [])
+    # Imágenes deshabilitadas temporalmente para evitar errores.
+    course_dict["image_style"] = ""
+    course_dict["image_prompts"] = []
 
     return {
         "status": "generated",
-        "source": "url",
+        "source": source,
         "content_length": len(text),
         "content_preview": preview,
         "course": course_dict,
@@ -91,51 +101,45 @@ def save_generated_course_from_source(body: GenerateCourseFromSourceRequest):
       4) Guarda `Course` + `CourseDeck` en BD y devuelve URLs
       5) Re-indexa para RAG
     """
-    if not body.url:
+    # #region agent log
+    print(f"[DEBUG-9b2746] save-from-source ENTRY url={repr(body.url)[:80]} prompt={repr(body.prompt)[:80]}", flush=True)
+    # #endregion
+
+    if not (body.url or body.prompt):
         raise HTTPException(
             status_code=400,
-            detail="Indica al menos una fuente: 'url'. Subida de PDF en un siguiente paso.",
+            detail="Indica al menos una fuente: 'url' o 'prompt'.",
         )
 
-    text, err = course_generator_service.extract_text_from_url(body.url)
-    if err:
-        raise HTTPException(status_code=422, detail=err)
+    if body.url:
+        text, err = course_generator_service.extract_text_from_url(body.url)
+        if err:
+            raise HTTPException(status_code=422, detail=err)
+        user_prompt = body.prompt
+    else:
+        text = body.prompt or ""
+        user_prompt = None
+
+    if not text or not text.strip():
+        raise HTTPException(status_code=422, detail="No hay texto para generar el curso")
 
     # 1) Slides + metadata
     course_dict, course_err = course_generator_service.generate_course_slides_and_script(
         text,
-        body.prompt,
+        user_prompt,
     )
+    # #region agent log
+    _sl = course_dict.get("slides",[]) if isinstance(course_dict, dict) else []
+    print(f"[DEBUG-9b2746] route:after_generate has_err={bool(course_err)} num_slides={len(_sl)} keys={list(_sl[0].keys()) if _sl else []} has_title={bool(_sl[0].get('title')) if _sl else False}", flush=True)
+    # #endregion
     if course_err:
         raise HTTPException(status_code=502, detail=course_err)
-
-    # 2) Prompts de imagen
-    image_dict, image_err = course_generator_service.generate_course_image_prompts(
-        course_dict.get("slides", []),
-        body.prompt,
-    )
-    if image_err:
-        raise HTTPException(status_code=502, detail=image_err)
-
-    image_style = image_dict.get("image_style", "")
-    slide_image_prompts = image_dict.get("slides_image_prompts", [])
 
     # ID del curso generado (catálogo)
     generated_course_id = f"crs-gen-{uuid.uuid4().hex[:8]}"
 
-    # 3) Generar imágenes reales con HF (guardadas en disco)
-    images, hf_err = hf_image_service.generate_images_from_prompts(
-        slide_image_prompts,
-        image_style,
-        course_id=generated_course_id,
-    )
-    if hf_err:
-        # Fallback: si el error es por falta de token HF, permitimos crear el PPTX
-        # sin imágenes para validar el resto del pipeline (DB/RAG/static).
-        if "Falta HF API token" in hf_err:
-            images = []
-        else:
-            raise HTTPException(status_code=502, detail=hf_err)
+    # 3) Imágenes deshabilitadas temporalmente.
+    images = []
 
     # 4) Construir PPTX
     deck_url, pptx_err = pptx_deck_service.build_pptx_deck(
@@ -144,6 +148,9 @@ def save_generated_course_from_source(body: GenerateCourseFromSourceRequest):
         images_by_slide_number=images,
         deck_title=course_dict.get("course_title"),
     )
+    # #region agent log
+    print(f"[DEBUG-9b2746] step4:pptx deck_url={deck_url} pptx_err={pptx_err}", flush=True)
+    # #endregion
     if pptx_err:
         raise HTTPException(status_code=502, detail=pptx_err)
 
@@ -169,9 +176,7 @@ def save_generated_course_from_source(body: GenerateCourseFromSourceRequest):
             source_url=body.url,
             prompt=body.prompt,
             slides_json=course_dict.get("slides", []),
-            image_urls=[
-                {"slide_number": i.get("slide_number"), "image_url": i.get("image_url")} for i in images
-            ],
+            image_urls=[],
             deck_format="pptx",
             deck_file_url=deck_url,
         )
