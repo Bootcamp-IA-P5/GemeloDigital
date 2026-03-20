@@ -1,6 +1,13 @@
 import os
-from livekit import api
 from datetime import timedelta
+
+from livekit import api
+from livekit.protocol.agent_dispatch import RoomAgentDispatch
+from livekit.protocol.room import RoomConfiguration
+
+# Must match WorkerOptions(agent_name=...) in backend/voice_agent/livekit_agent.py
+_DATUM_VOICE_AGENT_NAME = os.getenv("LIVEKIT_VOICE_AGENT_NAME", "datum-voice")
+
 
 def generate_livekit_token(room: str, identity: str, name: str) -> str:
     """
@@ -29,6 +36,20 @@ def generate_livekit_token(room: str, identity: str, name: str) -> str:
         can_subscribe=True
     )
     token.with_grants(grant)
+
+    # Despacho explícito del agente de voz al conectar el participante.
+    # Sin esto, algunos proyectos LiveKit Cloud no asignan worker y el cliente
+    # se queda solo en la sala (sin avatar / sin voz del agente).
+    token.with_room_config(
+        RoomConfiguration(
+            agents=[
+                RoomAgentDispatch(
+                    agent_name=_DATUM_VOICE_AGENT_NAME,
+                    metadata="{}",
+                )
+            ]
+        )
+    )
     
     # El token expira en 1 hora por defecto (igual que el server original)
     token.with_ttl(timedelta(hours=1))

@@ -38,7 +38,8 @@ from livekit.agents import (
     function_tool,
     RunContext,
 )
-from livekit.plugins import deepgram, elevenlabs, openai, silero, simli
+from livekit.plugins import deepgram, elevenlabs, openai, silero
+from livekit.plugins.bey import AvatarSession
 
 logger = logging.getLogger("datum-voice-agent")
 
@@ -309,12 +310,10 @@ async def entrypoint(ctx: JobContext):
         model="llama-3.1-8b-instant",
     )
 
-    # Avatar Simli (baja latencia)
-    avatar = simli.AvatarSession(
-        simli_config=simli.SimliConfig(
-            api_key=os.environ.get("SIMLI_API_KEY", ""),
-            face_id=os.environ.get("SIMLI_FACE_ID", ""),
-        ),
+    # Avatar Bey (vídeo del gemelo digital)
+    avatar = AvatarSession(
+        avatar_id=os.environ.get("BEY_AVATAR_ID"),
+        api_key=os.environ.get("BEY_API_KEY"),
     )
 
     # Sesión de voz con ElevenLabs TTS (eleven_flash_v2_5 ~75ms latencia)
@@ -349,4 +348,8 @@ async def entrypoint(ctx: JobContext):
 
 
 if __name__ == "__main__":
-    cli.run_app(WorkerOptions(entrypoint_fnc=entrypoint))
+    # Debe coincidir con RoomAgentDispatch en backend/app/services/livekit_service.py
+    _agent_name = os.getenv("LIVEKIT_VOICE_AGENT_NAME", "datum-voice")
+    cli.run_app(
+        WorkerOptions(entrypoint_fnc=entrypoint, agent_name=_agent_name)
+    )
