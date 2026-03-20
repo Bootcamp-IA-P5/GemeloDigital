@@ -1,35 +1,38 @@
-from typing import TypedDict, List, Optional, Any
+from typing import TypedDict, List, Optional, Any, Annotated
 import operator
 
 class AgentState(TypedDict):
     """
-    The Global State for our LangGraph workflow.
-    This "suitcase" carries all the information through the agents.
+    The Global State for our 7-node LangGraph workflow.
     """
-    # Input from the user
+    # 0. Input
     user_id: str
-    raw_answers: str
+    raw_answers: str # Complete questionnaire JSON
     
-    # 1. Profiling Agent Result (Output of Agent 1)
-    # We store the dictionary version of our CompetencyProfile schema
+    # 1. Profiling & Gaps
+    # Result of profiling_node (structured user data)
     competency_profile: Optional[dict] = None
+    # Result of gap_analyzer_node (ordered by impact)
+    prioritized_gaps: List[dict] = []
     
-    # 2. RAG Retrieval Result
-    # List of courses found in ChromaDB that match the gaps
+    # 2. RAG Retrieval
+    # Courses from ChromaDB matching the gaps
     retrieved_courses: List[dict] = []
     
-    # 3. Planning Agent Result (Output of Agent 2)
-    # The structured roadmap before the explanations
+    # 3. Planning & Validation
+    # Output of planning_node (Trajectories A & B)
     roadmap: Optional[dict] = None
+    # Feedback from validation_node if inconsistencies are found
+    validation_feedback: Annotated[List[str], operator.add] = []
     
-    # 4. Final Recommendation (ML Model Output)
-    # Predicted path: 'A' (Generalist) or 'B' (Specialist)
-    ml_recommended_path: Optional[str] = None
+    # 4. Explanations & ML
+    # Output of explanatory_node (The 'why' for each block)
+    explanations: Optional[dict] = None
+    # Output of ml_prediction_node ('A' or 'B')
+    ml_prediction: Optional[str] = None
     
-    # 5. Infrastructure and Safety
-    # List of logs or error messages for the external guardrails
-    # Annotated with operator.add so errors accumulate instead of overwriting
-    errors: List[str] = []
-    
-    # Metadata for tracking state progression
+    # 5. Infrastructure & Metadata
+    # Accumulated errors during execution
+    errors: Annotated[List[str], operator.add] = []
+    # Tracking for conditional edges
     next_step: Optional[str] = None

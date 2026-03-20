@@ -15,6 +15,8 @@ if root_dir not in sys.path:
 # 1. Imports from our new structure
 from agents.schemas.profiling_schema import CompetencyProfile
 from agents.utils.guardrails import handle_llm_output_error, validate_and_format_response
+from agents.utils.prompt_loader import load_skill_prompt
+from agents.tools.persistence import save_user_profile
 
 # Load environment variables
 load_dotenv()
@@ -24,7 +26,7 @@ load_dotenv()
 # Reference data and prompts using absolute project root logic
 BASE_DIR = root_dir
 TAXONOMY_PATH = os.path.join(BASE_DIR, "agents", "data", "competencies.json")
-PROMPT_PATH = os.path.join(BASE_DIR, "agents", "prompts", "profiling_prompt.txt")
+PROMPT_PATH = os.path.join(BASE_DIR, "agents", "prompts", "profiling_prompt.md")
 
 def _load_taxonomy_str() -> str:
     """Reads the official 25 competencies dictionary."""
@@ -65,7 +67,7 @@ def generate_cognitive_profile(user_answers_json: str, original_user_id: str) ->
     
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_instructions),
-        ("system", f"OFFICIAL COMPETENCY TAXONOMY JSON:\n{taxonomy_data}"),
+        ("system", "OFFICIAL COMPETENCY TAXONOMY JSON:\n{taxonomy}"),
         ("human", "Analyze this user form and return my profile JSON.\nUser_Id={user_id}\nRaw_Answers:\n{raw_answers}")
     ])
     
@@ -77,10 +79,22 @@ def generate_cognitive_profile(user_answers_json: str, original_user_id: str) ->
     # 6. Execute Inference with centralized Guardrails
     try:
         response_model = profiling_chain.invoke({
+            "taxonomy": taxonomy_data,
             "user_id": original_user_id,
             "raw_answers": user_answers_json
         })
         
+        # Save to DB (Tool)
+        print(f"[Profiling] Applying Tool: save_user_profile for {original_user_id}...")
+        try:
+            db_status = save_user_profile.invoke({
+                "user_id": original_user_id, 
+                "profile_dict": response_model.dict()
+            })
+            print(f"            {db_status}")
+        except Exception as tool_err:
+            print(f"            [WARNING] Tool failed: {tool_err}")
+
         # Use centralized validation and formatting
         return validate_and_format_response(response_model)
         

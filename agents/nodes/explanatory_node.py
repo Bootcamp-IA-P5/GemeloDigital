@@ -21,7 +21,7 @@ load_dotenv()
 
 # Static paths
 BASE_DIR = root_dir
-PROMPT_PATH = os.path.join(BASE_DIR, "agents", "prompts", "explanatory_prompt.txt")
+PROMPT_PATH = os.path.join(BASE_DIR, "agents", "prompts", "explanatory_prompt.md")
 
 def _load_system_prompt() -> str:
     """Reads the pedagogical guides for explanations."""

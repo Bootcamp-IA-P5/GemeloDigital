@@ -1,236 +1,233 @@
 """
-Admin Service — Lógica de negocio para el panel de administración.
-=================================================================
-Capa de servicio que encapsula las operaciones de admin: CRUD de cursos,
-gestión de usuarios, visualización/edición de roadmaps y métricas.
+Admin Service — Lógica de negocio del panel de administración
+=============================================================
+Funciones para gestión de cursos, competencias, usuarios,
+roadmaps y métricas del panel admin.
+Actualmente usa datos stub en memoria; en producción se conectará
+a PostgreSQL.
 
-NOTA: Las funciones usan una dependencia `db` (Session de SQLAlchemy)
-que será inyectada cuando el compañero de backend configure la BD.
-Mientras tanto, las funciones de catálogo (cursos/competencias) operan
-directamente sobre los ficheros JSON de /data/seed/.
+Para uso del compañero de backend:
+  - Reemplazar los diccionarios *_DB por queries a las tablas correspondientes
+  - Integrar con el indexer RAG para re-indexación de cursos
 """
 
-import json
-from pathlib import Path
-from typing import Optional
-from collections import Counter
+import uuid
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent  # GemeloDigital/
-COURSES_PATH = BASE_DIR / "data" / "seed" / "courses.json"
-COMPETENCIES_PATH = BASE_DIR / "data" / "seed" / "competencies.json"
+# ──────────────────────────────────────────────
+# BASES DE DATOS STUB (en memoria)
+# ──────────────────────────────────────────────
+COURSES_DB: dict[str, dict] = {
+    "curso-python-101": {
+        "id": "curso-python-101",
+        "titulo": "Python para Principiantes",
+        "descripcion": "Curso introductorio de Python para ciencia de datos",
+        "nivel": "beginner",
+        "afinidad": "both",
+        "competencias": ["comp-python"],
+        "duracion_horas": 40,
+        "url": "https://example.com/python-101",
+    },
+    "curso-ml-201": {
+        "id": "curso-ml-201",
+        "titulo": "Introducción a Machine Learning",
+        "descripcion": "Fundamentos de ML con scikit-learn",
+        "nivel": "intermediate",
+        "afinidad": "specialist",
+        "competencias": ["comp-ml", "comp-python"],
+        "duracion_horas": 60,
+        "url": "https://example.com/ml-201",
+    },
+}
+
+COMPETENCIES_DB: dict[str, dict] = {
+    "comp-python": {
+        "id": "comp-python",
+        "nombre": "Programación en Python",
+        "descripcion": "Dominio del lenguaje Python y su ecosistema",
+    },
+    "comp-ml": {
+        "id": "comp-ml",
+        "nombre": "Machine Learning",
+        "descripcion": "Fundamentos y aplicación de algoritmos de ML",
+    },
+    "comp-data": {
+        "id": "comp-data",
+        "nombre": "Análisis de Datos",
+        "descripcion": "Capacidad de explorar, limpiar y analizar conjuntos de datos",
+    },
+}
+
+USERS_DB: dict[str, dict] = {}
+ROADMAPS_DB: dict[str, dict] = {}
 
 
 # ──────────────────────────────────────────────
-# Helpers JSON (funciona sin BD)
+# CURSOS — CRUD
 # ──────────────────────────────────────────────
 
-def _load_json(path: Path) -> list[dict]:
-    """Carga un fichero JSON y devuelve la lista."""
-    if not path.exists():
-        return []
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def _save_json(path: Path, data: list[dict]):
-    """Guarda una lista como JSON con indentación."""
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-
-
-# ──────────────────────────────────────────────
-# CURSOS — CRUD completo sobre courses.json
-# ──────────────────────────────────────────────
-
-def list_courses(
-    level: Optional[str] = None,
-    affinity: Optional[str] = None,
-) -> list[dict]:
-    """Lista todos los cursos, con filtros opcionales por nivel y afinidad."""
-    courses = _load_json(COURSES_PATH)
+def list_courses(level: str | None = None, affinity: str | None = None) -> list[dict]:
+    """Lista cursos con filtros opcionales por nivel y afinidad."""
+    courses = list(COURSES_DB.values())
     if level:
-        courses = [c for c in courses if c.get("level") == level]
+        courses = [c for c in courses if c["nivel"] == level]
     if affinity:
-        courses = [c for c in courses if c.get("trajectory_affinity") == affinity]
+        courses = [c for c in courses if c["afinidad"] == affinity]
     return courses
 
 
-def get_course(course_id: str) -> Optional[dict]:
-    """Obtiene un curso por ID."""
-    courses = _load_json(COURSES_PATH)
-    for c in courses:
-        if c["id"] == course_id:
-            return c
-    return None
+def get_course(course_id: str) -> dict | None:
+    """Obtiene un curso por su ID."""
+    return COURSES_DB.get(course_id)
 
 
-def create_course(course_data: dict) -> dict:
-    """Crea un nuevo curso y lo añade al catálogo."""
-    courses = _load_json(COURSES_PATH)
-
-    # Generar ID autoincremental
-    existing_ids = [c["id"] for c in courses]
-    max_num = 0
-    for cid in existing_ids:
-        if cid.startswith("DQ-"):
-            try:
-                max_num = max(max_num, int(cid.split("-")[1]))
-            except ValueError:
-                pass
-    new_id = f"DQ-{max_num + 1:03d}"
-    course_data["id"] = new_id
-
-    courses.append(course_data)
-    _save_json(COURSES_PATH, courses)
-    return course_data
+def create_course(data: dict) -> dict:
+    """Crea un nuevo curso."""
+    course_id = f"curso-{uuid.uuid4().hex[:8]}"
+    course = {"id": course_id, **data}
+    COURSES_DB[course_id] = course
+    return course
 
 
-def update_course(course_id: str, updates: dict) -> Optional[dict]:
+def update_course(course_id: str, updates: dict) -> dict | None:
     """Actualiza campos de un curso existente."""
-    courses = _load_json(COURSES_PATH)
-    for i, c in enumerate(courses):
-        if c["id"] == course_id:
-            # Solo actualizar campos no-None
-            for key, value in updates.items():
-                if value is not None:
-                    courses[i][key] = value
-            _save_json(COURSES_PATH, courses)
-            return courses[i]
-    return None
+    course = COURSES_DB.get(course_id)
+    if not course:
+        return None
+    course.update(updates)
+    return course
 
 
 def delete_course(course_id: str) -> bool:
-    """Elimina un curso del catálogo."""
-    courses = _load_json(COURSES_PATH)
-    original_len = len(courses)
-    courses = [c for c in courses if c["id"] != course_id]
-    if len(courses) < original_len:
-        _save_json(COURSES_PATH, courses)
-        return True
-    return False
+    """Elimina un curso. Devuelve True si existía."""
+    return COURSES_DB.pop(course_id, None) is not None
 
 
 # ──────────────────────────────────────────────
-# COMPETENCIAS — Lectura de la taxonomía
+# COMPETENCIAS — Solo lectura
 # ──────────────────────────────────────────────
 
 def list_competencies() -> list[dict]:
     """Lista todas las competencias de la taxonomía."""
-    return _load_json(COMPETENCIES_PATH)
+    return list(COMPETENCIES_DB.values())
 
 
-def get_competency(comp_id: str) -> Optional[dict]:
-    """Obtiene una competencia por ID."""
-    for c in _load_json(COMPETENCIES_PATH):
-        if c["id"] == comp_id:
-            return c
-    return None
+def get_competency(comp_id: str) -> dict | None:
+    """Obtiene una competencia por su ID."""
+    return COMPETENCIES_DB.get(comp_id)
 
 
 # ──────────────────────────────────────────────
-# USUARIOS — Stubs para cuando exista la BD
+# USUARIOS — Stubs
 # ──────────────────────────────────────────────
-# Estas funciones recibirán `db: Session` como parámetro
-# cuando el compañero de backend configure SQLAlchemy.
 
-def list_users(db=None, page: int = 1, page_size: int = 20) -> dict:
-    """Lista usuarios con paginación. Stub hasta que exista la BD."""
-    # TODO: Reemplazar con query real a User model
+def list_users(page: int = 1, page_size: int = 20) -> dict:
+    """Lista usuarios con paginación."""
+    users = list(USERS_DB.values())
+    start = (page - 1) * page_size
+    end = start + page_size
     return {
-        "items": [],
-        "total": 0,
+        "items": users[start:end],
+        "total": len(users),
         "page": page,
         "page_size": page_size,
     }
 
 
-def get_user(user_id: str, db=None) -> Optional[dict]:
-    """Obtiene detalle de un usuario. Stub."""
-    # TODO: query a User + sus competencias y roadmaps
-    return None
+def get_user(user_id: str) -> dict | None:
+    """Obtiene un usuario por su ID."""
+    return USERS_DB.get(user_id)
 
 
-def toggle_user_status(user_id: str, is_active: bool, db=None) -> Optional[dict]:
-    """Activa/desactiva un usuario. Stub."""
-    # TODO: UPDATE user SET is_active = ... WHERE id = ...
-    return None
+def toggle_user_status(user_id: str, is_active: bool) -> bool:
+    """Activa o desactiva un usuario."""
+    user = USERS_DB.get(user_id)
+    if not user:
+        return False
+    user["is_active"] = is_active
+    return True
 
 
 # ──────────────────────────────────────────────
-# ROADMAPS — Stubs para cuando exista la BD
+# ROADMAPS — Stubs
 # ──────────────────────────────────────────────
 
 def list_roadmaps(
-    db=None,
-    enfoque: Optional[str] = None,
-    fecha_desde: Optional[str] = None,
-    fecha_hasta: Optional[str] = None,
+    enfoque: str | None = None,
+    fecha_desde: str | None = None,
+    fecha_hasta: str | None = None,
     page: int = 1,
     page_size: int = 20,
 ) -> dict:
-    """Lista roadmaps con filtros. Stub."""
-    # TODO: query a Roadmap con joins a User y fases
+    """Lista roadmaps con filtros."""
+    roadmaps = list(ROADMAPS_DB.values())
+    if enfoque:
+        roadmaps = [r for r in roadmaps if r.get("enfoque") == enfoque]
+    start = (page - 1) * page_size
+    end = start + page_size
     return {
-        "items": [],
-        "total": 0,
+        "items": roadmaps[start:end],
+        "total": len(roadmaps),
         "page": page,
         "page_size": page_size,
     }
 
 
-def get_roadmap(roadmap_id: str, db=None) -> Optional[dict]:
-    """Obtiene un roadmap completo con fases y bloques. Stub."""
-    # TODO: query con eager loading de fases y bloques
-    return None
+def get_roadmap(roadmap_id: str) -> dict | None:
+    """Obtiene un roadmap por su ID."""
+    return ROADMAPS_DB.get(roadmap_id)
 
 
 def add_block_to_roadmap(
-    roadmap_id: str, fase_orden: int, contenido_id: str,
-    posicion: Optional[int] = None, db=None,
-) -> Optional[dict]:
-    """Añade un bloque (curso) a una fase del roadmap. Stub."""
-    # TODO: insertar BloqueAprendizaje en la fase indicada
-    return None
-
-
-def remove_block_from_roadmap(
-    roadmap_id: str, fase_orden: int, contenido_id: str, db=None,
+    roadmap_id: str, fase_orden: int, contenido_id: str, posicion: int | None = None
 ) -> bool:
-    """Elimina un bloque de una fase del roadmap. Stub."""
-    # TODO: DELETE BloqueAprendizaje WHERE ...
+    """Añade un bloque a una fase de un roadmap."""
+    roadmap = ROADMAPS_DB.get(roadmap_id)
+    if not roadmap:
+        return False
+    for fase in roadmap.get("fases", []):
+        if fase["fase_orden"] == fase_orden:
+            block = {
+                "block_id": f"blk-{uuid.uuid4().hex[:8]}",
+                "contenido_id": contenido_id,
+                "titulo": f"Curso {contenido_id}",
+                "orden": posicion or len(fase["bloques"]) + 1,
+                "completado": False,
+            }
+            fase["bloques"].append(block)
+            return True
+    return False
+
+
+def remove_block_from_roadmap(roadmap_id: str, fase_orden: int, contenido_id: str) -> bool:
+    """Elimina un bloque de una fase de un roadmap."""
+    roadmap = ROADMAPS_DB.get(roadmap_id)
+    if not roadmap:
+        return False
+    for fase in roadmap.get("fases", []):
+        if fase["fase_orden"] == fase_orden:
+            original_len = len(fase["bloques"])
+            fase["bloques"] = [
+                b for b in fase["bloques"] if b["contenido_id"] != contenido_id
+            ]
+            return len(fase["bloques"]) < original_len
     return False
 
 
 # ──────────────────────────────────────────────
-# MÉTRICAS — Parcialmente funcional
+# MÉTRICAS
 # ──────────────────────────────────────────────
 
-def get_admin_metrics(db=None) -> dict:
-    """
-    Calcula métricas del panel de admin.
-    Las métricas de cursos funcionan ya (leen del JSON).
-    Las métricas de usuarios/roadmaps son stubs hasta que exista la BD.
-    """
-    courses = _load_json(COURSES_PATH)
-
-    # Métricas que ya funcionan
-    total_cursos = len(courses)
-
-    # Métricas que requieren BD (stubs con ceros)
-    # TODO: reemplazar con queries reales
-    total_usuarios = 0
-    total_usuarios_activos = 0
-    total_roadmaps = 0
-    total_roadmaps_activos = 0
-    distribucion_trayectoria = {"A": 0, "B": 0}
-    top_cursos = []
+def get_admin_metrics() -> dict:
+    """Devuelve métricas agregadas del panel admin."""
+    total_users = len(USERS_DB)
+    active_users = sum(1 for u in USERS_DB.values() if u.get("is_active", True))
+    total_roadmaps = len(ROADMAPS_DB)
 
     return {
-        "total_usuarios": total_usuarios,
-        "total_usuarios_activos": total_usuarios_activos,
+        "total_usuarios": total_users,
+        "usuarios_activos": active_users,
         "total_roadmaps": total_roadmaps,
-        "total_roadmaps_activos": total_roadmaps_activos,
-        "total_cursos": total_cursos,
-        "distribucion_trayectoria": distribucion_trayectoria,
-        "top_cursos_en_roadmaps": top_cursos,
+        "total_cursos": len(COURSES_DB),
+        "distribucion_trayectoria": {"generalista": 0, "especialista": 0},
+        "top_cursos": [],
     }

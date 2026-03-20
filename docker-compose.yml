@@ -1,0 +1,78 @@
+# ============================================================
+# Gemelo Cognitivo — Docker Compose
+# ============================================================
+# Levanta 2 servicios:
+#   1. db       → PostgreSQL 17
+#   2. backend  → FastAPI (Python)
+#
+# Uso:
+#   docker-compose up -d          → levantar todo
+#   docker-compose up -d --build  → rebuild backend
+#   docker-compose down           → parar todo
+#   docker-compose logs -f backend → ver logs del backend
+# ============================================================
+
+services:
+
+  # ── PostgreSQL ──────────────────────────────
+  db:
+    image: postgres:17-alpine
+    container_name: gemelo_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
+      POSTGRES_DB: gemelo_cognitivo
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ── Backend FastAPI ─────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: gemelo_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-root}@db:5432/gemelo_cognitivo
+    volumes:
+      # Montar código para que 'app' esté en la raíz del contenedor
+      - ./backend:/app
+      - ./agents:/app/agents
+      - ./ml:/app/ml
+      - ./data:/app/data
+      - ./requirements.txt:/app/requirements.txt
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ── Agente de Voz (LiveKit) ──────────────────
+  voice_agent:
+    build:
+      context: ./backend/voice_agent
+      dockerfile: Dockerfile
+    container_name: gemelo_voice_agent
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-root}@db:5432/gemelo_cognitivo
+    volumes:
+      - ./backend/voice_agent:/app
+      - ./backend/app:/app/app
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

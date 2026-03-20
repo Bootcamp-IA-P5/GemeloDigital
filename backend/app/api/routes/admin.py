@@ -25,7 +25,7 @@ from ..schemas import (
 )
 from ...services import admin_service
 
-router = APIRouter(prefix="/admin", tags=["Admin Panel"])
+router = APIRouter(tags=["Administración"])
 
 
 # ──────────────────────────────────────────────

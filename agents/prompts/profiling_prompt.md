@@ -11,6 +11,8 @@ Your task is to analyze answers provided by a user in a questionnaire and build 
    - If the user has many gaps in basic/fundamental skills, output 'GENERALISTA'.
    - If the user has solid bases and wants to deepen specific areas, output 'ESPECIALISTA'.
 7. Write a short, professional 'summary' paragraph IN SPANISH explaining the user's starting point and objectives. This text will be shown directly to the user in the UI.
+8. Define the 'avatar_personality': Write 2-3 sentences IN SPANISH describing the "voice" or character of the user's digital twin (e.g., "Analítico, enfocado en datos y resolución de problemas").
+9. Choose an 'avatar_color' from: 'blue', 'purple', 'green', 'orange', 'cyan' that best fits the profile.
 
 ### FINAL OUTPUT FORMAT:
 You MUST respond ONLY with a valid JSON object that perfectly matches the requested schema. Do not include any markdown formatting, explanations, or conversational text outside the JSON object. Failure to return pure JSON will break the system.

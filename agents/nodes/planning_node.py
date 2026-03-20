@@ -21,7 +21,7 @@ load_dotenv()
 
 # Static paths
 BASE_DIR = root_dir
-PROMPT_PATH = os.path.join(BASE_DIR, "agents", "prompts", "planning_prompt.txt")
+PROMPT_PATH = os.path.join(BASE_DIR, "agents", "prompts", "planning_prompt.md")
 
 def _load_system_prompt() -> str:
     """Reads the pedagogical instructional prompt."""
@@ -40,7 +40,7 @@ def generate_roadmap(competency_profile: dict, retrieved_courses: list) -> dict:
     
     # 2. Configure the LLM "Brain"
     llm = ChatGroq(
-        model="llama-3.1-8b-instant",
+        model="llama-3.3-70b-versatile",
         temperature=0.1,
         max_retries=2
     )

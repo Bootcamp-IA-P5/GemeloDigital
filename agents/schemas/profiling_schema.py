@@ -46,3 +46,11 @@ class CompetencyProfile(BaseModel):
         ..., 
         description="A short, professional paragraph IN SPANISH summarizing the user's starting point and main objectives. This will be shown to the user."
     )
+    avatar_personality: str = Field(
+        ...,
+        description="A concise description (2-3 sentences) of the avatar's personality based on the user's technical profile (e.g., 'Analítico y apasionado por el detalle')."
+    )
+    avatar_color: str = Field(
+        "blue",
+        description="A color that represents the user's profile. Choose from: 'blue', 'purple', 'green', 'orange', 'cyan'."
+    )
