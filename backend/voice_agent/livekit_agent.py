@@ -38,8 +38,7 @@ from livekit.agents import (
     function_tool,
     RunContext,
 )
-from livekit.plugins import deepgram, elevenlabs, openai, silero
-from livekit.plugins.bey import AvatarSession
+from livekit.plugins import deepgram, elevenlabs, openai, silero, simli
 
 logger = logging.getLogger("datum-voice-agent")
 
@@ -310,10 +309,12 @@ async def entrypoint(ctx: JobContext):
         model="llama-3.1-8b-instant",
     )
 
-    # Avatar Bey (vídeo del gemelo digital)
-    avatar = AvatarSession(
-        avatar_id=os.environ.get("BEY_AVATAR_ID"),
-        api_key=os.environ.get("BEY_API_KEY"),
+    # Avatar Simli (baja latencia)
+    avatar = simli.AvatarSession(
+        simli_config=simli.SimliConfig(
+            api_key=os.environ.get("SIMLI_API_KEY", ""),
+            face_id=os.environ.get("SIMLI_FACE_ID", ""),
+        ),
     )
 
     # Sesión de voz con ElevenLabs TTS (eleven_flash_v2_5 ~75ms latencia)
