@@ -11,8 +11,10 @@ Para uso del compañero de backend:
   - Configurar dependencias de BD y seguridad (JWT, bcrypt)
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
+from app.database import get_db
 from ..schemas import (
     RegisterRequest,
     LoginRequest,
@@ -34,31 +36,16 @@ router = APIRouter(tags=["Autenticación"])
     status_code=201,
     summary="Registrar nuevo usuario",
 )
-def register(body: RegisterRequest):
+def register(body: RegisterRequest, db: Session = Depends(get_db)):
     """
     Registra un usuario nuevo y devuelve un JWT de acceso.
-
-    Flujo:
-      1. Valida que el email no esté registrado
-      2. Hashea la contraseña (TODO: bcrypt)
-      3. Persiste en tabla `users` (TODO: PostgreSQL)
-      4. Genera un JWT de acceso (TODO: python-jose)
-
-    Respuestas:
-      - 201: Usuario creado → TokenResponse
-      - 409: Email ya registrado
     """
-    result = auth_service.register_user(
+    return auth_service.register_user(
+        db=db,
         email=body.email,
         password=body.password,
         nombre=body.nombre,
     )
-    if result is None:
-        raise HTTPException(
-            status_code=409,
-            detail=f"El email '{body.email}' ya está registrado",
-        )
-    return result
 
 
 # ──────────────────────────────────────────────
@@ -70,29 +57,15 @@ def register(body: RegisterRequest):
     response_model=TokenResponse,
     summary="Iniciar sesión",
 )
-def login(body: LoginRequest):
+def login(body: LoginRequest, db: Session = Depends(get_db)):
     """
     Autentica al usuario con email y contraseña y devuelve un JWT.
-
-    Flujo:
-      1. Busca al usuario por email
-      2. Verifica la contraseña (TODO: bcrypt.checkpw)
-      3. Genera un JWT de acceso (TODO: python-jose)
-
-    Respuestas:
-      - 200: Login exitoso → TokenResponse
-      - 401: Credenciales inválidas
     """
-    result = auth_service.login_user(
+    return auth_service.login_user(
+        db=db,
         email=body.email,
         password=body.password,
     )
-    if result is None:
-        raise HTTPException(
-            status_code=401,
-            detail="Credenciales inválidas",
-        )
-    return result
 
 
 # ──────────────────────────────────────────────

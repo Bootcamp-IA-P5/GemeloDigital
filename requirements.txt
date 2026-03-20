@@ -13,6 +13,7 @@ sqlalchemy>=2.0.0
 psycopg2-binary>=2.9.0
 python-pptx
 Pillow
-
-
-
+python-jose[cryptography]
+bcrypt
+pytest
+httpx

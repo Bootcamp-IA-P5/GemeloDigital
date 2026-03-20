@@ -13,7 +13,10 @@ Para uso del compañero de backend:
   - Conectar con el orchestrator para la pipeline del Profiling Agent
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
+from app.api.deps import get_current_user
+from app.models import User
 
 from ..schemas import (
     QuestionnaireAnswers,
@@ -35,7 +38,7 @@ router = APIRouter(tags=["Perfil"])
     status_code=201,
     summary="Crear perfil cognitivo",
 )
-def create_profile(body: QuestionnaireAnswers):
+def create_profile(body: QuestionnaireAnswers, current_user: User = Depends(get_current_user)):
     """
     Recibe las respuestas del cuestionario del frontend y genera
     el perfil cognitivo del usuario.
@@ -51,7 +54,7 @@ def create_profile(body: QuestionnaireAnswers):
       - 400: Datos del cuestionario inválidos
     """
     profile = profile_service.create_profile(
-        user_id=body.user_id,
+        user_id=current_user.id,
         answers=body,
     )
     return profile
@@ -62,13 +65,11 @@ def create_profile(body: QuestionnaireAnswers):
     response_model=FullProfileResponse,
     summary="Obtener perfil del usuario actual (Usado por Dashboard)",
 )
-def get_current_user_profile():
+def get_current_user_profile(current_user: User = Depends(get_current_user)):
     """
     Obtiene el estado unificado del usuario que tiene la sesión iniciada.
-    Por ahora usamos un ID de test (user-123) hasta implementar auth completo.
     """
-    test_user_id = "user-123"
-    profile = profile_service.get_profile(test_user_id)
+    profile = profile_service.get_profile(current_user.id)
     if not profile:
         raise HTTPException(
             status_code=404,

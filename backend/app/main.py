@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException, Request, status        # Framework w
 from fastapi.middleware.cors import CORSMiddleware   # Middleware para permitir peticiones cross-origin (frontend)
 from fastapi.responses import JSONResponse           # Para construir respuestas JSON personalizadas
 from fastapi.staticfiles import StaticFiles          # Para servir archivos estáticos (PPTX, imágenes, etc.)
+from app.core.errors import AppError                 # Manejo global de errores
 
 # ──────────────────────────────────────────────────────────────
 # 📌 IMPORTS DE ROUTERS (endpoints organizados por dominio)
@@ -102,6 +103,13 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 # ──────────────────────────────────────────────────────────────
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+    )
+
+@app.exception_handler(AppError)
+async def app_error_handler(request: Request, exc: AppError):
     return JSONResponse(
         status_code=exc.status_code,
         content={"detail": exc.detail},

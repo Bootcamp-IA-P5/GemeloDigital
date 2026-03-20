@@ -12,7 +12,8 @@ Para uso del compañero de backend:
 """
 
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
+from app.api.deps import get_admin_user
 
 from ..schemas import (
     CourseCreate,
@@ -25,7 +26,10 @@ from ..schemas import (
 )
 from ...services import admin_service
 
-router = APIRouter(tags=["Administración"])
+router = APIRouter(
+    tags=["Administración"],
+    dependencies=[Depends(get_admin_user)]
+)
 
 
 # ──────────────────────────────────────────────

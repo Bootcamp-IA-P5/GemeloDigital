@@ -15,7 +15,10 @@ Para uso del compañero de backend:
   - Conectar con el orchestrator para la pipeline completa
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
+from app.api.deps import get_current_user
+from app.models import User
 
 from ..schemas import (
     RoadmapGenerateRequest,
@@ -34,12 +37,11 @@ router = APIRouter(tags=["Roadmap"])
     response_model=RoadmapResponse,
     summary="Obtener roadmap del usuario actual (Usado por Dashboard)",
 )
-def get_current_user_roadmap():
+def get_current_user_roadmap(current_user: User = Depends(get_current_user)):
     """
     Obtiene el roadmap activo del usuario que tiene la sesión iniciada.
     """
-    test_user_id = "user-123"
-    profile = roadmap_service.get_current_roadmap(test_user_id)
+    profile = roadmap_service.get_current_roadmap(current_user.id)
     if not profile:
         raise HTTPException(
             status_code=404,
@@ -58,7 +60,7 @@ def get_current_user_roadmap():
     status_code=201,
     summary="Generar roadmap personalizado",
 )
-def create_roadmap(body: RoadmapGenerateRequest):
+def create_roadmap(body: RoadmapGenerateRequest, current_user: User = Depends(get_current_user)):
     """
     Orquesta la pipeline completa para generar un roadmap personalizado:
       1. Profiling Agent → obtiene el competency_profile del usuario
@@ -72,7 +74,7 @@ def create_roadmap(body: RoadmapGenerateRequest):
       - 400: Datos de entrada inválidos
     """
     roadmap = roadmap_service.generate_roadmap(
-        user_id=body.user_id,
+        user_id=current_user.id,
         approach=body.approach,
     )
     return roadmap
