@@ -51,5 +51,215 @@
         "duration_hours": 8,
         "url": "https://example.com/tech-communication",
         "trajectory_affinity": "both"
+    },
+    {
+        "id": "crs-sql-101",
+        "title": "SQL desde Cero: Consultas y Bases de Datos Relacionales",
+        "description": "Aprende a crear, consultar y manipular bases de datos relacionales con SQL. Ideal para perfiles que necesitan extraer información de sistemas empresariales.",
+        "competencies": [
+            "sql",
+            "data-analysis"
+        ],
+        "level": "beginner",
+        "duration_hours": 12,
+        "url": "https://example.com/sql-101",
+        "trajectory_affinity": "generalist"
+    },
+    {
+        "id": "crs-viz-201",
+        "title": "Visualización de Datos con Power BI y Tableau",
+        "description": "Diseña dashboards interactivos y reportes ejecutivos. Transforma datos crudos en narrativas visuales claras para la toma de decisiones.",
+        "competencies": [
+            "data-analysis",
+            "communication"
+        ],
+        "level": "intermediate",
+        "duration_hours": 20,
+        "url": "https://example.com/dataviz-201",
+        "trajectory_affinity": "generalist"
+    },
+    {
+        "id": "crs-stat-201",
+        "title": "Estadística Aplicada para Ciencia de Datos",
+        "description": "Domina los fundamentos estadísticos necesarios para modelado predictivo: distribuciones, test de hipótesis, regresión y análisis multivariante.",
+        "competencies": [
+            "statistics",
+            "data-analysis"
+        ],
+        "level": "intermediate",
+        "duration_hours": 30,
+        "url": "https://example.com/statistics-201",
+        "trajectory_affinity": "specialist"
+    },
+    {
+        "id": "crs-cloud-201",
+        "title": "Despliegue en la Nube con AWS y Docker",
+        "description": "Aprende a desplegar aplicaciones y modelos de ML en la nube. Contenedores Docker, servicios AWS (EC2, S3, Lambda) y CI/CD básico.",
+        "competencies": [
+            "cloud",
+            "devops"
+        ],
+        "level": "intermediate",
+        "duration_hours": 30,
+        "url": "https://example.com/cloud-201",
+        "trajectory_affinity": "specialist"
+    },
+    {
+        "id": "crs-etl-201",
+        "title": "Pipelines de Datos y ETL con Python",
+        "description": "Diseña pipelines de extracción, transformación y carga de datos. Automatiza flujos de datos desde múltiples fuentes hacia data warehouses.",
+        "competencies": [
+            "python",
+            "data-engineering"
+        ],
+        "level": "intermediate",
+        "duration_hours": 25,
+        "url": "https://example.com/etl-201",
+        "trajectory_affinity": "specialist"
+    },
+    {
+        "id": "crs-nlp-301",
+        "title": "Procesamiento de Lenguaje Natural y LLMs",
+        "description": "Explora técnicas de NLP clásicas y modernas: tokenización, embeddings, transformers, GPT y aplicaciones de IA generativa.",
+        "competencies": [
+            "machine-learning",
+            "gen-ai",
+            "python"
+        ],
+        "level": "advanced",
+        "duration_hours": 35,
+        "url": "https://example.com/nlp-301",
+        "trajectory_affinity": "specialist"
+    },
+    {
+        "id": "crs-lead-101",
+        "title": "Liderazgo de Equipos Técnicos",
+        "description": "Desarrolla habilidades para liderar equipos de desarrollo y datos. Gestión ágil, feedback constructivo y comunicación con stakeholders.",
+        "competencies": [
+            "leadership",
+            "communication"
+        ],
+        "level": "beginner",
+        "duration_hours": 10,
+        "url": "https://example.com/tech-leadership",
+        "trajectory_affinity": "both"
+    },
+    {
+        "id": "crs-ia-101",
+        "title": "Introducción a la Inteligencia Artificial",
+        "description": "Curso introductorio que sienta las bases de la IA y la analítica de datos para profesionales sin experiencia técnica previa.",
+        "competencies": [
+            "machine-learning",
+            "data-analysis"
+        ],
+        "level": "beginner",
+        "duration_hours": 8,
+        "url": "https://example.com/ia-intro",
+        "trajectory_affinity": "generalist"
+    },
+    {
+        "id": "crs-sec-201",
+        "title": "Ciberseguridad para Profesionales de Datos",
+        "description": "Protección de infraestructuras de datos, detección de amenazas, cumplimiento normativo (RGPD) y buenas prácticas de seguridad en entornos cloud.",
+        "competencies": [
+            "cybersecurity",
+            "cloud"
+        ],
+        "level": "intermediate",
+        "duration_hours": 20,
+        "url": "https://example.com/cybersecurity-201",
+        "trajectory_affinity": "specialist"
+    },
+    {
+        "id": "crs-mkt-201",
+        "title": "Marketing Digital basado en Datos e IA",
+        "description": "Uso de analítica avanzada y herramientas de IA para segmentación de audiencias, personalización de campañas y optimización de conversiones.",
+        "competencies": [
+            "digital-marketing",
+            "data-analysis"
+        ],
+        "level": "intermediate",
+        "duration_hours": 18,
+        "url": "https://example.com/marketing-ia",
+        "trajectory_affinity": "generalist"
+    },
+    {
+        "id": "crs-gov-201",
+        "title": "Gobernanza de Datos y Ética de la IA",
+        "description": "Marcos de gobernanza de datos, calidad, trazabilidad, cumplimiento RGPD y EU AI Act. Ética aplicada a sistemas de IA.",
+        "competencies": [
+            "data-governance",
+            "critical-thinking"
+        ],
+        "level": "intermediate",
+        "duration_hours": 15,
+        "url": "https://example.com/data-governance",
+        "trajectory_affinity": "both"
+    },
+    {
+        "id": "crs-prompt-201",
+        "title": "Prompt Engineering y Aplicaciones con LLMs",
+        "description": "Técnicas de prompting avanzado, RAG, agentes de IA y desarrollo de aplicaciones empresariales con modelos de lenguaje.",
+        "competencies": [
+            "gen-ai",
+            "programming-fundamentals"
+        ],
+        "level": "intermediate",
+        "duration_hours": 20,
+        "url": "https://example.com/prompt-engineering",
+        "trajectory_affinity": "both"
+    },
+    {
+        "id": "crs-scrum-101",
+        "title": "Gestión Ágil de Proyectos de IA",
+        "description": "Metodologías ágiles aplicadas a proyectos de datos e IA. Scrum, Kanban y gestión del ciclo de vida de modelos de ML.",
+        "competencies": [
+            "leadership",
+            "critical-thinking"
+        ],
+        "level": "beginner",
+        "duration_hours": 10,
+        "url": "https://example.com/agile-ia",
+        "trajectory_affinity": "generalist"
+    },
+    {
+        "id": "crs-dl-301",
+        "title": "Deep Learning Aplicado con TensorFlow y PyTorch",
+        "description": "Redes neuronales profundas para visión por computador, series temporales y generación de contenido. Prácticas con GPU.",
+        "competencies": [
+            "machine-learning",
+            "python"
+        ],
+        "level": "advanced",
+        "duration_hours": 45,
+        "url": "https://example.com/deep-learning",
+        "trajectory_affinity": "specialist"
+    },
+    {
+        "id": "crs-hr-201",
+        "title": "Recursos Humanos e IA: Selección y Talento",
+        "description": "Aplicación de IA en procesos de selección, evaluación del desempeño, gestión del talento y análisis de clima laboral.",
+        "competencies": [
+            "hr-ai",
+            "data-analysis"
+        ],
+        "level": "intermediate",
+        "duration_hours": 15,
+        "url": "https://example.com/hr-ia",
+        "trajectory_affinity": "generalist"
+    },
+    {
+        "id": "crs-strategy-301",
+        "title": "Estrategia de IA para Directivos",
+        "description": "Diseño e implementación de estrategias de IA a nivel organizacional. Casos de uso de alto impacto, madurez en IA y liderazgo de programas de innovación.",
+        "competencies": [
+            "ai-strategy",
+            "leadership",
+            "critical-thinking"
+        ],
+        "level": "advanced",
+        "duration_hours": 20,
+        "url": "https://example.com/ia-strategy",
+        "trajectory_affinity": "generalist"
     }
 ]

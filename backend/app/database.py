@@ -5,7 +5,7 @@ Configura la conexión a PostgreSQL usando SQLAlchemy.
 Lee DATABASE_URL desde el archivo .env.
 
 Uso:
-    from backend.app.database import SessionLocal, engine, Base, get_db
+    from app.database import SessionLocal, engine, Base, get_db
 
     # En FastAPI con Depends:
     @app.get("/example")
@@ -29,7 +29,7 @@ load_dotenv()
 # Formato: postgresql://user:password@host:port/dbname
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://postgres:postgres@localhost:5432/gemelo_cognitivo"
+    "postgresql://postgres:root@localhost:5432/gemelo_cognitivo"
 )
 
 # Crear el engine de SQLAlchemy
@@ -77,9 +77,9 @@ def init_db():
     Crea todas las tablas en la BD.
     Ejecutar una vez al inicio o como migration inicial.
 
-        from backend.app.database import init_db
+        from app.database import init_db
         init_db()
     """
-    import backend.app.models  # noqa: F401 — registra los modelos con Base
+    import app.models  # noqa: F401 — registra los modelos con Base
     Base.metadata.create_all(bind=engine)
     print("✅ Tablas creadas en la base de datos.")

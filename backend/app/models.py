@@ -17,7 +17,7 @@ Relaciones:
     roadmaps  1──N  progress
 
 Uso:
-    from backend.app.models import User, Profile, Course, Roadmap, Progress
+    from app.models import User, Profile, Course, Roadmap, Progress
 """
 
 import uuid
@@ -38,7 +38,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID, JSON
 from sqlalchemy.orm import relationship
 
-from backend.app.database import Base
+from app.database import Base
 
 
 # ──────────────────────────────────────────────
@@ -62,7 +62,7 @@ class User(Base):
     """
     __tablename__ = "users"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(100), primary_key=True, default=lambda: str(uuid.uuid4()))
     email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)  # bcrypt hash
     name = Column(String(255), nullable=True)
@@ -95,9 +95,9 @@ class Profile(Base):
     """
     __tablename__ = "profiles"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(100), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(
-        UUID(as_uuid=True),
+        String(100),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -109,6 +109,11 @@ class Profile(Base):
     # JSON con el perfil de competencias generado por el agente
     # Estructura esperada: { competencies: [...], recommended_approach: "...", summary: "..." }
     competency_profile = Column(JSON, nullable=True)
+
+    # ── CAMPOS DEL AVATAR (Paso 1) ──
+    avatar_url = Column(String(500), nullable=True)
+    avatar_personality = Column(Text, nullable=True)
+    avatar_color = Column(String(50), nullable=True)
 
     created_at = Column(DateTime(timezone=True), default=_utcnow, nullable=False)
 
@@ -168,6 +173,50 @@ class Course(Base):
 
 
 # ══════════════════════════════════════════════
+# COURSE DECKS — Cursos generados por el admin
+# ══════════════════════════════════════════════
+
+
+class CourseDeck(Base):
+    """
+    Contiene el contenido generado por el admin para un curso del catálogo:
+    - slides (JSON)
+    - image URLs (o base64 en el futuro)
+    - deck file (pptx) servible por backend
+    """
+
+    __tablename__ = "course_decks"
+
+    id = Column(String(100), primary_key=True, default=lambda: str(uuid.uuid4()))
+    course_id = Column(
+        String(50),
+        ForeignKey("courses.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    source_url = Column(String(1000), nullable=True)
+    prompt = Column(Text, nullable=True)
+
+    # JSON con slides generadas (incluye script, bullets, slide_number, etc.)
+    slides_json = Column(JSON, nullable=False, default=list)
+
+    # JSON con rutas/urls de imágenes por slide_number
+    image_urls = Column(JSON, nullable=False, default=list)
+
+    deck_format = Column(String(10), nullable=False, default="pptx")
+    deck_file_url = Column(String(1000), nullable=True)
+
+    created_at = Column(DateTime(timezone=True), default=_utcnow, nullable=False)
+
+    # Relaciones
+    course = relationship("Course")
+
+    def __repr__(self):
+        return f"<CourseDeck {self.id} course_id={self.course_id}>"
+
+
+# ══════════════════════════════════════════════
 # ROADMAPS — Hojas de ruta personalizadas
 # ══════════════════════════════════════════════
 
@@ -180,15 +229,15 @@ class Roadmap(Base):
     """
     __tablename__ = "roadmaps"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(100), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(
-        UUID(as_uuid=True),
+        String(100),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
     profile_id = Column(
-        UUID(as_uuid=True),
+        String(100),
         ForeignKey("profiles.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
@@ -227,15 +276,15 @@ class Progress(Base):
     """
     __tablename__ = "progress"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(100), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(
-        UUID(as_uuid=True),
+        String(100),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
     roadmap_id = Column(
-        UUID(as_uuid=True),
+        String(100),
         ForeignKey("roadmaps.id", ondelete="CASCADE"),
         nullable=False,
         index=True,

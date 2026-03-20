@@ -1,0 +1,44 @@
+{
+  "theme_name": "Data Quantum Corporate",
+  "palette": {
+    "navy": "#012061",
+    "green": "#00CC66",
+    "orange": "#F97316",
+    "light_bg": "#F8F9FA",
+    "white": "#FFFFFF",
+    "text_secondary": "#6B7280",
+    "text_primary": "#0F172A"
+  },
+  "typography": {
+    "font_family": "Calibri",
+    "cover_title_pt": 44,
+    "cover_kicker_pt": 20,
+    "slide_title_pt": 30,
+    "subtitle_pt": 20,
+    "body_pt": 18,
+    "footer_pt": 10
+  },
+  "spacing": {
+    "margin_left_in": 0.7,
+    "margin_right_in": 0.7,
+    "margin_top_in": 0.4,
+    "margin_bottom_in": 0.35,
+    "title_bar_height_in": 0.2,
+    "footer_height_in": 0.25
+  },
+  "limits": {
+    "max_bullets_per_slide": 6,
+    "max_chars_per_bullet": 110
+  },
+  "structure": {
+    "module_size": 3
+  },
+  "layout_order": [
+    "cover",
+    "agenda",
+    "section-divider",
+    "content-bullets",
+    "content-two-columns",
+    "closing"
+  ]
+}

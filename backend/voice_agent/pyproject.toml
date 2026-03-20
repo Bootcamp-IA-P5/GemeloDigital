@@ -1,0 +1,14 @@
+[project]
+name = "datum-voice-agent"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "livekit-agents[bey,openai]>=1.4.5",
+    "livekit-plugins-cartesia>=1.4.5",
+    "livekit-plugins-deepgram>=1.4.5",
+    "livekit-plugins-openai>=1.4.5",
+    "livekit-plugins-silero>=1.4.5",
+    "python-dotenv>=1.0.0",
+    "sqlalchemy>=2.0.0",
+    "psycopg2-binary>=2.9.0",
+]

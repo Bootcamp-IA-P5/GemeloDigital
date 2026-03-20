@@ -4,7 +4,7 @@
 # Multi-stage: instala deps del sistema + Python deps + app
 # ============================================================
 
-FROM python:3.13-slim
+FROM python:3.11-slim
 
 # No generar .pyc y mostrar prints al instante
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -16,6 +16,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libpq-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # ── Dependencias Python ──────────────────────

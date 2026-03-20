@@ -87,6 +87,81 @@ def index_courses():
     else:
         print("[WARNING] No documents found to index.")
 
+
+def reindex_course(course: dict) -> dict:
+    """
+    Re-indexa un solo curso en ChromaDB.
+    Se invoca cuando el admin edita un curso desde el panel.
+
+    Args:
+        course: dict con los campos del curso (id, title, description,
+                competencies, level, url, etc.)
+
+    Returns:
+        dict con {"status": "ok", "course_id": ...}
+        o {"status": "error", "detail": ...}
+    """
+    try:
+        course_id = course.get("id", "unknown_id")
+        title = course.get("title", "")
+        description = course.get("description", "")
+        level = course.get("level", "beginner")
+        competencies = course.get("competencies", [])
+        competencies_str = ", ".join(competencies)
+
+        # Misma lógica de text_to_embed que index_courses()
+        text_to_embed = f"Title: {title}. Description: {description}. Competencies: {competencies_str}. Level: {level}."
+
+        # Calcular embedding
+        embedding = embedding_model.encode([text_to_embed]).tolist()
+
+        # Upsert en ChromaDB (actualiza si existe, inserta si no)
+        collection.upsert(
+            ids=[course_id],
+            documents=[text_to_embed],
+            embeddings=embedding,
+            metadatas=[{
+                "title": title,
+                "level": level,
+                "competencies": competencies_str,
+                "url": course.get("url", "")
+            }]
+        )
+
+        print(f"[SUCCESS] Curso '{course_id}' re-indexado correctamente.")
+        return {"status": "ok", "course_id": course_id}
+
+    except Exception as e:
+        print(f"[ERROR] Fallo al re-indexar curso: {e}")
+        return {"status": "error", "detail": str(e)}
+
+
+def delete_course_embedding(course_id: str) -> dict:
+    """
+    Elimina el embedding de un curso de ChromaDB.
+    Se invoca cuando el admin elimina un curso del catálogo.
+
+    Args:
+        course_id: ID del curso a eliminar.
+
+    Returns:
+        dict con {"status": "ok"} o {"status": "error", "detail": ...}
+    """
+    try:
+        # Verificar que existe antes de intentar eliminar
+        existing = collection.get(ids=[course_id])
+        if not existing["ids"]:
+            return {"status": "ok", "detail": f"Curso '{course_id}' no existía en ChromaDB (noop)."}
+
+        collection.delete(ids=[course_id])
+        print(f"[SUCCESS] Embedding del curso '{course_id}' eliminado de ChromaDB.")
+        return {"status": "ok", "course_id": course_id}
+
+    except Exception as e:
+        print(f"[ERROR] Fallo al eliminar embedding: {e}")
+        return {"status": "error", "detail": str(e)}
+
+
 if __name__ == "__main__":
     index_courses()
     

@@ -16,26 +16,31 @@ client = chromadb.PersistentClient(path=CHROMA_DB_DIR)
 # Access the indexed collection
 collection = client.get_or_create_collection(name="courses_collection")
 
-def retrieve_relevant_courses(competency_profile: dict, top_k: int = 5) -> list:
+def retrieve_relevant_courses(competency_profile: dict, top_k: int = 5, gaps: list = None) -> list:
     """
-    Analyzes the competency profile gaps and searches for the most relevant
+    Analyzes the competency profile and prioritized gaps to search for the most relevant
     courses in the vector database.
     """
     
-    # A) Extract competencies with "low" (bajo) level or significant score gaps
-    # This is where we decide WHAT to search for.
-    gaps = []
-    competencies = competency_profile.get("competencies", [])
-    
-    for comp in competencies:
-        if comp.get("level") == "bajo" or comp.get("score", 1.0) < 0.5:
-            gaps.append(comp.get("name", ""))
-    
-    if not gaps:
-        search_query = "general professional development and soft skills"
+    # A) Build the search query
+    # Priority 1: Use the gaps calculated by the Gap Analyzer node (if available)
+    if gaps:
+        gap_names = [g.get("name", "") if isinstance(g, dict) else str(g) for g in gaps]
+        search_query = f"Courses focusing on these specific competency gaps: {', '.join(gap_names)}"
+        print(f"[INFO] Using Prioritized Gaps for RAG: {gap_names}")
     else:
-        # Create a semantic query combining the identified gaps
-        search_query = f"Courses focusing on: {', '.join(gaps)}"
+        # Priority 2: Fallback to basic profile analysis
+        internal_gaps = []
+        competencies = competency_profile.get("competencies", [])
+        for comp in competencies:
+            if comp.get("level") == "bajo" or comp.get("score", 1.0) < 0.5:
+                internal_gaps.append(comp.get("name", ""))
+        
+        if not internal_gaps:
+            search_query = "general professional development and soft skills"
+        else:
+            search_query = f"Courses focusing on: {', '.join(internal_gaps)}"
+        print(f"[INFO] Using Fallback Profile Analysis for RAG.")
     
     print(f"[INFO] Semantic Query: '{search_query}'")
 
@@ -80,7 +85,9 @@ if __name__ == "__main__":
     print("          TESTING RAG RETRIEVER IN CONSOLE        ")
     print("--------------------------------------------------")
     
-    matches = retrieve_relevant_courses(mock_profile)
+    # Test with gaps
+    mock_gaps = [{"name": "Advanced Python"}, {"name": "Data Architecture"}]
+    matches = retrieve_relevant_courses(mock_profile, gaps=mock_gaps)
     
     print(f"\n[SUCCESS] Found {len(matches)} relevant courses:")
     for match in matches:

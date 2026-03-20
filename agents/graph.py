@@ -14,9 +14,12 @@ from agents.state import AgentState
 
 # Import our specialized modules
 from agents.nodes.profiling_node import generate_cognitive_profile
-from agents.nodes.planning_node import generate_roadmap
-from agents.nodes.explanatory_node import generate_detailed_explanations
+from agents.nodes.gap_analyzer_node import calculate_gaps
 from agents.rag.retriever import retrieve_relevant_courses
+from agents.nodes.planning_node import generate_roadmap
+from agents.nodes.validation_node import validate_roadmap
+from agents.nodes.explanatory_node import generate_detailed_explanations
+from agents.nodes.ml_prediction_node import predict_trajectory
 
 # ==========================================
 # 1. NODE DEFINITIONS (The Workers)
@@ -29,8 +32,8 @@ def profiling_node(state: AgentState):
     print("\n--- [NODE] Profiling Agent ---")
     
     profile_dict = generate_cognitive_profile(
-        user_answers_json=state["raw_answers"],
-        original_user_id=state["user_id"]
+        user_answers_json=state.get("raw_answers", "{}"),
+        original_user_id=state.get("user_id", "usr_unknown")
     )
     
     # Simple External Guardrail: Check if the LLM returned an error
@@ -42,6 +45,29 @@ def profiling_node(state: AgentState):
     
     return {
         "competency_profile": profile_dict,
+        "next_step": "gap"
+    }
+
+def gap_analyzer_node(state: AgentState):
+    """
+    Invokes the Gap Analyzer to compare profile vs target role.
+    """
+    print("\n--- [NODE] Gap Analyzer ---")
+    
+    if not state.get("competency_profile"):
+        return {"errors": ["No competency profile found to analyze gaps."]}
+        
+    gaps_result = calculate_gaps(
+        competency_profile_dict=state["competency_profile"],
+        user_answers_json=state["raw_answers"],
+        original_user_id=state["user_id"]
+    )
+    
+    if "error" in gaps_result:
+        return {"errors": [f"Gap Analysis Error: {gaps_result['error']}"]}
+        
+    return {
+        "prioritized_gaps": gaps_result.get("prioritized_gaps", []),
         "next_step": "retrieve"
     }
 
@@ -51,10 +77,13 @@ def retrieval_node(state: AgentState):
     """
     print("\n--- [NODE] RAG Retrieval ---")
     
-    if not state["competency_profile"]:
+    if not state.get("competency_profile"):
         return {"errors": ["No competency profile found to perform retrieval."]}
     
-    courses = retrieve_relevant_courses(state["competency_profile"])
+    courses = retrieve_relevant_courses(
+        competency_profile=state.get("competency_profile", {}),
+        gaps=state.get("prioritized_gaps", [])
+    )
     
     return {
         "retrieved_courses": courses,
@@ -67,20 +96,51 @@ def planning_node(state: AgentState):
     """
     print("\n--- [NODE] Planning Agent ---")
     
-    if not state["competency_profile"] or not state["retrieved_courses"]:
-        return {"errors": ["Missing profile or courses to design roadmap."]}
+    if not state.get("competency_profile") or not state.get("retrieved_courses"):
+        return {"errors": ["Missing profile or courses to design roadmap."], "next_step": "end"}
     
     roadmap_dict = generate_roadmap(
-        competency_profile=state["competency_profile"],
-        retrieved_courses=state["retrieved_courses"]
+        competency_profile=state.get("competency_profile"),
+        retrieved_courses=state.get("retrieved_courses")
     )
     
     if "error" in roadmap_dict:
-        return {"errors": [f"Planning Error: {roadmap_dict['error']}"]}
+        return {"errors": [f"Planning Error: {roadmap_dict['error']}"], "next_step": "end"}
         
     return {
         "roadmap": roadmap_dict,
-        "next_step": "explain" 
+        "next_step": "validate" 
+    }
+
+def validation_node(state: AgentState):
+    """
+    Audits the generated roadmap. If invalid, allows 1 retry then proceeds.
+    """
+    print("\n--- [NODE] Validation Agent ---")
+
+    prior_feedback = state.get("validation_feedback", [])
+    if len(prior_feedback) > 0:
+        print(f"[Validation] Already retried once ({len(prior_feedback)} feedback items). Proceeding with current roadmap.")
+        return {"next_step": "explain"}
+    
+    if not state.get("roadmap") or not state.get("competency_profile"):
+        return {"errors": ["Missing roadmap or profile for validation."], "next_step": "end"}
+        
+    validation_result = validate_roadmap(
+        roadmap_dict=state["roadmap"],
+        competency_profile_dict=state["competency_profile"]
+    )
+    
+    if "error" in validation_result:
+        print("[Validation] LLM validation failed, proceeding with current roadmap.")
+        return {"next_step": "explain"}
+        
+    is_valid = validation_result.get("is_valid", False)
+    feedback = validation_result.get("feedback", [])
+    
+    return {
+        "validation_feedback": feedback,
+        "next_step": "explain" if is_valid else "plan"
     }
 
 def explanatory_node(state: AgentState):
@@ -89,19 +149,37 @@ def explanatory_node(state: AgentState):
     """
     print("\n--- [NODE] Explanatory Agent ---")
     
-    if not state["competency_profile"] or not state["roadmap"]:
-        return {"errors": ["Missing profile or roadmap to generate explanations."]}
+    if not state.get("competency_profile") or not state.get("roadmap"):
+        print("[Explanatory] Missing data, skipping explanations.")
+        return {"next_step": "ml_predict"}
     
     final_roadmap = generate_detailed_explanations(
-        competency_profile=state["competency_profile"],
-        roadmap_dict=state["roadmap"]
+        competency_profile=state.get("competency_profile"),
+        roadmap_dict=state.get("roadmap")
     )
     
     if "error" in final_roadmap:
-        return {"errors": [f"Explanation Error: {final_roadmap['error']}"]}
+        print("[Explanatory] LLM failed, keeping existing roadmap explanations.")
+        return {"next_step": "ml_predict"}
         
     return {
         "roadmap": final_roadmap,
+        "next_step": "ml_predict"
+    }
+
+def ml_predict_node(state: AgentState):
+    """
+    Assigns the optimal trajectory classification (A/B) to the state.
+    """
+    print("\n--- [NODE] ML Predictor ---")
+    
+    if not state.get("competency_profile"):
+        return {"errors": ["Missing profile for ML prediction."]}
+        
+    prediction_result = predict_trajectory(state["competency_profile"])
+    
+    return {
+        "ml_prediction": prediction_result.get("ml_prediction", "A"),
         "next_step": "end"
     }
 
@@ -114,18 +192,43 @@ workflow = StateGraph(AgentState)
 
 # Add our nodes to the graph
 workflow.add_node("profiler", profiling_node)
+workflow.add_node("gap_analyzer", gap_analyzer_node)
 workflow.add_node("retriever", retrieval_node)
 workflow.add_node("planner", planning_node)
+workflow.add_node("validator", validation_node)
 workflow.add_node("explainer", explanatory_node)
+workflow.add_node("ml_predictor", ml_predict_node)
 
 # Define the flow (Edges)
 workflow.set_entry_point("profiler")
 
-# Logic to choose next step or end
-workflow.add_edge("profiler", "retriever")
+# Conditional Router Function
+def route_next_step(state: AgentState):
+    step = state.get("next_step")
+    if state.get("errors") and step == "end":
+        return "end"
+    if step is None or step == "end":
+        return "end"
+    return str(step)
+
+workflow.add_edge("profiler", "gap_analyzer")
+workflow.add_edge("gap_analyzer", "retriever")
 workflow.add_edge("retriever", "planner")
-workflow.add_edge("planner", "explainer")
-workflow.add_edge("explainer", END)
+workflow.add_edge("planner", "validator")
+
+# Conditional Edge from Validator
+workflow.add_conditional_edges(
+    "validator",
+    route_next_step,
+    {
+        "plan": "planner",
+        "explain": "explainer",
+        "end": END
+    }
+)
+
+workflow.add_edge("explainer", "ml_predictor")
+workflow.add_edge("ml_predictor", END)
 
 # Compile the graph
 app = workflow.compile()
