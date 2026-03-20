@@ -1,265 +1,333 @@
 [
     {
-        "id": "crs-py-101",
-        "title": "Programación en Python para Principiantes",
-        "description": "Aprende los fundamentos absolutos de la programación usando Python. Desde variables y bucles hasta funciones básicas.",
+        "id": "crs-real-001",
+        "title": "Metodologías Ágiles",
+        "description": "Trabajo iterativo e incremental utilizando frameworks como Scrum o Kanban. Módulos: 1. El Manifiesto Ágil. 2. Scrum. 3. Kanban. 4. Escalado Ágil. 5. Mejora Continua.",
         "competencies": [
-            "python",
-            "programming-fundamentals"
+            "leadership",
+            "communication",
+            "agile"
         ],
         "level": "beginner",
-        "duration_hours": 15,
-        "url": "https://example.com/python-101",
+        "duration_hours": 10,
+        "url": "/presentations/agile-methodologies.pptx",
         "trajectory_affinity": "generalist"
     },
     {
-        "id": "crs-data-201",
-        "title": "Análisis de Datos con Pandas y SQL",
-        "description": "Domina la extracción y limpieza de datos estructurados para tomar decisiones de negocio fundamentadas.",
+        "id": "crs-real-002",
+        "title": "Integración y Entrega Continua (CI/CD)",
+        "description": "Automatización de pipelines de construcción, testing y despliegue de código. Módulos: 1. Fundamentos de CI/CD. 2. GitHub Actions. 3. GitLab CI/CD. 4. Estrategias de Despliegue. 5. CI/CD para Contenedores.",
         "competencies": [
-            "python",
-            "sql",
-            "data-analysis"
+            "devops",
+            "cloud",
+            "programming-fundamentals"
         ],
         "level": "intermediate",
-        "duration_hours": 25,
-        "url": "https://example.com/data-analysis",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "crs-ml-301",
-        "title": "Machine Learning Avanzado y Redes Neuronales",
-        "description": "Adéntrate en el entrenamiento de modelos complejos de IA. Requiere fuerte base estadística y programación previa.",
-        "competencies": [
-            "python",
-            "machine-learning",
-            "statistics"
-        ],
-        "level": "advanced",
-        "duration_hours": 40,
-        "url": "https://example.com/ml-advanced",
+        "duration_hours": 15,
+        "url": "/presentations/ci-cd.pptx",
         "trajectory_affinity": "specialist"
     },
     {
-        "id": "crs-soft-101",
-        "title": "Comunicación Efectiva para Perfiles Técnicos",
-        "description": "Aprende a traducir problemas de código complejos a lenguaje de negocio para hablar con managers y clientes.",
+        "id": "crs-real-003",
+        "title": "Infraestructura Cloud",
+        "description": "Diseño y gestión de recursos en proveedores como AWS, GCP o Azure. Módulos: 1. Fundamentos Cloud. 2. AWS Esencial. 3. Infrastructure as Code. 4. Optimización de Costes. 5. Seguridad en la Nube.",
+        "competencies": [
+            "cloud",
+            "system-design"
+        ],
+        "level": "intermediate",
+        "duration_hours": 25,
+        "url": "/presentations/cloud-infrastructure.pptx",
+        "trajectory_affinity": "specialist"
+    },
+    {
+        "id": "crs-real-004",
+        "title": "Comunicación Efectiva",
+        "description": "Capacidad para transmitir ideas técnicas de forma clara a audiencias diversas. Módulos: 1. Fundamentos de Comunicación. 2. Comunicación Técnica. 3. Presentaciones de Alto Impacto. 4. Comunicación Escrita. 5. Comunicación en Equipos Ágiles.",
         "competencies": [
             "communication"
         ],
         "level": "beginner",
         "duration_hours": 8,
-        "url": "https://example.com/tech-communication",
+        "url": "/presentations/communication.pptx",
         "trajectory_affinity": "both"
     },
     {
-        "id": "crs-sql-101",
-        "title": "SQL desde Cero: Consultas y Bases de Datos Relacionales",
-        "description": "Aprende a crear, consultar y manipular bases de datos relacionales con SQL. Ideal para perfiles que necesitan extraer información de sistemas empresariales.",
+        "id": "crs-real-005",
+        "title": "Docker y Kubernetes",
+        "description": "Contenerización de aplicaciones y orquestación de despliegues escalables. Módulos: 1. Docker Fundamentos. 2. Kubernetes Fundamentos. 3. Kubernetes Avanzado. 4. Helm y GitOps. 5. Observabilidad.",
         "competencies": [
-            "sql",
-            "data-analysis"
+            "devops",
+            "programming-fundamentals"
         ],
-        "level": "beginner",
+        "level": "advanced",
         "duration_hours": 12,
-        "url": "https://example.com/sql-101",
+        "url": "/presentations/containerization.pptx",
+        "trajectory_affinity": "specialist"
+    },
+    {
+        "id": "crs-real-006",
+        "title": "Análisis de Datos",
+        "description": "Habilidad para extraer, limpiar y analizar datos para la toma de decisiones. Módulos: 1. Ciclo del Análisis de Datos. 2. Pandas y NumPy. 3. Estadística Aplicada. 4. Análisis con SQL. 5. Proyecto de Análisis.",
+        "competencies": [
+            "data-analysis",
+            "python",
+            "sql"
+        ],
+        "level": "intermediate",
+        "duration_hours": 20,
+        "url": "/presentations/data-analysis.pptx",
         "trajectory_affinity": "generalist"
     },
     {
-        "id": "crs-viz-201",
-        "title": "Visualización de Datos con Power BI y Tableau",
-        "description": "Diseña dashboards interactivos y reportes ejecutivos. Transforma datos crudos en narrativas visuales claras para la toma de decisiones.",
+        "id": "crs-real-007",
+        "title": "Ingeniería de Datos",
+        "description": "Construcción y mantenimiento de pipelines de datos y arquitecturas ETL/ELT. Módulos: 1. Fundamentos de Ingeniería de Datos. 2. Apache Airflow. 3. dbt (Data Build Tool). 4. Apache Spark. 5. Arquitecturas Cloud de Datos.",
+        "competencies": [
+            "data-engineering",
+            "system-design",
+            "cloud"
+        ],
+        "level": "advanced",
+        "duration_hours": 30,
+        "url": "/presentations/data-engineering.pptx",
+        "trajectory_affinity": "specialist"
+    },
+    {
+        "id": "crs-real-008",
+        "title": "Estrategia de Datos",
+        "description": "Definición de una visión de datos que alinee tecnología y negocio para la toma de decisiones. Módulos: 1. Fundamentos de Estrategia de Datos. 2. Gobernanza de Datos. 3. Arquitectura de Datos Empresarial. 4. Cultura de Datos. 5. ROI de los Datos.",
+        "competencies": [
+            "leadership",
+            "data-governance"
+        ],
+        "level": "advanced",
+        "duration_hours": 15,
+        "url": "/presentations/data-strategy.pptx",
+        "trajectory_affinity": "generalist"
+    },
+    {
+        "id": "crs-real-009",
+        "title": "Visualización de Datos",
+        "description": "Creación de dashboards y gráficos interactivos para comunicar insights de negocio. Módulos: 1. Principios de Visualización. 2. Python para Visualización. 3. Power BI. 4. Tableau. 5. Proyecto de Dashboard.",
         "competencies": [
             "data-analysis",
             "communication"
         ],
         "level": "intermediate",
-        "duration_hours": 20,
-        "url": "https://example.com/dataviz-201",
-        "trajectory_affinity": "generalist"
+        "duration_hours": 10,
+        "url": "/presentations/data-visualization.pptx",
+        "trajectory_affinity": "both"
     },
     {
-        "id": "crs-stat-201",
-        "title": "Estadística Aplicada para Ciencia de Datos",
-        "description": "Domina los fundamentos estadísticos necesarios para modelado predictivo: distribuciones, test de hipótesis, regresión y análisis multivariante.",
+        "id": "crs-real-010",
+        "title": "Control de Versiones (Git)",
+        "description": "Gestión del código fuente, branching, merging y colaboración en repositorios. Módulos: 1. Git Fundamentos. 2. Branching y Merging. 3. Colaboración Remota. 4. Estrategias de Branching. 5. Git Avanzado y CI/CD.",
         "competencies": [
-            "statistics",
-            "data-analysis"
-        ],
-        "level": "intermediate",
-        "duration_hours": 30,
-        "url": "https://example.com/statistics-201",
-        "trajectory_affinity": "specialist"
-    },
-    {
-        "id": "crs-cloud-201",
-        "title": "Despliegue en la Nube con AWS y Docker",
-        "description": "Aprende a desplegar aplicaciones y modelos de ML en la nube. Contenedores Docker, servicios AWS (EC2, S3, Lambda) y CI/CD básico.",
-        "competencies": [
-            "cloud",
+            "programming-fundamentals",
             "devops"
         ],
+        "level": "beginner",
+        "duration_hours": 8,
+        "url": "/presentations/git.pptx",
+        "trajectory_affinity": "both"
+    },
+    {
+        "id": "crs-real-011",
+        "title": "Java",
+        "description": "Desarrollo de aplicaciones empresariales robustas orientadas a objetos. Módulos: 1. Java Fundamentos. 2. Spring Boot. 3. Persistencia con JPA. 4. Testing en Java. 5. Microservicios con Java.",
+        "competencies": [
+            "programming-fundamentals",
+            "system-design"
+        ],
         "level": "intermediate",
-        "duration_hours": 30,
-        "url": "https://example.com/cloud-201",
+        "duration_hours": 40,
+        "url": "/presentations/java.pptx",
         "trajectory_affinity": "specialist"
     },
     {
-        "id": "crs-etl-201",
-        "title": "Pipelines de Datos y ETL con Python",
-        "description": "Diseña pipelines de extracción, transformación y carga de datos. Automatiza flujos de datos desde múltiples fuentes hacia data warehouses.",
+        "id": "crs-real-012",
+        "title": "JavaScript / TypeScript",
+        "description": "Desarrollo de aplicaciones web frontend y backend utilizando el ecosistema JS. Módulos: 1. JavaScript Moderno (ES6+). 2. TypeScript. 3. React y Frontend. 4. Node.js y Backend. 5. Testing y Deploy.",
         "competencies": [
-            "python",
-            "data-engineering"
+            "programming-fundamentals",
+            "web-development"
         ],
         "level": "intermediate",
         "duration_hours": 25,
-        "url": "https://example.com/etl-201",
+        "url": "/presentations/javascript.pptx",
         "trajectory_affinity": "specialist"
     },
     {
-        "id": "crs-nlp-301",
-        "title": "Procesamiento de Lenguaje Natural y LLMs",
-        "description": "Explora técnicas de NLP clásicas y modernas: tokenización, embeddings, transformers, GPT y aplicaciones de IA generativa.",
-        "competencies": [
-            "machine-learning",
-            "gen-ai",
-            "python"
-        ],
-        "level": "advanced",
-        "duration_hours": 35,
-        "url": "https://example.com/nlp-301",
-        "trajectory_affinity": "specialist"
-    },
-    {
-        "id": "crs-lead-101",
-        "title": "Liderazgo de Equipos Técnicos",
-        "description": "Desarrolla habilidades para liderar equipos de desarrollo y datos. Gestión ágil, feedback constructivo y comunicación con stakeholders.",
+        "id": "crs-real-013",
+        "title": "Liderazgo Técnico",
+        "description": "Guiar equipos técnicos, tomar decisiones de arquitectura y mentorizar desarrolladores. Módulos: 1. El Rol del Tech Lead. 2. Toma de Decisiones Técnicas. 3. Mentoring y Desarrollo de Equipo. 4. Gestión de la Deuda Técnica. 5. Liderazgo en Crisis.",
         "competencies": [
             "leadership",
             "communication"
         ],
-        "level": "beginner",
-        "duration_hours": 10,
-        "url": "https://example.com/tech-leadership",
-        "trajectory_affinity": "both"
-    },
-    {
-        "id": "crs-ia-101",
-        "title": "Introducción a la Inteligencia Artificial",
-        "description": "Curso introductorio que sienta las bases de la IA y la analítica de datos para profesionales sin experiencia técnica previa.",
-        "competencies": [
-            "machine-learning",
-            "data-analysis"
-        ],
-        "level": "beginner",
-        "duration_hours": 8,
-        "url": "https://example.com/ia-intro",
+        "level": "advanced",
+        "duration_hours": 15,
+        "url": "/presentations/leadership.pptx",
         "trajectory_affinity": "generalist"
     },
     {
-        "id": "crs-sec-201",
-        "title": "Ciberseguridad para Profesionales de Datos",
-        "description": "Protección de infraestructuras de datos, detección de amenazas, cumplimiento normativo (RGPD) y buenas prácticas de seguridad en entornos cloud.",
+        "id": "crs-real-014",
+        "title": "Machine Learning",
+        "description": "Entrenamiento, evaluación y despliegue de modelos predictivos y algoritmos de IA. Módulos: 1. Fundamentos de ML. 2. Aprendizaje Supervisado. 3. Aprendizaje No Supervisado. 4. Deep Learning. 5. MLOps y Producción.",
         "competencies": [
-            "cybersecurity",
-            "cloud"
+            "machine-learning",
+            "python",
+            "statistics"
         ],
-        "level": "intermediate",
-        "duration_hours": 20,
-        "url": "https://example.com/cybersecurity-201",
+        "level": "advanced",
+        "duration_hours": 35,
+        "url": "/presentations/machine-learning.pptx",
         "trajectory_affinity": "specialist"
     },
     {
-        "id": "crs-mkt-201",
-        "title": "Marketing Digital basado en Datos e IA",
-        "description": "Uso de analítica avanzada y herramientas de IA para segmentación de audiencias, personalización de campañas y optimización de conversiones.",
+        "id": "crs-real-015",
+        "title": "Bases de Datos NoSQL",
+        "description": "Modelado y manejo de bases de datos documentales, clave-valor o de grafos. Módulos: 1. Introducción a NoSQL. 2. MongoDB (Documental). 3. Redis (Clave-Valor). 4. Cassandra (Columnar). 5. Neo4j (Grafos).",
         "competencies": [
-            "digital-marketing",
-            "data-analysis"
+            "data-engineering",
+            "cloud",
+            "system-design"
         ],
         "level": "intermediate",
-        "duration_hours": 18,
-        "url": "https://example.com/marketing-ia",
-        "trajectory_affinity": "generalist"
+        "duration_hours": 20,
+        "url": "/presentations/nosql.pptx",
+        "trajectory_affinity": "specialist"
     },
     {
-        "id": "crs-gov-201",
-        "title": "Gobernanza de Datos y Ética de la IA",
-        "description": "Marcos de gobernanza de datos, calidad, trazabilidad, cumplimiento RGPD y EU AI Act. Ética aplicada a sistemas de IA.",
+        "id": "crs-real-016",
+        "title": "Resolución de Problemas",
+        "description": "Pensamiento analítico para descomponer retos complejos y encontrar soluciones lógicas. Módulos: 1. Pensamiento Analítico. 2. Frameworks de Resolución. 3. Toma de Decisiones. 4. Creatividad e Innovación. 5. Resolución en Contexto Técnico.",
         "competencies": [
-            "data-governance",
-            "critical-thinking"
+            "critical-thinking",
+            "system-design"
         ],
-        "level": "intermediate",
-        "duration_hours": 15,
-        "url": "https://example.com/data-governance",
+        "level": "beginner",
+        "duration_hours": 12,
+        "url": "/presentations/problem-solving.pptx",
         "trajectory_affinity": "both"
     },
     {
-        "id": "crs-prompt-201",
-        "title": "Prompt Engineering y Aplicaciones con LLMs",
-        "description": "Técnicas de prompting avanzado, RAG, agentes de IA y desarrollo de aplicaciones empresariales con modelos de lenguaje.",
+        "id": "crs-real-017",
+        "title": "Product Management",
+        "description": "Definición de visión, roadmap y priorización de producto orientado al usuario. Módulos: 1. Fundamentos de Product Management. 2. Estrategia de Producto. 3. Discovery y User Research. 4. Priorización. 5. Métricas de Producto.",
         "competencies": [
-            "gen-ai",
+            "leadership",
+            "communication",
+            "critical-thinking"
+        ],
+        "level": "advanced",
+        "duration_hours": 25,
+        "url": "/presentations/product-management.pptx",
+        "trajectory_affinity": "generalist"
+    },
+    {
+        "id": "crs-real-018",
+        "title": "Fundamentos de Programación",
+        "description": "Lógica algorítmica y estructuras de datos básicas. Módulos: 1. Pensamiento Computacional. 2. Estructuras de Datos. 3. Complejidad Algorítmica. 4. Paradigmas de Programación. 5. Proyecto Final.",
+        "competencies": [
+            "programming-fundamentals"
+        ],
+        "level": "beginner",
+        "duration_hours": 15,
+        "url": "/presentations/programming-fundamentals.pptx",
+        "trajectory_affinity": "both"
+    },
+    {
+        "id": "crs-real-019",
+        "title": "Python",
+        "description": "Capacidad para escribir, probar y mantener código en Python. Módulos: 1. Fundamentos de Python. 2. Programación Orientada a Objetos. 3. Librerías Esenciales. 4. Testing en Python. 5. Python para Datos y Automatización.",
+        "competencies": [
+            "python",
             "programming-fundamentals"
         ],
         "level": "intermediate",
-        "duration_hours": 20,
-        "url": "https://example.com/prompt-engineering",
-        "trajectory_affinity": "both"
-    },
-    {
-        "id": "crs-scrum-101",
-        "title": "Gestión Ágil de Proyectos de IA",
-        "description": "Metodologías ágiles aplicadas a proyectos de datos e IA. Scrum, Kanban y gestión del ciclo de vida de modelos de ML.",
-        "competencies": [
-            "leadership",
-            "critical-thinking"
-        ],
-        "level": "beginner",
-        "duration_hours": 10,
-        "url": "https://example.com/agile-ia",
-        "trajectory_affinity": "generalist"
-    },
-    {
-        "id": "crs-dl-301",
-        "title": "Deep Learning Aplicado con TensorFlow y PyTorch",
-        "description": "Redes neuronales profundas para visión por computador, series temporales y generación de contenido. Prácticas con GPU.",
-        "competencies": [
-            "machine-learning",
-            "python"
-        ],
-        "level": "advanced",
-        "duration_hours": 45,
-        "url": "https://example.com/deep-learning",
+        "duration_hours": 30,
+        "url": "/presentations/python.pptx",
         "trajectory_affinity": "specialist"
     },
     {
-        "id": "crs-hr-201",
-        "title": "Recursos Humanos e IA: Selección y Talento",
-        "description": "Aplicación de IA en procesos de selección, evaluación del desempeño, gestión del talento y análisis de clima laboral.",
+        "id": "crs-real-020",
+        "title": "Bases de Datos SQL",
+        "description": "Diseño de esquemas, consultas complejas y optimización de bases de datos relacionales. Módulos: 1. Fundamentos de SQL. 2. Diseño de Bases de Datos. 3. SQL Avanzado. 4. Optimización. 5. SQL en Producción.",
         "competencies": [
-            "hr-ai",
+            "sql",
             "data-analysis"
         ],
         "level": "intermediate",
-        "duration_hours": 15,
-        "url": "https://example.com/hr-ia",
+        "duration_hours": 20,
+        "url": "/presentations/sql.pptx",
         "trajectory_affinity": "generalist"
     },
     {
-        "id": "crs-strategy-301",
-        "title": "Estrategia de IA para Directivos",
-        "description": "Diseño e implementación de estrategias de IA a nivel organizacional. Casos de uso de alto impacto, madurez en IA y liderazgo de programas de innovación.",
+        "id": "crs-real-021",
+        "title": "Estadística y Probabilidad",
+        "description": "Fundamentos matemáticos para modelar incertidumbre y validar hipótesis de datos. Módulos: 1. Estadística Descriptiva. 2. Probabilidad. 3. Inferencia Estadística. 4. Regresión y Correlación. 5. Estadística para ML.",
         "competencies": [
-            "ai-strategy",
-            "leadership",
-            "critical-thinking"
+            "statistics",
+            "data-analysis"
+        ],
+        "level": "beginner",
+        "duration_hours": 30,
+        "url": "/presentations/statistics.pptx",
+        "trajectory_affinity": "both"
+    },
+    {
+        "id": "crs-real-022",
+        "title": "Diseño de Sistemas",
+        "description": "Arquitectura de software, escalabilidad, alta disponibilidad y patrones de diseño. Módulos: 1. Fundamentos de Arquitectura. 2. Escalabilidad y Rendimiento. 3. Alta Disponibilidad. 4. Comunicación entre Servicios. 5. Casos Reales de Diseño.",
+        "competencies": [
+            "system-design",
+            "cloud",
+            "devops"
         ],
         "level": "advanced",
+        "duration_hours": 35,
+        "url": "/presentations/system-design.pptx",
+        "trajectory_affinity": "specialist"
+    },
+    {
+        "id": "crs-real-023",
+        "title": "Testing y Calidad de Software",
+        "description": "Diseño e implementación de pruebas unitarias, de integración y end-to-end. Módulos: 1. Fundamentos del Testing. 2. Tests Unitarios. 3. Tests de Integración. 4. Tests End-to-End. 5. Testing en CI/CD.",
+        "competencies": [
+            "devops",
+            "programming-fundamentals"
+        ],
+        "level": "intermediate",
+        "duration_hours": 15,
+        "url": "/presentations/testing.pptx",
+        "trajectory_affinity": "both"
+    },
+    {
+        "id": "crs-real-024",
+        "title": "UX / Diseño de Producto",
+        "description": "Investigación de usuarios, diseño de flujos y creación de prototipos centrados en la experiencia. Módulos: 1. Fundamentos de UX. 2. User Research. 3. Arquitectura de Información. 4. Diseño de Interfaz (UI). 5. UX Metrics y Testing.",
+        "competencies": [
+            "communication",
+            "web-development"
+        ],
+        "level": "intermediate",
         "duration_hours": 20,
-        "url": "https://example.com/ia-strategy",
+        "url": "/presentations/ux-design.pptx",
+        "trajectory_affinity": "generalist"
+    },
+    {
+        "id": "crs-real-025",
+        "title": "Desarrollo Web (HTML/CSS)",
+        "description": "Creación de la estructura y estilos visuales de interfaces web. Módulos: 1. HTML5 Semántico. 2. CSS3 Fundamentos. 3. Layouts Modernos. 4. CSS Avanzado. 5. Proyecto Web Completo.",
+        "competencies": [
+            "web-development",
+            "programming-fundamentals"
+        ],
+        "level": "beginner",
+        "duration_hours": 30,
+        "url": "/presentations/web-development.pptx",
         "trajectory_affinity": "generalist"
     }
 ]
